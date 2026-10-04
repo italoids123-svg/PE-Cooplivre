@@ -107,10 +107,14 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
   wb.creator = "Mapa Estratégico Cooplivre";
   wb.created = new Date();
 
-  // 1. Resumo por objetivo
+  const enviou = (pid: string) => !!pessoas[pid]?.enviadoEm;
+  const status = (pid: string) => (enviou(pid) ? "Enviada" : "Em andamento");
+
+  // 1. Resumo por objetivo — só revisões enviadas (as finais).
+  const finais = dados.respostas.filter((r) => enviou(r.participanteId));
   const resumo = PILARES.flatMap((p) =>
     [...p.objetivos.filter((o) => o.visivel).map((o) => o.id), geralId(p.slug)].map((oid) => {
-      const rs = dados.respostas.filter((r) => r.objetivoId === oid);
+      const rs = finais.filter((r) => r.objetivoId === oid);
       const cont = Object.fromEntries(AVALIACOES.map((a) => [a, rs.filter((r) => r.avaliacao === a).length])) as Record<Avaliacao, number>;
       const avaliadas = cont.concordo + cont.ajustes + cont.discordo;
       return {
@@ -121,7 +125,7 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
       };
     }),
   );
-  aba(wb, "Resumo por objetivo", [
+  aba(wb, "Resumo (enviadas)", [
     { header: "Nº", key: "ordem", width: 6 },
     { header: "Pilar", key: "pilar", width: 24 },
     { header: "Objetivo", key: "objetivo", width: 55 },
@@ -141,7 +145,7 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
     return {
       ordem: i?.ordem, pilar: i?.pilar ?? r.pilar, objetivo: i?.objetivo ?? r.objetivoId,
       indicadorAtual: i?.indicadores, metaAtual: i?.metas, iniciativasAtuais: i?.iniciativas,
-      nome: p?.nome, cargo: p?.cargo, localidade: p?.localidade,
+      nome: p?.nome, cargo: p?.cargo, localidade: p?.localidade, status: status(r.participanteId),
       avaliacao: rotulo(r.avaliacao), indicador: r.indicador, meta: r.meta, iniciativas: r.iniciativas, comentario: r.comentario,
       edicoes: edicoes[`${r.participanteId}|${r.objetivoId}`] ?? 1,
       criadoEm: dataLocal(r.criadoEm ?? r.atualizadoEm), atualizadoEm: dataLocal(r.atualizadoEm),
@@ -157,6 +161,7 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
     { header: "Nome", key: "nome", width: 24 },
     { header: "Cargo", key: "cargo", width: 22 },
     { header: "Localidade", key: "localidade", width: 16 },
+    { header: "Status da revisão", key: "status", width: 14 },
     { header: "Avaliação", key: "avaliacao", width: 16 },
     { header: "Sugestão p/ indicador", key: "indicador", width: 34 },
     { header: "Sugestão p/ meta", key: "meta", width: 34 },
@@ -194,17 +199,23 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
     { header: "Depois", key: "depois", width: 40 },
   ], hist);
 
-  // 4. Participantes
-  const part = [...dados.participantes].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")).map((p) => {
+  // 4. Participantes (enviadas primeiro)
+  const part = [...dados.participantes].sort((a, b) => Number(!!b.enviadoEm) - Number(!!a.enviadoEm) || a.nome.localeCompare(b.nome, "pt-BR")).map((p) => {
     const rs = dados.respostas.filter((r) => r.participanteId === p.id);
     const ultima = rs.reduce((m, r) => (r.atualizadoEm > m ? r.atualizadoEm : m), p.atualizadoEm);
-    return { nome: p.nome, cargo: p.cargo, localidade: p.localidade, respostas: rs.length, ultima: dataLocal(ultima) };
+    const pilares = PILARES.filter((pl) => pl.objetivos.filter((o) => o.visivel).every((o) => rs.some((r) => r.objetivoId === o.id && r.avaliacao))).length;
+    return {
+      nome: p.nome, cargo: p.cargo, localidade: p.localidade, status: status(p.id),
+      pilares: `${pilares}/${PILARES.length}`, enviadoEm: dataLocal(p.enviadoEm), ultima: dataLocal(ultima),
+    };
   });
   aba(wb, "Participantes", [
     { header: "Nome", key: "nome", width: 28 },
     { header: "Cargo", key: "cargo", width: 26 },
     { header: "Localidade", key: "localidade", width: 18 },
-    { header: "Objetivos respondidos", key: "respostas", width: 12 },
+    { header: "Status da revisão", key: "status", width: 14 },
+    { header: "Pilares salvos", key: "pilares", width: 10 },
+    { header: "Enviada em", key: "enviadoEm", width: 17, data: true },
     { header: "Última atividade", key: "ultima", width: 17, data: true },
   ], part);
 

@@ -83,6 +83,7 @@ export function AdminPage() {
   }
 
   const comResposta = new Set(dados.respostas.map((r) => r.participanteId)).size;
+  const enviadas = dados.participantes.filter((p) => p.enviadoEm).length;
 
   return (
     <div className="pagina">
@@ -98,7 +99,8 @@ export function AdminPage() {
         {erro && <div className="aviso aviso-erro">{erro}</div>}
         <div className="admin-kpis">
           <div><b>{dados.participantes.length}</b><span>identificados</span></div>
-          <div><b>{comResposta}</b><span>com ao menos 1 resposta</span></div>
+          <div><b>{comResposta - enviadas}</b><span>em andamento</span></div>
+          <div className="admin-kpi-destaque"><b>{enviadas}</b><span>revisões enviadas</span></div>
           <div><b>{dados.respostas.length}</b><span>respostas</span></div>
           <div><b>{dados.historico.length}</b><span>envios (com edições)</span></div>
         </div>
@@ -131,6 +133,7 @@ export function AdminPage() {
                           <li key={r.participanteId}>
                             <div className="admin-sug-quem">
                               <b>{pe?.nome ?? "?"}</b> · {pe?.cargo} · {pe?.localidade}
+                              <span className={`chip${pe?.enviadoEm ? " chip-concordo" : ""}`}>{pe?.enviadoEm ? "enviada" : "em andamento"}</span>
                               {r.avaliacao && <span className={`chip chip-${r.avaliacao}`}>{AVALIACAO_LABEL[r.avaliacao]}</span>}
                               {(edicoes[`${r.participanteId}|${r.objetivoId}`] ?? 1) > 1 && (
                                 <span className="chip">editado {edicoes[`${r.participanteId}|${r.objetivoId}`] - 1}×</span>

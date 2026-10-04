@@ -1,71 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import { geralId, type Objetivo, type Pilar } from "@/lib/data";
-import { enviarResposta, gravarRascunho, lerRascunho } from "@/lib/respostas-client";
-import { AVALIACAO_LABEL, AVALIACOES, type Participante, type Resposta, type RespostaRascunho } from "@/lib/types";
+import type { Objetivo, Pilar } from "@/lib/data";
+import { AVALIACAO_LABEL, AVALIACOES, type RespostaRascunho } from "@/lib/types";
 
-const VAZIO: RespostaRascunho = { avaliacao: null, indicador: "", meta: "", iniciativas: "", comentario: "" };
+export const VAZIO: RespostaRascunho = { avaliacao: null, indicador: "", meta: "", iniciativas: "", comentario: "" };
 
-function deResposta(r: Resposta | undefined): RespostaRascunho {
-  if (!r) return VAZIO;
-  return { avaliacao: r.avaliacao, indicador: r.indicador, meta: r.meta, iniciativas: r.iniciativas, comentario: r.comentario };
-}
+export type Mudar = <K extends keyof RespostaRascunho>(k: K, v: RespostaRascunho[K]) => void;
 
-const igual = (a: RespostaRascunho, b: RespostaRascunho) =>
-  a.avaliacao === b.avaliacao && a.indicador === b.indicador && a.meta === b.meta &&
-  a.iniciativas === b.iniciativas && a.comentario === b.comentario;
+const temTexto = (f: RespostaRascunho) => !!(f.indicador.trim() || f.meta.trim() || f.iniciativas.trim() || f.comentario.trim());
 
-const hora = (iso: string) => new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-
-// Estado de edição compartilhado pelos dois tipos de card: rascunho local,
-// comparação com o que está salvo no servidor e envio.
-function useEdicao(participante: Participante, objetivoId: string, salva: Resposta | undefined, onSalvo: (r: Resposta) => void) {
-  const base = deResposta(salva);
-  const [form, setForm] = useState<RespostaRascunho>(() => lerRascunho(participante.id, objetivoId) ?? base);
-  const [enviando, setEnviando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
-  const sujo = !igual(form, base);
-
-  function set<K extends keyof RespostaRascunho>(k: K, v: RespostaRascunho[K]) {
-    setForm((f) => {
-      const novo = { ...f, [k]: v };
-      gravarRascunho(participante.id, objetivoId, igual(novo, base) ? null : novo);
-      return novo;
-    });
-    setErro(null);
-  }
-
-  async function salvar() {
-    setEnviando(true);
-    setErro(null);
-    try {
-      const r = await enviarResposta(participante, objetivoId, form);
-      gravarRascunho(participante.id, objetivoId, null);
-      setForm(deResposta(r));
-      onSalvo(r);
-    } catch (e) {
-      setErro((e as Error).message);
-    } finally {
-      setEnviando(false);
-    }
-  }
-
-  return { form, set, salvar, enviando, erro, sujo };
-}
-
-function Status({ salva, sujo, erro }: { salva?: Resposta; sujo: boolean; erro: string | null }) {
-  if (erro) return <span className="status status-erro" role="alert">{erro}</span>;
-  if (sujo) return <span className="status status-pendente">Alterações não enviadas</span>;
-  if (salva) return <span className="status status-ok">✓ Enviado às {hora(salva.atualizadoEm)}</span>;
+// Mesma regra do servidor (lib/validate.ts): mensagem do que falta, ou null se ok.
+export function problemaDe(f: RespostaRascunho): string | null {
+  if (!f.avaliacao) return "Escolha sua avaliação para este objetivo.";
+  if (f.avaliacao !== "concordo" && !temTexto(f)) return "Descreva o que você mudaria em pelo menos um campo.";
   return null;
 }
 
-function Campo({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+function Campo({ label, value, onChange, placeholder, bloqueado }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder?: string; bloqueado: boolean;
+}) {
   return (
     <label className="campo campo-texto">
       <span>{label}</span>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={2} maxLength={2000} placeholder={placeholder} />
+      <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={2} maxLength={2000} placeholder={placeholder} disabled={bloqueado} />
     </label>
   );
 }
@@ -79,29 +36,22 @@ function EmDefinicao({ rascunho }: { rascunho?: string }) {
   );
 }
 
-export function ObjetivoCard({
-  numero,
-  objetivo,
-  participante,
-  salva,
-  onSalvo,
-}: {
+export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloqueado }: {
   numero: number;
   objetivo: Objetivo;
-  participante: Participante;
-  salva?: Resposta;
-  onSalvo: (r: Resposta) => void;
+  form: RespostaRascunho;
+  mudar: Mudar;
+  problema: string | null;
+  bloqueado: boolean;
 }) {
-  const { form, set, salvar, enviando, erro, sujo } = useEdicao(participante, objetivo.id, salva, onSalvo);
   const temPendencia = objetivo.kpis.some((k) => !k.indicador || !k.meta) || objetivo.iniciativas.length === 0;
   const pedeDetalhe = form.avaliacao === "ajustes" || form.avaliacao === "discordo";
-  const temTexto = !!(form.indicador || form.meta || form.iniciativas || form.comentario);
-  const podeEnviar = !!form.avaliacao && (!pedeDetalhe || temTexto) && (sujo || !salva) && !enviando;
+  const ok = !problemaDe(form);
 
   return (
-    <article className={`obj${salva && !sujo ? " obj-feito" : ""}`} id={objetivo.id}>
+    <article className={`obj${ok ? " obj-feito" : ""}${problema ? " obj-problema" : ""}`} id={objetivo.id}>
       <header className="obj-head">
-        <span className="obj-num">{numero}</span>
+        <span className="obj-num">{ok ? "✓" : numero}</span>
         <h2>{objetivo.titulo}</h2>
       </header>
 
@@ -142,8 +92,9 @@ export function ObjetivoCard({
               type="button"
               role="radio"
               aria-checked={form.avaliacao === a}
+              disabled={bloqueado}
               className={`seg-btn seg-btn-${a}${form.avaliacao === a ? " ativo" : ""}`}
-              onClick={() => set("avaliacao", a)}
+              onClick={() => mudar("avaliacao", a)}
             >
               {AVALIACAO_LABEL[a]}
             </button>
@@ -155,60 +106,42 @@ export function ObjetivoCard({
             {pedeDetalhe ? (
               <>
                 <p className="rev-dica">O que você mudaria? Preencha ao menos um campo.</p>
-                <Campo label="Sugestão para o indicador" value={form.indicador} onChange={(v) => set("indicador", v)} />
-                <Campo label="Sugestão para a meta" value={form.meta} onChange={(v) => set("meta", v)} />
-                <Campo label="Sugestão para as iniciativas" value={form.iniciativas} onChange={(v) => set("iniciativas", v)} />
-                <Campo label="Comentário geral" value={form.comentario} onChange={(v) => set("comentario", v)} />
+                <Campo label="Sugestão para o indicador" value={form.indicador} onChange={(v) => mudar("indicador", v)} bloqueado={bloqueado} />
+                <Campo label="Sugestão para a meta" value={form.meta} onChange={(v) => mudar("meta", v)} bloqueado={bloqueado} />
+                <Campo label="Sugestão para as iniciativas" value={form.iniciativas} onChange={(v) => mudar("iniciativas", v)} bloqueado={bloqueado} />
+                <Campo label="Comentário geral" value={form.comentario} onChange={(v) => mudar("comentario", v)} bloqueado={bloqueado} />
               </>
             ) : (
-              <Campo label="Comentário (opcional)" value={form.comentario} onChange={(v) => set("comentario", v)} />
+              <Campo label="Comentário (opcional)" value={form.comentario} onChange={(v) => mudar("comentario", v)} bloqueado={bloqueado} />
             )}
           </div>
         )}
-
-        <div className="rev-acoes">
-          <Status salva={salva} sujo={sujo} erro={erro} />
-          <button type="button" className="btn btn-primario" disabled={!podeEnviar} onClick={salvar}>
-            {enviando ? "Enviando…" : salva ? "Atualizar" : "Enviar"}
-          </button>
-        </div>
+        {problema && <p className="obj-erro" role="alert">{problema}</p>}
       </div>
     </article>
   );
 }
 
-export function SugestaoGeralCard({
-  pilar,
-  participante,
-  salva,
-  onSalvo,
-}: {
+export function SugestaoGeralCard({ pilar, form, mudar, bloqueado }: {
   pilar: Pilar;
-  participante: Participante;
-  salva?: Resposta;
-  onSalvo: (r: Resposta) => void;
+  form: RespostaRascunho;
+  mudar: Mudar;
+  bloqueado: boolean;
 }) {
-  const { form, set, salvar, enviando, erro, sujo } = useEdicao(participante, geralId(pilar.slug), salva, onSalvo);
-  const podeEnviar = !!form.comentario.trim() && sujo && !enviando;
   return (
-    <article className={`obj obj-geral${salva && !sujo ? " obj-feito" : ""}`}>
+    <article className="obj obj-geral">
       <header className="obj-head">
         <span className="obj-num">+</span>
-        <h2>Falta algo neste pilar?</h2>
+        <h2>Falta algo neste pilar? <small className="opcional">(opcional)</small></h2>
       </header>
       <div className="rev">
         <Campo
           label={`Objetivo, indicador ou iniciativa que você incluiria em “${pilar.nome}”`}
           value={form.comentario}
-          onChange={(v) => set("comentario", v)}
+          onChange={(v) => mudar("comentario", v)}
           placeholder="Descreva o que está faltando e por que é importante."
+          bloqueado={bloqueado}
         />
-        <div className="rev-acoes">
-          <Status salva={salva} sujo={sujo} erro={erro} />
-          <button type="button" className="btn btn-primario" disabled={!podeEnviar} onClick={salvar}>
-            {enviando ? "Enviando…" : salva ? "Atualizar" : "Enviar"}
-          </button>
-        </div>
       </div>
     </article>
   );

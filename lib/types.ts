@@ -4,6 +4,9 @@ export interface Participante {
   cargo: string;
   localidade: string;
   atualizadoEm: string;
+  // Preenchido quando a pessoa conclui os 5 pilares e clica em "Enviar revisão".
+  // Depois disso o servidor recusa novas alterações.
+  enviadoEm?: string;
 }
 
 export const AVALIACOES = ["concordo", "ajustes", "discordo"] as const;
@@ -38,7 +41,7 @@ export type CampoResposta = (typeof CAMPOS_RESPOSTA)[number];
 // antes e depois, para auditar quem alterou o quê.
 export interface Alteracao {
   em: string;
-  participante: Omit<Participante, "atualizadoEm">;
+  participante: Pick<Participante, "id" | "nome" | "cargo" | "localidade">;
   pilar: string;
   objetivoId: string;
   acao: "criou" | "alterou";

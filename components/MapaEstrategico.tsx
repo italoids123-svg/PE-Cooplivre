@@ -38,8 +38,14 @@ function quebrar(texto: string, max = 28): string[] {
 }
 
 export interface Progresso {
-  feitos: number;
-  total: number;
+  salvo: boolean;
+  // Há alterações digitadas e não salvas neste pilar.
+  pendente: boolean;
+}
+
+export function rotuloProgresso(p: Progresso): string {
+  if (p.pendente) return "alterações não salvas";
+  return p.salvo ? "✓ salvo" : "a revisar";
 }
 
 function Temas({ pilar, a0 }: { pilar: Pilar; a0: number }) {
@@ -89,7 +95,6 @@ export function MapaEstrategico({
         const a1 = a0 + SEG;
         const [lx, ly] = ponto((R_IN + R_OUT) / 2, a0 + SEG / 2);
         const prog = progresso?.[p.slug];
-        const completo = prog && prog.total > 0 && prog.feitos >= prog.total;
         const abrir = () => router.push(`/pilar/${p.slug}`);
         return (
           <g key={p.slug}>
@@ -97,7 +102,7 @@ export function MapaEstrategico({
               className="seg"
               role="link"
               tabIndex={0}
-              aria-label={`${p.nome}${prog ? ` — ${prog.feitos} de ${prog.total} objetivos revisados` : ""}`}
+              aria-label={`${p.nome}${prog ? ` — ${rotuloProgresso(prog)}` : ""}`}
               onClick={abrir}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -113,7 +118,7 @@ export function MapaEstrategico({
               </text>
               {prog && (
                 <text x={lx} y={ly + 46} textAnchor="middle" className="seg-prog">
-                  {completo ? "✓ revisado" : `${prog.feitos}/${prog.total} revisados`}
+                  {rotuloProgresso(prog)}
                 </text>
               )}
             </g>

@@ -6,20 +6,22 @@ Webapp do evento de revisão do Mapa Estratégico 2027–2030 (Next.js, App Rout
 
 1. **`/`** — identificação (nome, cargo, localidade). Fica salva no navegador; sem login.
 2. **`/mapa`** — mapa estratégico com os 5 pilares clicáveis e o progresso de revisão da pessoa.
-3. **`/pilar/[slug]`** — objetivos do pilar com indicador → meta e iniciativas. Para cada objetivo o colaborador
-   marca *Concordo / Concordo com ajustes / Discordo*; nos dois últimos precisa escrever ao menos uma sugestão.
-   Cada objetivo é enviado separadamente e pode ser editado depois. O que foi digitado e não enviado fica como
-   rascunho no navegador. No fim de cada pilar há "Falta algo neste pilar?".
+3. **`/pilar/[slug]`** — objetivos do pilar com indicador → meta e iniciativas. O colaborador avalia **todos** os
+   objetivos (*Concordo / Concordo com ajustes / Discordo*; nos dois últimos precisa escrever ao menos uma sugestão)
+   e clica em **Salvar pilar**, que grava no servidor e volta ao mapa. O que foi digitado e não salvo fica como
+   rascunho no navegador. "Falta algo neste pilar?" é opcional.
+   Depois de salvos os 5 pilares (e sem alterações pendentes), aparece no mapa o botão **Enviar revisão**. O
+   servidor confere que tudo foi avaliado, registra a data de envio e passa a recusar alterações (só leitura).
 4. **`/admin`** — painel com contagens por objetivo e sugestões escritas, e botão **Baixar base (Excel)**. Protegido por `ADMIN_KEY`.
 
 ## Base exportada (.xlsx)
 
 | Aba | Conteúdo |
 | --- | --- |
-| Resumo por objetivo | Concordo / com ajustes / discordo, % de concordância e nº de sugestões por objetivo |
-| Contribuições | Versão final de cada pessoa em cada objetivo, ao lado do indicador/meta/iniciativas propostos; nº de edições, primeiro envio e última alteração |
+| Resumo (enviadas) | Concordo / com ajustes / discordo, % de concordância e nº de sugestões por objetivo — **só revisões enviadas** |
+| Contribuições | Versão atual de cada pessoa em cada objetivo, com status (Enviada / Em andamento), ao lado do indicador/meta/iniciativas propostos; nº de edições, primeiro envio e última alteração |
 | Histórico de alterações | Uma linha por campo alterado: quando, quem (cargo/localidade da época), objetivo, valor antes → depois |
-| Participantes | Quem se identificou, quantos objetivos respondeu e última atividade |
+| Participantes | Quem se identificou, status, pilares salvos, data de envio e última atividade |
 
 Horários em Brasília. Cada envio que muda algo vira uma linha no histórico (`pe:historico`); reenvios idênticos não geram linha.
 

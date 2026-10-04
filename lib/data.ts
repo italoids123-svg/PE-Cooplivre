@@ -422,3 +422,8 @@ export const LOCALIDADES = [
   "Valinhos",
   "Vinhedo",
 ];
+
+// Objetivos que precisam de avaliação para a revisão poder ser enviada.
+export function objetivosObrigatorios(): string[] {
+  return PILARES.flatMap((p) => objetivosVisiveis(p).map((o) => o.id));
+}

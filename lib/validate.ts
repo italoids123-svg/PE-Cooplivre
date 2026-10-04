@@ -57,9 +57,10 @@ export function validarResposta(v: unknown, pid: string): Resposta {
     criadoEm: new Date().toISOString(),
     atualizadoEm: new Date().toISOString(),
   };
-  // "Discordo" ou "com ajustes" sem dizer o quê não é acionável.
+  // "Discordo" ou "com ajustes" sem dizer o quê não é acionável. O campo geral
+  // ("falta algo?") é opcional e pode ser enviado vazio para apagar o que havia.
   const temTexto = !!(r.indicador || r.meta || r.iniciativas || r.comentario);
-  if ((geral || avaliacao !== "concordo") && !temTexto) {
+  if (!geral && avaliacao !== "concordo" && !temTexto) {
     throw new ValidationError("Descreva sua sugestão em pelo menos um dos campos");
   }
   return r;
