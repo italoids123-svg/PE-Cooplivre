@@ -8,6 +8,7 @@ import { useParticipante } from "@/lib/participante";
 import { gravarRascunho, lerRascunho, salvarPilar, useMinhaRevisao, type MapaRespostas } from "@/lib/respostas-client";
 import { CAMPOS_RESPOSTA, type Participante, type Resposta, type RespostaRascunho } from "@/lib/types";
 import { ObjetivoCard, problemaDe, SugestaoGeralCard, VAZIO, type Mudar } from "./ObjetivoCard";
+import { BotaoAjustes } from "./BotaoAjustes";
 import { TopBar } from "./TopBar";
 
 const deResposta = (r: Resposta | undefined): RespostaRascunho =>
@@ -18,7 +19,7 @@ const igual = (a: RespostaRascunho, b: RespostaRascunho) => CAMPOS_RESPOSTA.ever
 export function PilarPage({ slug }: { slug: string }) {
   const router = useRouter();
   const p = useParticipante();
-  const { respostas, enviadoEm, erro, registrar } = useMinhaRevisao(p?.id);
+  const { respostas, enviadoEm, setServidor, erro, registrar } = useMinhaRevisao(p?.id);
   const pilar = getPilar(slug)!;
 
   useEffect(() => {
@@ -54,7 +55,10 @@ export function PilarPage({ slug }: { slug: string }) {
         {enviadoEm ? (
           <div className="aviso aviso-ok">
             Sua revisão foi enviada em {new Date(enviadoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}.
-            Obrigado pela contribuição! As respostas abaixo estão disponíveis só para consulta.
+            As respostas abaixo estão disponíveis só para consulta.
+            <div className="envio-acoes">
+              <BotaoAjustes participanteId={p.id} onReaberto={setServidor} />
+            </div>
           </div>
         ) : (
           <div className="instrucao">
@@ -71,7 +75,7 @@ export function PilarPage({ slug }: { slug: string }) {
         ) : (
           // key: remonta o formulário com os dados do servidor assim que chegam.
           <FormularioPilar
-            key={p.id}
+            key={`${p.id}:${enviadoEm ?? "aberta"}`}
             pilar={pilar}
             participante={p}
             respostas={respostas}

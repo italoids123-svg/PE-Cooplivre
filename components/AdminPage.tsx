@@ -2,7 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { geralId, objetivosVisiveis, PILARES } from "@/lib/data";
-import { AVALIACAO_LABEL, AVALIACOES, type Alteracao, type Participante, type Resposta } from "@/lib/types";
+import { chaveSemelhanca } from "@/lib/normalizar";
+import {
+  AVALIACAO_LABEL, AVALIACOES, STATUS_LABEL, statusRevisao,
+  type Alteracao, type Participante, type Resposta, type StatusRevisao,
+} from "@/lib/types";
 import { Brand } from "./Brand";
 
 interface Dados {
@@ -82,8 +86,15 @@ export function AdminPage() {
     );
   }
 
-  const comResposta = new Set(dados.respostas.map((r) => r.participanteId)).size;
-  const enviadas = dados.participantes.filter((p) => p.enviadoEm).length;
+  const porStatus = (st: StatusRevisao[]) => dados.participantes.filter((p) => st.includes(statusRevisao(p))).length;
+  const comResposta = new Set(dados.respostas.map((r) => r.participanteId));
+  const emAndamento = dados.participantes.filter((p) => statusRevisao(p) === "em-andamento" && comResposta.has(p.id)).length;
+  const nomes = new Map<string, number>();
+  for (const p of dados.participantes) {
+    const k = chaveSemelhanca(p.nome);
+    if (k) nomes.set(k, (nomes.get(k) ?? 0) + 1);
+  }
+  const duplicatas = [...nomes.values()].filter((n) => n > 1).length;
 
   return (
     <div className="pagina">
@@ -99,8 +110,14 @@ export function AdminPage() {
         {erro && <div className="aviso aviso-erro">{erro}</div>}
         <div className="admin-kpis">
           <div><b>{dados.participantes.length}</b><span>identificados</span></div>
-          <div><b>{comResposta - enviadas}</b><span>em andamento</span></div>
-          <div className="admin-kpi-destaque"><b>{enviadas}</b><span>revisões enviadas</span></div>
+          <div><b>{emAndamento}</b><span>em andamento</span></div>
+          <div><b>{porStatus(["reaberta"])}</b><span>reabertas (sem reenviar)</span></div>
+          <div className="admin-kpi-destaque"><b>{porStatus(["enviada", "reenviada"])}</b><span>revisões enviadas</span></div>
+          {duplicatas > 0 && (
+            <div title="Nomes semelhantes (primeiro + último nome). Confira na aba Participantes do Excel.">
+              <b>{duplicatas}</b><span>possíveis duplicatas</span>
+            </div>
+          )}
           <div><b>{dados.respostas.length}</b><span>respostas</span></div>
           <div><b>{dados.historico.length}</b><span>envios (com edições)</span></div>
         </div>
@@ -133,7 +150,7 @@ export function AdminPage() {
                           <li key={r.participanteId}>
                             <div className="admin-sug-quem">
                               <b>{pe?.nome ?? "?"}</b> · {pe?.cargo} · {pe?.localidade}
-                              <span className={`chip${pe?.enviadoEm ? " chip-concordo" : ""}`}>{pe?.enviadoEm ? "enviada" : "em andamento"}</span>
+                              {pe && <span className={`chip${pe.enviadoEm ? " chip-concordo" : ""}`}>{STATUS_LABEL[statusRevisao(pe)].toLowerCase()}</span>}
                               {r.avaliacao && <span className={`chip chip-${r.avaliacao}`}>{AVALIACAO_LABEL[r.avaliacao]}</span>}
                               {(edicoes[`${r.participanteId}|${r.objetivoId}`] ?? 1) > 1 && (
                                 <span className="chip">editado {edicoes[`${r.participanteId}|${r.objetivoId}`] - 1}×</span>

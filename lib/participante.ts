@@ -54,16 +54,22 @@ function novoId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
 }
 
-export function salvarParticipante(dados: Pick<Participante, "nome" | "cargo" | "localidade">): Participante {
-  const atual = snapshot();
-  const p: Participante = { id: atual?.id ?? novoId(), ...dados, atualizadoEm: new Date().toISOString() };
+// Participante a enviar para /api/identificar: reaproveita o id deste aparelho
+// (se houver) como sugestão; o servidor pode devolver outro, de uma revisão já
+// existente com o mesmo nome + localidade.
+export function propostaParticipante(dados: Pick<Participante, "nome" | "cargo" | "localidade">): Participante {
+  return { id: snapshot()?.id ?? novoId(), ...dados, atualizadoEm: new Date().toISOString() };
+}
+
+// Guarda só a identidade. Status (enviado, reaberto) sempre vem do servidor.
+export function definirParticipante(p: Participante) {
+  const local: Participante = { id: p.id, nome: p.nome, cargo: p.cargo, localidade: p.localidade, atualizadoEm: p.atualizadoEm };
   try {
-    window.localStorage.setItem(KEY, JSON.stringify(p));
+    window.localStorage.setItem(KEY, JSON.stringify(local));
   } catch {
-    memoria = JSON.stringify(p);
+    memoria = JSON.stringify(local);
   }
   window.dispatchEvent(new Event(EVENTO));
-  return p;
 }
 
 export function sair() {

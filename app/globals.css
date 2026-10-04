@@ -221,3 +221,9 @@ a{color:var(--teal)}
 .envio-feito b{color:var(--ok)}
 .pilar-item-prog-pend{color:var(--amber)}
 .admin-kpi-destaque{border-color:var(--ok)!important;background:var(--ok-light)!important}
+.ident-nota{margin:12px 0 0;font-size:12.5px;color:var(--muted);text-align:center}
+.btn-secundario{background:#fff;color:var(--teal);border:1.5px solid var(--teal)}
+.btn-secundario:hover:not(:disabled){background:var(--teal-light,#e3f2f4)}
+.envio-feito .envio-acoes{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.envio-feito .envio-acoes span{margin:0;font-size:13px}
+.aviso .envio-acoes{margin-top:10px}

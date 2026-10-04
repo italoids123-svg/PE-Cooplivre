@@ -4,7 +4,9 @@ Webapp do evento de revisão do Mapa Estratégico 2027–2030 (Next.js, App Rout
 
 ## Fluxo
 
-1. **`/`** — identificação (nome, cargo, localidade). Fica salva no navegador; sem login.
+1. **`/`** — identificação (nome, cargo, localidade), sem login. O servidor reconhece a pessoa por **nome +
+   localidade** (ignorando maiúsculas, acentos e espaços): quem volta em outro aparelho, ou depois de "Sair",
+   retoma a mesma revisão — em andamento, ou enviada (só leitura). Cargo não entra na chave.
 2. **`/mapa`** — mapa estratégico com os 5 pilares clicáveis e o progresso de revisão da pessoa.
 3. **`/pilar/[slug]`** — objetivos do pilar com indicador → meta e iniciativas. O colaborador avalia **todos** os
    objetivos (*Concordo / Concordo com ajustes / Discordo*; nos dois últimos precisa escrever ao menos uma sugestão)
@@ -12,18 +14,25 @@ Webapp do evento de revisão do Mapa Estratégico 2027–2030 (Next.js, App Rout
    rascunho no navegador. "Falta algo neste pilar?" é opcional.
    Depois de salvos os 5 pilares (e sem alterações pendentes), aparece no mapa o botão **Enviar revisão**. O
    servidor confere que tudo foi avaliado, registra a data de envio e passa a recusar alterações (só leitura).
+   **Realizar ajustes** reabre a revisão enviada; depois de ajustar e salvar, a pessoa toca em **Reenviar revisão**.
+   Cada envio fica registrado (nº de envios, primeiro/último envio, data da reabertura).
 4. **`/admin`** — painel com contagens por objetivo e sugestões escritas, e botão **Baixar base (Excel)**. Protegido por `ADMIN_KEY`.
 
 ## Base exportada (.xlsx)
 
 | Aba | Conteúdo |
 | --- | --- |
-| Resumo (enviadas) | Concordo / com ajustes / discordo, % de concordância e nº de sugestões por objetivo — **só revisões enviadas** |
+| Resumo (enviadas) | Concordo / com ajustes / discordo, % de concordância e nº de sugestões por objetivo — quem enviou ao menos uma vez, **uma revisão por pessoa** (ver duplicatas abaixo) |
 | Contribuições | Versão atual de cada pessoa em cada objetivo, com status (Enviada / Em andamento), ao lado do indicador/meta/iniciativas propostos; nº de edições, primeiro envio e última alteração |
 | Histórico de alterações | Uma linha por campo alterado: quando, quem (cargo/localidade da época), objetivo, valor antes → depois |
 | Participantes | Quem se identificou, status, pilares salvos, data de envio e última atividade |
 
-Horários em Brasília. Cada envio que muda algo vira uma linha no histórico (`pe:historico`); reenvios idênticos não geram linha.
+Horários em Brasília.
+
+**Duplicatas.** O reconhecimento por nome + localidade não pega variações ("Maria Silva" × "Maria da Silva") nem
+troca de localidade. A base sinaliza na coluna *Possível duplicata* todo nome com mesmo primeiro + último nome. Só
+sai do Resumo quem bate também a localidade (fica o envio mais recente); nomes iguais em localidades diferentes
+são apenas sinalizados — confira manualmente. Cada envio que muda algo vira uma linha no histórico (`pe:historico`); reenvios idênticos não geram linha.
 
 ## Conteúdo
 

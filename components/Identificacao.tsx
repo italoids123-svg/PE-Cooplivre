@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AMBICAO, LOCALIDADES } from "@/lib/data";
-import { salvarParticipante, useParticipante } from "@/lib/participante";
+import { definirParticipante, propostaParticipante, useParticipante } from "@/lib/participante";
+import type { Participante } from "@/lib/types";
 import { Brand } from "./Brand";
 
 const OUTRA = "__outra__";
@@ -13,16 +14,19 @@ export function Identificacao() {
   const editar = useSearchParams().get("editar") === "1";
   const atual = useParticipante();
 
+  // Quem já está identificado neste aparelho vai direto ao mapa — exceto logo
+  // após enviar o formulário, quando o próprio formulário escolhe o destino.
+  const [enviouAgora, setEnviouAgora] = useState(false);
   useEffect(() => {
-    if (atual && !editar) router.replace("/mapa");
-  }, [atual, editar, router]);
+    if (atual && !editar && !enviouAgora) router.replace("/mapa");
+  }, [atual, editar, enviouAgora, router]);
 
-  if (atual === undefined || (atual && !editar)) return <div className="ident-bg" />;
+  if (atual === undefined || (atual && !editar && !enviouAgora)) return <div className="ident-bg" />;
   // key remonta o formulário com os dados atuais ao editar.
-  return <Formulario key={atual?.id ?? "novo"} inicial={atual} />;
+  return <Formulario key={editar ? (atual?.id ?? "novo") : "novo"} inicial={editar ? atual : null} onEntrou={() => setEnviouAgora(true)} />;
 }
 
-function Formulario({ inicial }: { inicial: { nome: string; cargo: string; localidade: string } | null }) {
+function Formulario({ inicial, onEntrou }: { inicial: { nome: string; cargo: string; localidade: string } | null; onEntrou: () => void }) {
   const router = useRouter();
   const localConhecida = !inicial || LOCALIDADES.includes(inicial.localidade);
   const [nome, setNome] = useState(inicial?.nome ?? "");
@@ -34,20 +38,31 @@ function Formulario({ inicial }: { inicial: { nome: string; cargo: string; local
   const localidade = local === OUTRA ? outra.trim() : local;
   const valido = nome.trim().length >= 3 && cargo.trim().length >= 2 && localidade.length >= 2;
 
-  function enviar(e: React.FormEvent) {
+  const [entrando, setEntrando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  async function enviar(e: React.FormEvent) {
     e.preventDefault();
     setTentou(true);
-    if (!valido) return;
-    const p = salvarParticipante({ nome: nome.trim().replace(/\s+/g, " "), cargo: cargo.trim(), localidade });
-    // Registra a presença já na identificação (sem respostas), para o painel contar
-    // quem entrou e não respondeu. Falha aqui não bloqueia: o próximo envio registra.
-    fetch("/api/respostas", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ participante: p, respostas: [] }),
-      keepalive: true,
-    }).catch(() => undefined);
-    router.push("/mapa");
+    if (!valido || entrando) return;
+    setEntrando(true);
+    setErro(null);
+    try {
+      const proposta = propostaParticipante({ nome: nome.trim().replace(/\s+/g, " "), cargo: cargo.trim(), localidade });
+      const res = await fetch("/api/identificar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ participante: proposta }),
+      });
+      const body = (await res.json().catch(() => ({}))) as { participante?: Participante; retomou?: boolean; error?: string };
+      if (!res.ok || !body.participante) throw new Error(body.error ?? "Não foi possível entrar agora. Tente novamente.");
+      onEntrou();
+      definirParticipante(body.participante);
+      router.push(body.retomou ? "/mapa?retomada=1" : "/mapa");
+    } catch (err) {
+      setErro(err instanceof TypeError ? "Sem conexão. Verifique a internet e tente de novo." : (err as Error).message);
+      setEntrando(false);
+    }
   }
 
   return (
@@ -94,7 +109,13 @@ function Formulario({ inicial }: { inicial: { nome: string; cargo: string; local
           {tentou && localidade.length < 2 && <em>Informe sua localidade.</em>}
         </label>
 
-        <button type="submit" className="btn btn-primario btn-bloco">Acessar o mapa</button>
+        {erro && <div className="aviso aviso-erro">{erro}</div>}
+        <button type="submit" className="btn btn-primario btn-bloco" disabled={entrando}>
+          {entrando ? "Entrando…" : "Acessar o mapa"}
+        </button>
+        <p className="ident-nota">
+          Já começou em outro aparelho? Use o mesmo nome e localidade para continuar de onde parou.
+        </p>
       </form>
     </main>
   );

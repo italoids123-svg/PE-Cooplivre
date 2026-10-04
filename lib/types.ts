@@ -4,10 +4,34 @@ export interface Participante {
   cargo: string;
   localidade: string;
   atualizadoEm: string;
-  // Preenchido quando a pessoa conclui os 5 pilares e clica em "Enviar revisão".
-  // Depois disso o servidor recusa novas alterações.
+  // Campos controlados só pelo servidor (o cliente não consegue defini-los):
+  // enviadoEm: revisão enviada e travada; vazio = em edição (nunca enviada ou reaberta).
   enviadoEm?: string;
+  // Todos os envios, em ordem. Mais de um = a pessoa reabriu e reenviou.
+  envios?: string[];
+  // Última vez que a pessoa clicou em "Realizar ajustes" depois de enviar.
+  reabertoEm?: string;
 }
+
+export type StatusRevisao = "em-andamento" | "enviada" | "reenviada" | "reaberta";
+
+export function enviosDe(p: Participante): string[] {
+  // Registros anteriores ao campo `envios` só têm enviadoEm.
+  return p.envios?.length ? p.envios : p.enviadoEm ? [p.enviadoEm] : [];
+}
+
+export function statusRevisao(p: Participante): StatusRevisao {
+  const n = enviosDe(p).length;
+  if (p.enviadoEm) return n > 1 ? "reenviada" : "enviada";
+  return n > 0 ? "reaberta" : "em-andamento";
+}
+
+export const STATUS_LABEL: Record<StatusRevisao, string> = {
+  "em-andamento": "Em andamento",
+  enviada: "Enviada",
+  reenviada: "Reenviada",
+  reaberta: "Reaberta (ajustes não reenviados)",
+};
 
 export const AVALIACOES = ["concordo", "ajustes", "discordo"] as const;
 export type Avaliacao = (typeof AVALIACOES)[number];

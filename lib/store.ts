@@ -2,7 +2,8 @@ import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { objetivosObrigatorios } from "./data";
-import { CAMPOS_RESPOSTA, type Alteracao, type Participante, type Resposta } from "./types";
+import { chaveIdentidade } from "./normalizar";
+import { CAMPOS_RESPOSTA, enviosDe, type Alteracao, type Participante, type Resposta } from "./types";
 
 // Armazenamento das respostas do evento.
 //
@@ -16,6 +17,8 @@ import { CAMPOS_RESPOSTA, type Alteracao, type Participante, type Resposta } fro
 const HASH_PARTICIPANTES = "pe:participantes";
 const HASH_RESPOSTAS = "pe:respostas";
 const LISTA_HISTORICO = "pe:historico";
+// chaveIdentidade(nome, localidade) -> id do participante.
+const HASH_CHAVES = "pe:chaves";
 
 const REDIS_URL = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -45,8 +48,13 @@ interface Backend {
   salvar(p: Participante, r: Resposta[]): Promise<{ participante: Participante; respostas: Resposta[] }>;
   participante(id: string): Promise<Participante | null>;
   respostasDe(participanteId: string): Promise<Resposta[]>;
+  // Reconhece a pessoa por nome+localidade: devolve a revisão existente ou
+  // registra uma nova com idSugerido.
+  identificar(dados: Participante): Promise<{ participante: Participante; retomou: boolean }>;
   // Marca a revisão como enviada; exige todos os objetivos obrigatórios avaliados.
   enviar(id: string): Promise<Participante>;
+  // "Realizar ajustes": destrava uma revisão enviada para edição e reenvio.
+  reabrir(id: string): Promise<Participante>;
   tudo(): Promise<Snapshot>;
 }
 
@@ -54,7 +62,32 @@ interface Backend {
 function mesclarParticipante(atual: Participante | null, novo: Participante, comRespostas: boolean): Participante {
   // Atualizar nome/cargo/localidade continua permitido depois do envio; respostas não.
   if (atual?.enviadoEm && comRespostas) throw new RevisaoEnviadaError();
-  return atual?.enviadoEm ? { ...novo, enviadoEm: atual.enviadoEm } : novo;
+  // Campos de status vêm sempre do servidor, nunca do que o cliente mandou.
+  const { enviadoEm, envios, reabertoEm, ...dados } = novo;
+  void enviadoEm; void envios; void reabertoEm;
+  return {
+    ...dados,
+    ...(atual?.enviadoEm && { enviadoEm: atual.enviadoEm }),
+    ...(atual?.envios && { envios: atual.envios }),
+    ...(atual?.reabertoEm && { reabertoEm: atual.reabertoEm }),
+  };
+}
+
+// Ao retomar, mantém o nome como foi digitado na 1ª vez ("José da Silva"), em vez
+// da grafia da vez atual ("jose da silva") — a chave já garante que é o mesmo nome.
+// Cargo é atualizado: pode ter mudado de verdade.
+function comNomeOriginal(novo: Participante, existente: Participante | null): Participante {
+  return existente ? { ...novo, nome: existente.nome } : novo;
+}
+
+function marcarEnviado(p: Participante): Participante {
+  const agora = new Date().toISOString();
+  return { ...p, enviadoEm: agora, envios: [...enviosDe(p), agora] };
+}
+
+function marcarReaberto(p: Participante): Participante {
+  const { enviadoEm, ...resto } = p;
+  return { ...resto, envios: enviosDe(p), ...(enviadoEm && { reabertoEm: new Date().toISOString() }) };
 }
 
 function conferirCompleta(respostas: Resposta[]) {
@@ -98,7 +131,7 @@ function mesclar(p: Participante, anteriores: (Resposta | null)[], novas: Respos
 // Comandos repetidos em falha de rede. HSET/leituras são idempotentes; RPUSH pode
 // duplicar uma linha de histórico se a 1ª tentativa chegou a gravar — a leitura
 // (tudo) descarta duplicatas, então repetir é seguro e evita perder histórico.
-const COM_RETENTATIVA = new Set(["HSET", "HGET", "HMGET", "HSCAN", "HGETALL", "LRANGE", "RPUSH"]);
+const COM_RETENTATIVA = new Set(["HSET", "HSETNX", "HGET", "HMGET", "HSCAN", "HGETALL", "LRANGE", "RPUSH"]);
 
 async function redis<T>(cmd: string[]): Promise<T> {
   const tentativas = COM_RETENTATIVA.has(cmd[0]) ? 3 : 1;
@@ -165,9 +198,27 @@ const redisBackend: Backend = {
     if (!atual) throw new RevisaoIncompletaError(objetivosObrigatorios());
     if (atual.enviadoEm) return atual;
     conferirCompleta(await this.respostasDe(id));
-    const p = { ...atual, enviadoEm: new Date().toISOString() };
+    const p = marcarEnviado(atual);
     await redis(["HSET", HASH_PARTICIPANTES, id, JSON.stringify(p)]);
     return p;
+  },
+  async reabrir(id) {
+    const atual = await this.participante(id);
+    if (!atual) throw new RevisaoIncompletaError(objetivosObrigatorios());
+    if (!atual.enviadoEm) return atual;
+    const p = marcarReaberto(atual);
+    await redis(["HSET", HASH_PARTICIPANTES, id, JSON.stringify(p)]);
+    return p;
+  },
+  async identificar(dados) {
+    const chave = chaveIdentidade(dados.nome, dados.localidade);
+    // HSETNX: se duas pessoas com o mesmo nome se identificam no mesmo instante,
+    // só uma chave é criada e ambas recebem o mesmo id.
+    const criou = await redis<number>(["HSETNX", HASH_CHAVES, chave, dados.id]);
+    const id = criou ? dados.id : (await redis<string>(["HGET", HASH_CHAVES, chave]));
+    const existente = id === dados.id ? null : await this.participante(id);
+    const { participante } = await this.salvar(comNomeOriginal({ ...dados, id }, existente), []);
+    return { participante, retomou: id !== dados.id };
   },
   async respostasDe(participanteId) {
     // HSCAN com MATCH evita trazer as respostas de todo mundo.
@@ -201,6 +252,7 @@ interface Arquivo {
   participantes: Record<string, Participante>;
   respostas: Record<string, Resposta>;
   historico: Alteracao[];
+  chaves: Record<string, string>;
 }
 // Serializa gravações concorrentes no mesmo processo.
 let fila: Promise<unknown> = Promise.resolve();
@@ -209,9 +261,10 @@ async function lerArquivo(): Promise<Arquivo> {
   try {
     const db = JSON.parse(await fs.readFile(ARQUIVO, "utf8")) as Arquivo;
     db.historico ??= [];
+    db.chaves ??= {};
     return db;
   } catch (e) {
-    if ((e as NodeJS.ErrnoException).code === "ENOENT") return { participantes: {}, respostas: {}, historico: [] };
+    if ((e as NodeJS.ErrnoException).code === "ENOENT") return { participantes: {}, respostas: {}, historico: [], chaves: {} };
     throw e;
   }
 }
@@ -229,17 +282,42 @@ function naFila<T>(fn: () => Promise<T>): Promise<T> {
   return job;
 }
 
+// Só chamar de dentro de naFila (identificar reaproveita sem reenfileirar).
+async function salvarNoArquivo(novo: Participante, respostas: Resposta[]) {
+  const db = await lerArquivo();
+  const p = mesclarParticipante(db.participantes[novo.id] ?? null, novo, respostas.length > 0);
+  db.participantes[p.id] = p;
+  const { gravar, historico } = mesclar(p, respostas.map((r) => db.respostas[chave(r)] ?? null), respostas);
+  for (const r of gravar) db.respostas[chave(r)] = r;
+  db.historico.push(...historico);
+  await gravarArquivo(db);
+  return { participante: p, respostas: gravar };
+}
+
 const arquivoBackend: Backend = {
   salvar(novo, respostas) {
+    return naFila(() => salvarNoArquivo(novo, respostas));
+  },
+  identificar(dados) {
     return naFila(async () => {
       const db = await lerArquivo();
-      const p = mesclarParticipante(db.participantes[novo.id] ?? null, novo, respostas.length > 0);
-      db.participantes[p.id] = p;
-      const { gravar, historico } = mesclar(p, respostas.map((r) => db.respostas[chave(r)] ?? null), respostas);
-      for (const r of gravar) db.respostas[chave(r)] = r;
-      db.historico.push(...historico);
+      const chave = chaveIdentidade(dados.nome, dados.localidade);
+      const id = (db.chaves[chave] ??= dados.id);
       await gravarArquivo(db);
-      return { participante: p, respostas: gravar };
+      const existente = id === dados.id ? null : (db.participantes[id] ?? null);
+      const { participante } = await salvarNoArquivo(comNomeOriginal({ ...dados, id }, existente), []);
+      return { participante, retomou: id !== dados.id };
+    });
+  },
+  reabrir(id) {
+    return naFila(async () => {
+      const db = await lerArquivo();
+      const atual = db.participantes[id];
+      if (!atual) throw new RevisaoIncompletaError(objetivosObrigatorios());
+      if (!atual.enviadoEm) return atual;
+      db.participantes[id] = marcarReaberto(atual);
+      await gravarArquivo(db);
+      return db.participantes[id];
     });
   },
   async participante(id) {
@@ -252,7 +330,7 @@ const arquivoBackend: Backend = {
       if (!atual) throw new RevisaoIncompletaError(objetivosObrigatorios());
       if (atual.enviadoEm) return atual;
       conferirCompleta(Object.values(db.respostas).filter((r) => r.participanteId === id));
-      const p = { ...atual, enviadoEm: new Date().toISOString() };
+      const p = marcarEnviado(atual);
       db.participantes[id] = p;
       await gravarArquivo(db);
       return p;

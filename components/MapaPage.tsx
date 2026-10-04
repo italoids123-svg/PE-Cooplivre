@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { geralId, getPilar, objetivosVisiveis, PILARES } from "@/lib/data";
 import { useParticipante } from "@/lib/participante";
 import { enviarRevisao, ErroApi, temRascunho, useMinhaRevisao } from "@/lib/respostas-client";
+import { enviosDe } from "@/lib/types";
+import { BotaoAjustes } from "./BotaoAjustes";
 import { MapaEstrategico, rotuloProgresso, type Progresso } from "./MapaEstrategico";
 import { TopBar } from "./TopBar";
 
@@ -13,9 +15,12 @@ const dataHora = (iso: string) => new Date(iso).toLocaleString("pt-BR", { dateSt
 
 export function MapaPage() {
   const router = useRouter();
-  const salvoAgora = getPilar(useSearchParams().get("salvo") ?? "");
+  const params = useSearchParams();
+  const salvoAgora = getPilar(params.get("salvo") ?? "");
+  const retomada = params.get("retomada") === "1";
   const p = useParticipante();
-  const { respostas, enviadoEm, setEnviadoEm } = useMinhaRevisao(p?.id);
+  const { respostas, servidor, setServidor, enviadoEm } = useMinhaRevisao(p?.id);
+  const reaberta = !enviadoEm && !!servidor && enviosDe(servidor).length > 0;
   const [enviando, setEnviando] = useState(false);
   const [erroEnvio, setErroEnvio] = useState<string | null>(null);
 
@@ -46,14 +51,13 @@ export function MapaPage() {
   async function enviar() {
     if (!p) return;
     const ok = window.confirm(
-      "Enviar sua revisão final?\n\nDepois de enviada, ela não poderá mais ser alterada.",
+      `${reaberta ? "Reenviar" : "Enviar"} sua revisão?\n\nDepois do envio, para alterar de novo será preciso tocar em "Realizar ajustes".`,
     );
     if (!ok) return;
     setEnviando(true);
     setErroEnvio(null);
     try {
-      const atualizado = await enviarRevisao(p.id);
-      setEnviadoEm(atualizado.enviadoEm ?? new Date().toISOString());
+      setServidor(await enviarRevisao(p.id));
     } catch (e) {
       // 422: o servidor achou objetivo sem avaliação (ex.: salvo em outro aparelho e apagado).
       setErroEnvio(e instanceof ErroApi && e.status === 422 ? `${e.message} Recarregue a página para ver o que falta.` : (e as Error).message);
@@ -73,6 +77,8 @@ export function MapaPage() {
             <p className="mapa-sub">
               {enviadoEm
                 ? `Obrigado, ${p.nome.split(" ")[0]}! Sua revisão foi enviada.`
+                : reaberta
+                  ? `${p.nome.split(" ")[0]}, sua revisão está aberta para ajustes. Altere o que quiser, salve os pilares e reenvie.`
                 : `Olá, ${p.nome.split(" ")[0]}! Toque em cada pilar, revise os objetivos e salve. Depois de salvar os 5 pilares, envie sua revisão.`}
             </p>
           </div>
@@ -85,6 +91,12 @@ export function MapaPage() {
           )}
         </div>
 
+        {retomada && !salvoAgora && respostas && Object.keys(respostas).length > 0 && (
+          <div className="aviso aviso-ok" role="status">
+            Bem-vindo(a) de volta! Encontramos a revisão que você começou com este nome e localidade.
+          </div>
+        )}
+
         {salvoAgora && !enviadoEm && progresso?.[salvoAgora.slug]?.salvo && (
           <div className="aviso aviso-ok" role="status">
             ✓ Pilar <b>{salvoAgora.nome}</b> salvo.{" "}
@@ -94,17 +106,25 @@ export function MapaPage() {
 
         {enviadoEm ? (
           <div className="envio envio-feito">
-            <b>✓ Revisão enviada em {dataHora(enviadoEm)}</b>
-            <span>Suas respostas foram registradas. Você pode abrir os pilares para consultar o que respondeu.</span>
+            <b>✓ Revisão {servidor && enviosDe(servidor).length > 1 ? "reenviada" : "enviada"} em {dataHora(enviadoEm)}</b>
+            <span>Suas respostas foram registradas. Abra os pilares para consultar o que respondeu.</span>
+            <div className="envio-acoes">
+              <BotaoAjustes participanteId={p.id} onReaberto={setServidor} />
+              <span>Precisa mudar algo? Reabra, ajuste e reenvie.</span>
+            </div>
           </div>
         ) : prontoParaEnviar ? (
           <div className="envio">
             <div>
-              <b>Todos os pilares foram salvos</b>
-              <span>Confira se está tudo certo. Depois do envio, a revisão não poderá mais ser alterada.</span>
+              <b>{reaberta ? "Revisão aberta para ajustes" : "Todos os pilares foram salvos"}</b>
+              <span>
+                {reaberta
+                  ? "Abra o pilar que quer mudar, altere e salve. Quando terminar, reenvie — até lá sua revisão fica registrada como “em ajuste”."
+                  : "Confira se está tudo certo antes de enviar."}
+              </span>
             </div>
             <button type="button" className="btn btn-primario btn-enviar" onClick={enviar} disabled={enviando}>
-              {enviando ? "Enviando…" : "Enviar revisão"}
+              {enviando ? "Enviando…" : reaberta ? "Reenviar revisão" : "Enviar revisão"}
             </button>
             {erroEnvio && <p className="status status-erro" role="alert">{erroEnvio}</p>}
           </div>

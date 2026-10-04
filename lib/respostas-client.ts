@@ -26,7 +26,8 @@ async function chamar<T>(url: string, init?: RequestInit): Promise<T> {
 // Estado salvo no servidor para este participante: respostas e data de envio final.
 export function useMinhaRevisao(pid: string | undefined) {
   const [respostas, setRespostas] = useState<MapaRespostas | null>(null);
-  const [enviadoEm, setEnviadoEm] = useState<string | null>(null);
+  // Registro do participante no servidor (status de envio/reabertura).
+  const [servidor, setServidor] = useState<Participante | null>(null);
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export function useMinhaRevisao(pid: string | undefined) {
       .then((body) => {
         if (!vivo) return;
         setRespostas(Object.fromEntries(body.respostas.map((r) => [r.objetivoId, r])));
-        setEnviadoEm(body.participante?.enviadoEm ?? null);
+        setServidor(body.participante);
         setErro(null);
       })
       .catch((e: Error) => {
@@ -53,7 +54,7 @@ export function useMinhaRevisao(pid: string | undefined) {
     setRespostas((atual) => ({ ...(atual ?? {}), ...Object.fromEntries(lista.map((r) => [r.objetivoId, r])) }));
   }, []);
 
-  return { respostas, enviadoEm, setEnviadoEm, erro, registrar };
+  return { respostas, servidor, setServidor, enviadoEm: servidor?.enviadoEm ?? null, erro, registrar };
 }
 
 export async function salvarPilar(
@@ -70,6 +71,15 @@ export async function salvarPilar(
 
 export async function enviarRevisao(participanteId: string): Promise<Participante> {
   const body = await chamar<{ participante: Participante }>("/api/enviar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ participanteId }),
+  });
+  return body.participante;
+}
+
+export async function reabrirRevisao(participanteId: string): Promise<Participante> {
+  const body = await chamar<{ participante: Participante }>("/api/reabrir", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ participanteId }),

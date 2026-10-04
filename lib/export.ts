@@ -2,7 +2,11 @@ import "server-only";
 import ExcelJS from "exceljs";
 import { geralId, PILARES } from "./data";
 import type { Snapshot } from "./store";
-import { AVALIACAO_LABEL, AVALIACOES, CAMPOS_RESPOSTA, type Avaliacao, type CampoResposta } from "./types";
+import { chaveSemelhanca, normalizar } from "./normalizar";
+import {
+  AVALIACAO_LABEL, AVALIACOES, CAMPOS_RESPOSTA, enviosDe, STATUS_LABEL, statusRevisao,
+  type Avaliacao, type CampoResposta, type Participante,
+} from "./types";
 
 const FUSO = "America/Sao_Paulo";
 const COR_CABECALHO = "FF003641";
@@ -91,6 +95,41 @@ function aba(wb: ExcelJS.Workbook, nome: string, colunas: Coluna[], linhas: Reco
   return ws;
 }
 
+// C) Duplicatas que o reconhecimento por nome + localidade não pega (variação de
+// digitação, outra localidade). Sinaliza por primeiro + último nome; só descarta
+// do resumo quando também bate a localidade (aí é quase certamente a mesma pessoa),
+// ficando com quem enviou por último.
+function analisarDuplicatas(participantes: Participante[]) {
+  const grupos = new Map<string, Participante[]>();
+  for (const p of participantes) {
+    const k = chaveSemelhanca(p.nome);
+    if (k) grupos.set(k, [...(grupos.get(k) ?? []), p]);
+  }
+  const duplicata = new Map<string, string>();
+  for (const g of grupos.values()) {
+    if (g.length < 2) continue;
+    for (const p of g) {
+      const outros = g.filter((o) => o.id !== p.id).map((o) => `${o.nome} (${o.localidade})`);
+      duplicata.set(p.id, `Semelhante a: ${outros.join("; ")}`);
+    }
+  }
+  const ultimoEnvio = (p: Participante) => enviosDe(p).at(-1) ?? "";
+  const escolhido = new Map<string, Participante>();
+  for (const p of participantes) {
+    if (!enviosDe(p).length) continue;
+    const k = `${chaveSemelhanca(p.nome)}|${normalizar(p.localidade)}`;
+    const atual = escolhido.get(k);
+    if (!atual || ultimoEnvio(p) > ultimoEnvio(atual)) escolhido.set(k, p);
+  }
+  const noResumo = new Set([...escolhido.values()].map((p) => p.id));
+  for (const p of participantes) {
+    if (enviosDe(p).length && !noResumo.has(p.id)) {
+      duplicata.set(p.id, `${duplicata.get(p.id) ?? ""} — fora do resumo (há envio mais recente da mesma pessoa)`.replace(/^ — /, ""));
+    }
+  }
+  return { duplicata, noResumo };
+}
+
 export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
   const info = catalogo();
   const pessoas = Object.fromEntries(dados.participantes.map((p) => [p.id, p]));
@@ -107,11 +146,11 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
   wb.creator = "Mapa Estratégico Cooplivre";
   wb.created = new Date();
 
-  const enviou = (pid: string) => !!pessoas[pid]?.enviadoEm;
-  const status = (pid: string) => (enviou(pid) ? "Enviada" : "Em andamento");
+  const status = (pid: string) => (pessoas[pid] ? STATUS_LABEL[statusRevisao(pessoas[pid])] : "");
+  const { duplicata, noResumo } = analisarDuplicatas(dados.participantes);
 
-  // 1. Resumo por objetivo — só revisões enviadas (as finais).
-  const finais = dados.respostas.filter((r) => enviou(r.participanteId));
+  // 1. Resumo por objetivo — quem enviou ao menos uma vez, uma revisão por pessoa.
+  const finais = dados.respostas.filter((r) => noResumo.has(r.participanteId));
   const resumo = PILARES.flatMap((p) =>
     [...p.objetivos.filter((o) => o.visivel).map((o) => o.id), geralId(p.slug)].map((oid) => {
       const rs = finais.filter((r) => r.objetivoId === oid);
@@ -146,6 +185,7 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
       ordem: i?.ordem, pilar: i?.pilar ?? r.pilar, objetivo: i?.objetivo ?? r.objetivoId,
       indicadorAtual: i?.indicadores, metaAtual: i?.metas, iniciativasAtuais: i?.iniciativas,
       nome: p?.nome, cargo: p?.cargo, localidade: p?.localidade, status: status(r.participanteId),
+      duplicata: duplicata.get(r.participanteId) ?? "", noResumo: noResumo.has(r.participanteId) ? "Sim" : "Não",
       avaliacao: rotulo(r.avaliacao), indicador: r.indicador, meta: r.meta, iniciativas: r.iniciativas, comentario: r.comentario,
       edicoes: edicoes[`${r.participanteId}|${r.objetivoId}`] ?? 1,
       criadoEm: dataLocal(r.criadoEm ?? r.atualizadoEm), atualizadoEm: dataLocal(r.atualizadoEm),
@@ -161,7 +201,9 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
     { header: "Nome", key: "nome", width: 24 },
     { header: "Cargo", key: "cargo", width: 22 },
     { header: "Localidade", key: "localidade", width: 16 },
-    { header: "Status da revisão", key: "status", width: 14 },
+    { header: "Status da revisão", key: "status", width: 16 },
+    { header: "Entra no resumo", key: "noResumo", width: 10 },
+    { header: "Possível duplicata", key: "duplicata", width: 30 },
     { header: "Avaliação", key: "avaliacao", width: 16 },
     { header: "Sugestão p/ indicador", key: "indicador", width: 34 },
     { header: "Sugestão p/ meta", key: "meta", width: 34 },
@@ -200,22 +242,30 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
   ], hist);
 
   // 4. Participantes (enviadas primeiro)
-  const part = [...dados.participantes].sort((a, b) => Number(!!b.enviadoEm) - Number(!!a.enviadoEm) || a.nome.localeCompare(b.nome, "pt-BR")).map((p) => {
+  const part = [...dados.participantes].sort((a, b) => enviosDe(b).length - enviosDe(a).length || a.nome.localeCompare(b.nome, "pt-BR")).map((p) => {
     const rs = dados.respostas.filter((r) => r.participanteId === p.id);
     const ultima = rs.reduce((m, r) => (r.atualizadoEm > m ? r.atualizadoEm : m), p.atualizadoEm);
     const pilares = PILARES.filter((pl) => pl.objetivos.filter((o) => o.visivel).every((o) => rs.some((r) => r.objetivoId === o.id && r.avaliacao))).length;
     return {
       nome: p.nome, cargo: p.cargo, localidade: p.localidade, status: status(p.id),
-      pilares: `${pilares}/${PILARES.length}`, enviadoEm: dataLocal(p.enviadoEm), ultima: dataLocal(ultima),
+      pilares: `${pilares}/${PILARES.length}`, envios: enviosDe(p).length,
+      primeiroEnvio: dataLocal(enviosDe(p)[0]), ultimoEnvio: dataLocal(enviosDe(p).at(-1)),
+      reabertoEm: dataLocal(p.reabertoEm), ultima: dataLocal(ultima),
+      noResumo: noResumo.has(p.id) ? "Sim" : "Não", duplicata: duplicata.get(p.id) ?? "",
     };
   });
   aba(wb, "Participantes", [
     { header: "Nome", key: "nome", width: 28 },
     { header: "Cargo", key: "cargo", width: 26 },
     { header: "Localidade", key: "localidade", width: 18 },
-    { header: "Status da revisão", key: "status", width: 14 },
+    { header: "Status da revisão", key: "status", width: 16 },
     { header: "Pilares salvos", key: "pilares", width: 10 },
-    { header: "Enviada em", key: "enviadoEm", width: 17, data: true },
+    { header: "Nº de envios", key: "envios", width: 9 },
+    { header: "Primeiro envio", key: "primeiroEnvio", width: 17, data: true },
+    { header: "Último envio", key: "ultimoEnvio", width: 17, data: true },
+    { header: "Reaberta em", key: "reabertoEm", width: 17, data: true },
+    { header: "Entra no resumo", key: "noResumo", width: 10 },
+    { header: "Possível duplicata", key: "duplicata", width: 34 },
     { header: "Última atividade", key: "ultima", width: 17, data: true },
   ], part);
 
