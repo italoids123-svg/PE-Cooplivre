@@ -26,8 +26,8 @@ export async function POST(request: Request) {
     const lista = Array.isArray(body?.respostas) ? body.respostas : [];
     if (lista.length > 50) throw new ValidationError("Respostas demais em um envio");
     const respostas = lista.map((r) => validarResposta(r, participante.id));
-    await getStore().salvar(participante, respostas);
-    return Response.json({ ok: true, respostas });
+    const gravadas = await getStore().salvar(participante, respostas);
+    return Response.json({ ok: true, respostas: gravadas });
   } catch (e) {
     return erro(e);
   }

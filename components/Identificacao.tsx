@@ -38,7 +38,15 @@ function Formulario({ inicial }: { inicial: { nome: string; cargo: string; local
     e.preventDefault();
     setTentou(true);
     if (!valido) return;
-    salvarParticipante({ nome: nome.trim().replace(/\s+/g, " "), cargo: cargo.trim(), localidade });
+    const p = salvarParticipante({ nome: nome.trim().replace(/\s+/g, " "), cargo: cargo.trim(), localidade });
+    // Registra a presença já na identificação (sem respostas), para o painel contar
+    // quem entrou e não respondeu. Falha aqui não bloqueia: o próximo envio registra.
+    fetch("/api/respostas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ participante: p, respostas: [] }),
+      keepalive: true,
+    }).catch(() => undefined);
     router.push("/mapa");
   }
 

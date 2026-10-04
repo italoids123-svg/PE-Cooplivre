@@ -53,6 +53,8 @@ export function validarResposta(v: unknown, pid: string): Resposta {
     meta: texto(o.meta, "meta"),
     iniciativas: texto(o.iniciativas, "iniciativas"),
     comentario: texto(o.comentario, "comentario"),
+    // criadoEm é corrigido pelo store quando já existe resposta anterior.
+    criadoEm: new Date().toISOString(),
     atualizadoEm: new Date().toISOString(),
   };
   // "Discordo" ou "com ajustes" sem dizer o quê não é acionável.

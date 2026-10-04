@@ -174,7 +174,7 @@ a{color:var(--teal)}
 /* Admin */
 .admin-main{max-width:1000px;margin:0 auto;padding:22px 16px 60px}
 .admin-main h1{font-size:26px;color:var(--sicoob);margin-bottom:14px}
-.admin-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+.admin-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:22px}
 .admin-kpis div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
 .admin-kpis b{display:block;font-size:28px;color:var(--sicoob)}
 .admin-kpis span{font-size:13px;color:var(--muted)}
