@@ -75,3 +75,38 @@ export interface Alteracao {
 }
 
 export type RespostaRascunho = Pick<Resposta, "avaliacao" | "indicador" | "meta" | "iniciativas" | "comentario">;
+
+// Rascunho de um objetivo enquanto o responsável preenche (antes de "Salvar pilar").
+// Sincronizado em segundo plano só para acompanhamento: não é resposta, não entra
+// no Excel e é apagado quando o pilar é salvo.
+export interface Rascunho {
+  participanteId: string;
+  objetivoId: string;
+  pilar: string;
+  dados: RespostaRascunho;
+  atualizadoEm: string;
+}
+
+// Acompanhamento (GET /api/acompanhar): evolução das revisões dos responsáveis.
+export interface ObjetivoAcompanhado {
+  salvo?: RespostaRascunho & { atualizadoEm: string };
+  // Só quando difere do salvo: o responsável está mexendo neste objetivo agora.
+  emEdicao?: RespostaRascunho & { atualizadoEm: string };
+}
+
+export interface ResponsavelAcompanhado {
+  id: string;
+  nome: string;
+  acessou: boolean;
+  status: StatusRevisao | null;
+  salvos: number;
+  total: number;
+  emEdicao: number;
+  ultimaAtividade: string | null;
+  objetivos: Record<string, ObjetivoAcompanhado>;
+}
+
+export interface Acompanhamento {
+  geradoEm: string;
+  pilares: { slug: string; responsaveis: ResponsavelAcompanhado[] }[];
+}

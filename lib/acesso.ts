@@ -85,3 +85,13 @@ export function responsavelPorId(id: string): Responsavel | undefined {
 export function pilaresDe(id: string): string[] {
   return responsavelPorId(id)?.pilares ?? [];
 }
+
+// Quem tem acesso a todos os pilares acompanha a evolução dos demais responsáveis.
+export function veTodos(id: string): boolean {
+  return pilaresDe(id).length === TODOS.length;
+}
+
+// Responsáveis acompanhados num pilar: quem revisa o pilar sem ter acesso a todos.
+export function responsaveisAcompanhados(slug: string): Responsavel[] {
+  return RESPONSAVEIS.filter((r) => r.pilares.includes(slug) && r.pilares.length < TODOS.length);
+}

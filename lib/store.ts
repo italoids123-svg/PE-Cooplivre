@@ -1,7 +1,7 @@
 import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { CAMPOS_RESPOSTA, enviosDe, type Alteracao, type Participante, type Resposta } from "./types";
+import { CAMPOS_RESPOSTA, enviosDe, type Alteracao, type Participante, type Rascunho, type Resposta } from "./types";
 
 // Armazenamento das respostas do evento.
 //
@@ -15,6 +15,8 @@ import { CAMPOS_RESPOSTA, enviosDe, type Alteracao, type Participante, type Resp
 const HASH_PARTICIPANTES = "pe:participantes";
 const HASH_RESPOSTAS = "pe:respostas";
 const LISTA_HISTORICO = "pe:historico";
+// participanteId|objetivoId -> Rascunho (edição em andamento, só para acompanhamento).
+const HASH_RASCUNHOS = "pe:rascunhos";
 
 const REDIS_URL = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -37,6 +39,7 @@ export interface Snapshot {
   participantes: Participante[];
   respostas: Resposta[];
   historico: Alteracao[];
+  rascunhos?: Record<string, Rascunho>;
 }
 
 interface Backend {
@@ -49,6 +52,10 @@ interface Backend {
   enviar(id: string, obrigatorios: string[]): Promise<Participante>;
   // "Realizar ajustes": destrava uma revisão enviada para edição e reenvio.
   reabrir(id: string): Promise<Participante>;
+  // Grava (dados) ou apaga (dados null) rascunhos de objetivos.
+  sincronizarRascunhos(itens: { participanteId: string; objetivoId: string; pilar: string; dados: Rascunho["dados"] | null }[]): Promise<void>;
+  apagarRascunhos(participanteId: string, objetivoIds: string[]): Promise<void>;
+  rascunhos(): Promise<Rascunho[]>;
   tudo(): Promise<Snapshot>;
 }
 
@@ -118,7 +125,7 @@ function mesclar(p: Participante, anteriores: (Resposta | null)[], novas: Respos
 // Comandos repetidos em falha de rede. HSET/leituras são idempotentes; RPUSH pode
 // duplicar uma linha de histórico se a 1ª tentativa chegou a gravar — a leitura
 // (tudo) descarta duplicatas, então repetir é seguro e evita perder histórico.
-const COM_RETENTATIVA = new Set(["HSET", "HGET", "HMGET", "HSCAN", "HGETALL", "LRANGE", "RPUSH"]);
+const COM_RETENTATIVA = new Set(["HSET", "HDEL", "HGET", "HMGET", "HSCAN", "HGETALL", "LRANGE", "RPUSH"]);
 
 async function redis<T>(cmd: string[]): Promise<T> {
   const tentativas = COM_RETENTATIVA.has(cmd[0]) ? 3 : 1;
@@ -222,6 +229,24 @@ const redisBackend: Backend = {
       historico: semDuplicatas(h.map((x) => JSON.parse(x) as Alteracao)),
     };
   },
+  async sincronizarRascunhos(itens) {
+    const agora = new Date().toISOString();
+    const gravar = itens.filter((x) => x.dados);
+    const apagar = itens.filter((x) => !x.dados);
+    if (gravar.length) {
+      await redis(["HSET", HASH_RASCUNHOS, ...gravar.flatMap((x) => [
+        `${x.participanteId}|${x.objetivoId}`,
+        JSON.stringify({ participanteId: x.participanteId, objetivoId: x.objetivoId, pilar: x.pilar, dados: x.dados, atualizadoEm: agora }),
+      ])]);
+    }
+    if (apagar.length) await redis(["HDEL", HASH_RASCUNHOS, ...apagar.map((x) => `${x.participanteId}|${x.objetivoId}`)]);
+  },
+  async apagarRascunhos(participanteId, objetivoIds) {
+    if (objetivoIds.length) await redis(["HDEL", HASH_RASCUNHOS, ...objetivoIds.map((o) => `${participanteId}|${o}`)]);
+  },
+  async rascunhos() {
+    return hgetallParaLista<Rascunho>(await redis<string[]>(["HGETALL", HASH_RASCUNHOS]));
+  },
 };
 
 const ARQUIVO = path.join(process.cwd(), ".data", "respostas.json");
@@ -229,6 +254,7 @@ interface Arquivo {
   participantes: Record<string, Participante>;
   respostas: Record<string, Resposta>;
   historico: Alteracao[];
+  rascunhos?: Record<string, Rascunho>;
 }
 // Serializa gravações concorrentes no mesmo processo.
 let fila: Promise<unknown> = Promise.resolve();
@@ -307,6 +333,29 @@ const arquivoBackend: Backend = {
   async tudo() {
     const db = await lerArquivo();
     return { participantes: Object.values(db.participantes), respostas: Object.values(db.respostas), historico: db.historico };
+  },
+  sincronizarRascunhos(itens) {
+    return naFila(async () => {
+      const db = await lerArquivo();
+      const agora = new Date().toISOString();
+      db.rascunhos ??= {};
+      for (const x of itens) {
+        const k = `${x.participanteId}|${x.objetivoId}`;
+        if (x.dados) db.rascunhos[k] = { participanteId: x.participanteId, objetivoId: x.objetivoId, pilar: x.pilar, dados: x.dados, atualizadoEm: agora };
+        else delete db.rascunhos[k];
+      }
+      await gravarArquivo(db);
+    });
+  },
+  apagarRascunhos(participanteId, objetivoIds) {
+    return naFila(async () => {
+      const db = await lerArquivo();
+      for (const o of objetivoIds) delete db.rascunhos?.[`${participanteId}|${o}`];
+      await gravarArquivo(db);
+    });
+  },
+  async rascunhos() {
+    return Object.values((await lerArquivo()).rascunhos ?? {});
   },
 };
 

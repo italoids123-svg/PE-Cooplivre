@@ -35,13 +35,15 @@ function EmDefinicao() {
   );
 }
 
-export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloqueado }: {
+export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloqueado, acompanhamento }: {
   numero: number;
   objetivo: Objetivo;
   form: RespostaRascunho;
   mudar: Mudar;
   problema: string | null;
   bloqueado: boolean;
+  // Quadro com a revisão do responsável (só para quem tem acesso a todos os pilares).
+  acompanhamento?: React.ReactNode;
 }) {
   const temPendencia = objetivo.kpis.some((k) => !k.indicador || !k.meta || k.emAnalise) || objetivo.iniciativas.length === 0;
   const pedeDetalhe = form.avaliacao === "ajustes" || form.avaliacao === "discordo";
@@ -91,6 +93,8 @@ export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloquead
         )}
       </div>
 
+      {acompanhamento}
+
       <div className="rev">
         <p className="rev-titulo">Sua avaliação</p>
         <div className="seg-btns" role="radiogroup" aria-label="Sua avaliação">
@@ -130,11 +134,12 @@ export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloquead
   );
 }
 
-export function SugestaoGeralCard({ pilar, form, mudar, bloqueado }: {
+export function SugestaoGeralCard({ pilar, form, mudar, bloqueado, acompanhamento }: {
   pilar: Pilar;
   form: RespostaRascunho;
   mudar: Mudar;
   bloqueado: boolean;
+  acompanhamento?: React.ReactNode;
 }) {
   return (
     <article className="obj obj-geral">
@@ -142,6 +147,7 @@ export function SugestaoGeralCard({ pilar, form, mudar, bloqueado }: {
         <span className="obj-num">+</span>
         <h2>Falta algo neste pilar? <small className="opcional">(opcional)</small></h2>
       </header>
+      {acompanhamento}
       <div className="rev">
         <Campo
           label={`Objetivo, indicador ou iniciativa que você incluiria em “${pilar.nome}”`}

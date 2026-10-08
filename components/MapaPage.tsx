@@ -7,6 +7,8 @@ import { geralId, getPilar, objetivosVisiveis, PILARES } from "@/lib/data";
 import { sair, useParticipante } from "@/lib/participante";
 import { enviarRevisao, ErroApi, temRascunho, useMinhaRevisao } from "@/lib/respostas-client";
 import { enviosDe } from "@/lib/types";
+import { useAcompanhamento } from "@/lib/acompanhamento";
+import { PainelAcompanhamento } from "./Acompanhamento";
 import { BotaoAjustes } from "./BotaoAjustes";
 import { MapaEstrategico, rotuloProgresso, type Progresso } from "./MapaEstrategico";
 import { TopBar } from "./TopBar";
@@ -20,6 +22,8 @@ export function MapaPage() {
   const retomada = params.get("retomada") === "1";
   const p = useParticipante();
   const { respostas, servidor, setServidor, pilares, enviadoEm } = useMinhaRevisao(p?.id);
+  const veTodos = pilares.length === PILARES.length;
+  const acomp = useAcompanhamento(p?.id, veTodos);
   const reaberta = !enviadoEm && !!servidor && enviosDe(servidor).length > 0;
   const [enviando, setEnviando] = useState(false);
   const [erroEnvio, setErroEnvio] = useState<string | null>(null);
@@ -155,6 +159,8 @@ export function MapaPage() {
             Há alterações não salvas em: <b>{comPendencia.map((x) => x.nome).join(", ")}</b>. Abra o pilar e clique em salvar.
           </div>
         ) : null}
+
+        {veTodos && <PainelAcompanhamento dados={acomp.dados} erro={acomp.erro} />}
 
         <div className="mapa-wrap">
           <MapaEstrategico comTemas progresso={progresso} />

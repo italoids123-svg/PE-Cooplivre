@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { geralId, getPilar, objetivosVisiveis, type Pilar } from "@/lib/data";
+import { geralId, getPilar, objetivosVisiveis, PILARES, type Pilar } from "@/lib/data";
 import { useParticipante } from "@/lib/participante";
+import { criarSincronizador, useAcompanhamento } from "@/lib/acompanhamento";
 import { gravarRascunho, lerRascunho, salvarPilar, useMinhaRevisao, type MapaRespostas } from "@/lib/respostas-client";
-import { CAMPOS_RESPOSTA, type Participante, type Resposta, type RespostaRascunho } from "@/lib/types";
+import { CAMPOS_RESPOSTA, type Acompanhamento, type Participante, type Resposta, type RespostaRascunho } from "@/lib/types";
 import { ObjetivoCard, problemaDe, SugestaoGeralCard, VAZIO, type Mudar } from "./ObjetivoCard";
 import { BotaoAjustes } from "./BotaoAjustes";
+import { QuadroObjetivo } from "./Acompanhamento";
 import { TopBar } from "./TopBar";
 
 const deResposta = (r: Resposta | undefined): RespostaRascunho =>
@@ -20,6 +22,10 @@ export function PilarPage({ slug }: { slug: string }) {
   const router = useRouter();
   const p = useParticipante();
   const { respostas, enviadoEm, setServidor, pilares, erro, registrar } = useMinhaRevisao(p?.id);
+  // Quem tem acesso a todos os pilares acompanha os responsáveis; os demais têm
+  // o preenchimento sincronizado em segundo plano para esse acompanhamento.
+  const veTodos = pilares.length === PILARES.length;
+  const { dados: acomp } = useAcompanhamento(p?.id, veTodos, slug);
   const pilar = getPilar(slug)!;
 
   useEffect(() => {
@@ -90,6 +96,8 @@ export function PilarPage({ slug }: { slug: string }) {
             participante={p}
             respostas={respostas}
             bloqueado={!!enviadoEm}
+            sincronizar={!veTodos && !enviadoEm}
+            acompanhamento={veTodos ? acomp : null}
             onSalvo={(lista) => {
               registrar(lista);
               router.push(`/mapa?salvo=${pilar.slug}`);
@@ -101,13 +109,35 @@ export function PilarPage({ slug }: { slug: string }) {
   );
 }
 
-function FormularioPilar({ pilar, participante, respostas, bloqueado, onSalvo }: {
+function FormularioPilar({ pilar, participante, respostas, bloqueado, sincronizar, acompanhamento, onSalvo }: {
   pilar: Pilar;
   participante: Participante;
   respostas: MapaRespostas;
   bloqueado: boolean;
+  sincronizar: boolean;
+  acompanhamento: Acompanhamento | null;
   onSalvo: (r: Resposta[]) => void;
 }) {
+  const responsaveis = acompanhamento?.pilares.find((p) => p.slug === pilar.slug)?.responsaveis ?? [];
+  const quadro = (oid: string) =>
+    acompanhamento && responsaveis.length ? (
+      <QuadroObjetivo objetivoId={oid} responsaveis={responsaveis} geradoEm={acompanhamento.geradoEm} />
+    ) : undefined;
+
+  // Sincronização do rascunho para o acompanhamento (só responsáveis de pilar específico).
+  // Criado uma vez: o formulário é remontado (key) quando participante/envio mudam.
+  const [sinc] = useState(() => (sincronizar ? criarSincronizador(participante.id) : null));
+  useEffect(() => {
+    if (!sinc) return;
+    const aoEsconder = () => {
+      if (document.visibilityState === "hidden") sinc.descarregar();
+    };
+    document.addEventListener("visibilitychange", aoEsconder);
+    return () => {
+      document.removeEventListener("visibilitychange", aoEsconder);
+      sinc.descarregar();
+    };
+  }, [sinc]);
   const objetivos = objetivosVisiveis(pilar);
   const gid = geralId(pilar.slug);
   const ids = [...objetivos.map((o) => o.id), gid];
@@ -125,12 +155,14 @@ function FormularioPilar({ pilar, participante, respostas, bloqueado, onSalvo }:
   const problemas = Object.fromEntries(objetivos.map((o) => [o.id, problemaDe(forms[o.id])]));
   const pendentes = objetivos.filter((o) => problemas[o.id]).length;
 
+  // Efeitos (rascunho local e sincronização) ficam no handler, fora do updater de
+  // estado, que o React pode executar mais de uma vez.
   const mudarDe = (id: string): Mudar => (k, v) => {
-    setForms((atual) => {
-      const novo = { ...atual[id], [k]: v };
-      gravarRascunho(participante.id, id, igual(novo, deResposta(respostas[id])) ? null : novo);
-      return { ...atual, [id]: novo };
-    });
+    const novo = { ...forms[id], [k]: v };
+    const semMudanca = igual(novo, deResposta(respostas[id]));
+    gravarRascunho(participante.id, id, semMudanca ? null : novo);
+    sinc?.mudou(id, semMudanca ? null : novo);
+    setForms((atual) => ({ ...atual, [id]: novo }));
     setErro(null);
   };
 
@@ -147,6 +179,7 @@ function FormularioPilar({ pilar, participante, respostas, bloqueado, onSalvo }:
       // Todos os objetivos vão juntos; o campo geral só se tiver algo ou já existia.
       const itens = objetivos.map((o) => ({ objetivoId: o.id, dados: forms[o.id] }));
       if (forms[gid].comentario.trim() || respostas[gid]) itens.push({ objetivoId: gid, dados: forms[gid] });
+      sinc?.cancelar();
       const gravadas = await salvarPilar(participante, itens);
       for (const id of ids) gravarRascunho(participante.id, id, null);
       onSalvo(gravadas);
@@ -167,9 +200,10 @@ function FormularioPilar({ pilar, participante, respostas, bloqueado, onSalvo }:
           mudar={mudarDe(o.id)}
           problema={mostrarProblemas ? problemas[o.id] : null}
           bloqueado={bloqueado}
+          acompanhamento={quadro(o.id)}
         />
       ))}
-      <SugestaoGeralCard pilar={pilar} form={forms[gid]} mudar={mudarDe(gid)} bloqueado={bloqueado} />
+      <SugestaoGeralCard pilar={pilar} form={forms[gid]} mudar={mudarDe(gid)} bloqueado={bloqueado} acompanhamento={quadro(gid)} />
 
       {bloqueado ? (
         <div className="salvar-barra">

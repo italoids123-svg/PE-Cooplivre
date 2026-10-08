@@ -20,7 +20,12 @@ Webapp do evento de revisão do Mapa Estratégico 2027–2030 (Next.js, App Rout
    servidor confere que tudo foi avaliado, registra a data de envio e passa a recusar alterações (só leitura).
    **Realizar ajustes** reabre a revisão enviada; depois de ajustar e salvar, a pessoa toca em **Reenviar revisão**.
    Cada envio fica registrado (nº de envios, primeiro/último envio, data da reabertura).
-4. **`/admin`** — painel com contagens por objetivo e sugestões escritas, e botão **Baixar base (Excel)**. Protegido por `ADMIN_KEY`.
+4. **Acompanhamento** — quem tem acesso a **todos** os pilares vê, a cada 10 s, a evolução dos responsáveis de
+   cada pilar: painel no mapa (salvos, em edição, última atividade) e, em cada objetivo, o que o responsável
+   marcou/escreveu, inclusive **antes de salvar** ("em edição"). O preenchimento dos responsáveis é sincronizado
+   em segundo plano (`pe:rascunhos`); rascunho não é resposta, não entra no Excel e é apagado ao salvar o pilar.
+   Responsáveis de 1–2 pilares não veem o acompanhamento (a API recusa).
+5. **`/admin`** — painel com contagens por objetivo e sugestões escritas, e botão **Baixar base (Excel)**. Protegido por `ADMIN_KEY`.
 
 ## Base exportada (.xlsx)
 

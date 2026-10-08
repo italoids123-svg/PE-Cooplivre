@@ -30,7 +30,11 @@ export async function POST(request: Request) {
     const respostas = lista.map((r) => validarResposta(r, participante.id));
     const fora = respostas.find((r) => !pessoa.pilares.includes(r.pilar));
     if (fora) throw new AcessoNegadoError("Você não tem acesso a este pilar.");
-    return Response.json(await getStore().salvar(participante, respostas));
+    const store = getStore();
+    const resultado = await store.salvar(participante, respostas);
+    // Pilar salvo: o que estava "em edição" virou resposta. Falha aqui não desfaz o salvamento.
+    await store.apagarRascunhos(participante.id, respostas.map((r) => r.objetivoId)).catch((e) => console.error(e));
+    return Response.json(resultado);
   } catch (e) {
     return respostaDeErro(e);
   }

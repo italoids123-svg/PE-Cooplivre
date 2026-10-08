@@ -1,5 +1,5 @@
 import { idsValidos } from "./data";
-import { AVALIACOES, type Avaliacao, type Participante, type Resposta } from "./types";
+import { AVALIACOES, type Avaliacao, type Participante, type Resposta, type RespostaRascunho } from "./types";
 
 const MAX_TEXTO = 2000;
 const MAX_CAMPO_ID = 120;
@@ -63,4 +63,28 @@ export function validarResposta(v: unknown, pid: string): Resposta {
     throw new ValidationError("Descreva sua sugestão em pelo menos um dos campos");
   }
   return r;
+}
+
+// Rascunho em andamento: só limites de tamanho e formato, sem exigir completude.
+// Devolve o pilar do objetivo para o controle de acesso.
+export function validarRascunho(v: unknown): { objetivoId: string; pilar: string; dados: RespostaRascunho | null } {
+  const o = (v ?? {}) as Record<string, unknown>;
+  const objetivoId = texto(o.objetivoId, "objetivoId", MAX_CAMPO_ID);
+  const pilar = IDS.get(objetivoId);
+  if (!pilar) throw new ValidationError(`Objetivo desconhecido: ${objetivoId}`);
+  if (o.dados == null) return { objetivoId, pilar: pilar.slug, dados: null };
+  const d = o.dados as Record<string, unknown>;
+  const avaliacao = d.avaliacao == null ? null : (d.avaliacao as Avaliacao);
+  if (avaliacao !== null && !AVALIACOES.includes(avaliacao)) throw new ValidationError("Avaliação inválida");
+  return {
+    objetivoId,
+    pilar: pilar.slug,
+    dados: {
+      avaliacao,
+      indicador: texto(d.indicador, "indicador"),
+      meta: texto(d.meta, "meta"),
+      iniciativas: texto(d.iniciativas, "iniciativas"),
+      comentario: texto(d.comentario, "comentario"),
+    },
+  };
 }
