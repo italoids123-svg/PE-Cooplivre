@@ -55,16 +55,10 @@ export function reconhecer(nomeDigitado: string): Reconhecimento {
   }).filter((c) => c.pontos > 0);
 
   if (candidatos.length === 0) {
-    // Primeiro nome de quem exige sobrenome-chave: diz qual sobrenome usar.
+    // Primeiro nome de quem exige sobrenome-chave: pede outro sobrenome.
     const chaves = RESPONSAVEIS.filter((p) => p.sobrenomesChave && tokens(p.nome)[0] === primeiro).flatMap((p) => p.sobrenomesChave!);
-    if (chaves.length) {
-      const nome = nomeDigitado.trim().split(/\s+/)[0];
-      return {
-        ok: false,
-        motivo: "incompleto",
-        mensagem: `Para ${nome[0].toUpperCase()}${nome.slice(1).toLowerCase()}, informe também o sobrenome ${chaves.join(" ou ")}.`,
-      };
-    }
+    // Mensagem genérica de propósito: não revela quais sobrenomes dão acesso.
+    if (chaves.length) return { ok: false, motivo: "incompleto", mensagem: "Inserir outro sobrenome." };
     return {
       ok: false,
       motivo: "nao-encontrado",
