@@ -7,7 +7,8 @@ Webapp do evento de revisão do Mapa Estratégico 2027–2030 (Next.js, App Rout
 1. **`/`** — identificação por **nome + sobrenome** e cargo, sem login. Só entra quem está na lista de
    responsáveis (`lib/acesso.ts`). A regra: primeiro nome igual + pelo menos um sobrenome igual (ignora
    maiúsculas, acentos e "de/da/dos"); se mais de uma pessoa bater, vence quem tiver mais sobrenomes
-   coincidentes, e empate pede outro sobrenome (ex.: "Rafael Oliveira" serve para dois Rafaeis). A revisão
+   coincidentes, e empate pede outro sobrenome. Quem tem `sobrenomesChave` só entra com esse sobrenome: os
+   dois Rafaeis entram apenas com **Cavallante** ou **Kerche** ("Rafael Oliveira" é recusado). A revisão
    fica gravada no id fixo da pessoa: qualquer grafia aceita, em qualquer aparelho, cai na mesma revisão.
 2. **`/mapa`** — mapa estratégico. Só os pilares sob responsabilidade da pessoa ficam clicáveis; os demais
    ficam opacos, em cinza e sem link. O servidor também recusa gravação em pilar sem acesso.
