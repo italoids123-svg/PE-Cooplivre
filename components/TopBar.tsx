@@ -21,7 +21,7 @@ export function TopBar({ voltar }: { voltar?: boolean }) {
       {p && (
         <div className="top-user">
           <span className="top-user-nome">{p.nome}</span>
-          <span className="top-user-meta">{p.cargo} · {p.localidade}</span>
+          <span className="top-user-meta">{p.cargo}</span>
           <button
             type="button"
             className="top-sair"

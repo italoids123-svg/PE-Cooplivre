@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { geralId, objetivosVisiveis, PILARES } from "@/lib/data";
-import { chaveSemelhanca } from "@/lib/normalizar";
+import { RESPONSAVEIS } from "@/lib/acesso";
 import {
   AVALIACAO_LABEL, AVALIACOES, STATUS_LABEL, statusRevisao,
   type Alteracao, type Participante, type Resposta, type StatusRevisao,
@@ -89,12 +89,8 @@ export function AdminPage() {
   const porStatus = (st: StatusRevisao[]) => dados.participantes.filter((p) => st.includes(statusRevisao(p))).length;
   const comResposta = new Set(dados.respostas.map((r) => r.participanteId));
   const emAndamento = dados.participantes.filter((p) => statusRevisao(p) === "em-andamento" && comResposta.has(p.id)).length;
-  const nomes = new Map<string, number>();
-  for (const p of dados.participantes) {
-    const k = chaveSemelhanca(p.nome);
-    if (k) nomes.set(k, (nomes.get(k) ?? 0) + 1);
-  }
-  const duplicatas = [...nomes.values()].filter((n) => n > 1).length;
+  const porId = Object.fromEntries(dados.participantes.map((p) => [p.id, p]));
+  const nomePilar = (slug: string) => PILARES.find((p) => p.slug === slug)?.nome ?? slug;
 
   return (
     <div className="pagina">
@@ -109,18 +105,39 @@ export function AdminPage() {
         <h1>Painel de respostas</h1>
         {erro && <div className="aviso aviso-erro">{erro}</div>}
         <div className="admin-kpis">
-          <div><b>{dados.participantes.length}</b><span>identificados</span></div>
+          <div><b>{RESPONSAVEIS.filter((r) => porId[r.id]).length}<small>/{RESPONSAVEIS.length}</small></b><span>responsáveis que entraram</span></div>
           <div><b>{emAndamento}</b><span>em andamento</span></div>
           <div><b>{porStatus(["reaberta"])}</b><span>reabertas (sem reenviar)</span></div>
           <div className="admin-kpi-destaque"><b>{porStatus(["enviada", "reenviada"])}</b><span>revisões enviadas</span></div>
-          {duplicatas > 0 && (
-            <div title="Nomes semelhantes (primeiro + último nome). Confira na aba Participantes do Excel.">
-              <b>{duplicatas}</b><span>possíveis duplicatas</span>
-            </div>
-          )}
           <div><b>{dados.respostas.length}</b><span>respostas</span></div>
           <div><b>{dados.historico.length}</b><span>envios (com edições)</span></div>
         </div>
+
+        <section className="admin-pilar admin-resp">
+          <h2>Responsáveis</h2>
+          <table className="admin-tabela">
+            <thead>
+              <tr><th>Nome</th><th>Pilares</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              {RESPONSAVEIS.map((r) => {
+                const pe = porId[r.id];
+                const st = pe ? statusRevisao(pe) : null;
+                return (
+                  <tr key={r.id}>
+                    <td><b>{r.nome}</b>{pe?.cargo && <span className="admin-cargo"> · {pe.cargo}</span>}</td>
+                    <td>{r.pilares.length === PILARES.length ? "Todos" : r.pilares.map(nomePilar).join(", ")}</td>
+                    <td>
+                      <span className={`chip${st === "enviada" || st === "reenviada" ? " chip-concordo" : st ? "" : " chip-discordo"}`}>
+                        {st ? STATUS_LABEL[st].toLowerCase() : "não acessou"}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </section>
 
         {PILARES.map((p) => (
           <section key={p.slug} className="admin-pilar" style={{ "--cor": p.cor } as React.CSSProperties}>
@@ -149,7 +166,7 @@ export function AdminPage() {
                         return (
                           <li key={r.participanteId}>
                             <div className="admin-sug-quem">
-                              <b>{pe?.nome ?? "?"}</b> · {pe?.cargo} · {pe?.localidade}
+                              <b>{pe?.nome ?? "?"}</b> · {pe?.cargo}
                               {pe && <span className={`chip${pe.enviadoEm ? " chip-concordo" : ""}`}>{STATUS_LABEL[statusRevisao(pe)].toLowerCase()}</span>}
                               {r.avaliacao && <span className={`chip chip-${r.avaliacao}`}>{AVALIACAO_LABEL[r.avaliacao]}</span>}
                               {(edicoes[`${r.participanteId}|${r.objetivoId}`] ?? 1) > 1 && (

@@ -27,10 +27,9 @@ export function validarParticipante(v: unknown): Participante {
     id: participanteId(o.id),
     nome: texto(o.nome, "nome", MAX_CAMPO_ID),
     cargo: texto(o.cargo, "cargo", MAX_CAMPO_ID),
-    localidade: texto(o.localidade, "localidade", MAX_CAMPO_ID),
     atualizadoEm: new Date().toISOString(),
   };
-  if (!p.nome || !p.cargo || !p.localidade) throw new ValidationError("Preencha nome, cargo e localidade");
+  if (!p.nome || !p.cargo) throw new ValidationError("Preencha nome e cargo");
   return p;
 }
 

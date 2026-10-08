@@ -19,7 +19,7 @@ const igual = (a: RespostaRascunho, b: RespostaRascunho) => CAMPOS_RESPOSTA.ever
 export function PilarPage({ slug }: { slug: string }) {
   const router = useRouter();
   const p = useParticipante();
-  const { respostas, enviadoEm, setServidor, erro, registrar } = useMinhaRevisao(p?.id);
+  const { respostas, enviadoEm, setServidor, pilares, erro, registrar } = useMinhaRevisao(p?.id);
   const pilar = getPilar(slug)!;
 
   useEffect(() => {
@@ -65,8 +65,8 @@ export function PilarPage({ slug }: { slug: string }) {
           <div className="instrucao">
             <b>Como revisar</b>
             Avalie todos os objetivos deste pilar e clique em <b className="inline">Salvar pilar</b> no fim da página. Se algo
-            pode melhorar, escreva sua sugestão — seja específico: qual número, qual ação, por quê. Depois de salvar os 5
-            pilares, o botão <b className="inline">Enviar revisão</b> aparece no mapa.
+            pode melhorar, escreva sua sugestão — seja específico: qual número, qual ação, por quê. Depois de salvar os
+            pilares sob sua responsabilidade, o botão <b className="inline">Enviar revisão</b> aparece no mapa.
             <span className="instrucao-nota">
               <b className="inline">Linha de base 2026</b> é o valor atual do indicador, que ainda será medido.
               Metas marcadas como <i>em análise</i> ainda estão abertas — sugestões ali são especialmente úteis.
@@ -77,6 +77,11 @@ export function PilarPage({ slug }: { slug: string }) {
 
         {!respostas ? (
           <div className="carregando">Carregando…</div>
+        ) : !pilares.includes(pilar.slug) ? (
+          <div className="aviso aviso-alerta" role="alert">
+            Este pilar não está sob sua responsabilidade nesta revisão.{" "}
+            <Link href="/mapa">Voltar ao mapa</Link>
+          </div>
         ) : (
           // key: remonta o formulário com os dados do servidor assim que chegam.
           <FormularioPilar

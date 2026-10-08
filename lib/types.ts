@@ -2,7 +2,8 @@ export interface Participante {
   id: string;
   nome: string;
   cargo: string;
-  localidade: string;
+  // Não é mais pedida na identificação; mantida opcional por compatibilidade.
+  localidade?: string;
   atualizadoEm: string;
   // Campos controlados só pelo servidor (o cliente não consegue defini-los):
   // enviadoEm: revisão enviada e travada; vazio = em edição (nunca enviada ou reaberta).

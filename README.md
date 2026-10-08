@@ -4,15 +4,18 @@ Webapp do evento de revisão do Mapa Estratégico 2027–2030 (Next.js, App Rout
 
 ## Fluxo
 
-1. **`/`** — identificação (nome, cargo, localidade), sem login. O servidor reconhece a pessoa por **nome +
-   localidade** (ignorando maiúsculas, acentos e espaços): quem volta em outro aparelho, ou depois de "Sair",
-   retoma a mesma revisão — em andamento, ou enviada (só leitura). Cargo não entra na chave.
-2. **`/mapa`** — mapa estratégico com os 5 pilares clicáveis e o progresso de revisão da pessoa.
+1. **`/`** — identificação por **nome + sobrenome** e cargo, sem login. Só entra quem está na lista de
+   responsáveis (`lib/acesso.ts`). A regra: primeiro nome igual + pelo menos um sobrenome igual (ignora
+   maiúsculas, acentos e "de/da/dos"); se mais de uma pessoa bater, vence quem tiver mais sobrenomes
+   coincidentes, e empate pede outro sobrenome (ex.: "Rafael Oliveira" serve para dois Rafaeis). A revisão
+   fica gravada no id fixo da pessoa: qualquer grafia aceita, em qualquer aparelho, cai na mesma revisão.
+2. **`/mapa`** — mapa estratégico. Só os pilares sob responsabilidade da pessoa ficam clicáveis; os demais
+   ficam opacos, em cinza e sem link. O servidor também recusa gravação em pilar sem acesso.
 3. **`/pilar/[slug]`** — objetivos do pilar com indicador → meta e iniciativas. O colaborador avalia **todos** os
    objetivos (*Concordo / Concordo com ajustes / Discordo*; nos dois últimos precisa escrever ao menos uma sugestão)
    e clica em **Salvar pilar**, que grava no servidor e volta ao mapa. O que foi digitado e não salvo fica como
    rascunho no navegador. "Falta algo neste pilar?" é opcional.
-   Depois de salvos os 5 pilares (e sem alterações pendentes), aparece no mapa o botão **Enviar revisão**. O
+   Depois de salvos os pilares da pessoa (e sem alterações pendentes), aparece no mapa o botão **Enviar revisão**. O
    servidor confere que tudo foi avaliado, registra a data de envio e passa a recusar alterações (só leitura).
    **Realizar ajustes** reabre a revisão enviada; depois de ajustar e salvar, a pessoa toca em **Reenviar revisão**.
    Cada envio fica registrado (nº de envios, primeiro/último envio, data da reabertura).
@@ -22,17 +25,15 @@ Webapp do evento de revisão do Mapa Estratégico 2027–2030 (Next.js, App Rout
 
 | Aba | Conteúdo |
 | --- | --- |
-| Resumo (enviadas) | Concordo / com ajustes / discordo, % de concordância e nº de sugestões por objetivo — quem enviou ao menos uma vez, **uma revisão por pessoa** (ver duplicatas abaixo) |
+| Resumo (enviadas) | Concordo / com ajustes / discordo, % de concordância e nº de sugestões por objetivo — responsáveis que enviaram ao menos uma vez, uma revisão por pessoa |
 | Contribuições | Versão atual de cada pessoa em cada objetivo, com status (Enviada / Em andamento), ao lado do indicador/meta/iniciativas propostos; nº de edições, primeiro envio e última alteração |
-| Histórico de alterações | Uma linha por campo alterado: quando, quem (cargo/localidade da época), objetivo, valor antes → depois |
-| Participantes | Quem se identificou, status, pilares salvos, data de envio e última atividade |
+| Histórico de alterações | Uma linha por campo alterado: quando, quem (cargo da época), objetivo, valor antes → depois |
+| Participantes | Os responsáveis da lista (inclusive quem não acessou), pilares sob responsabilidade, status, pilares salvos, envios e última atividade |
 
 Horários em Brasília.
 
-**Duplicatas.** O reconhecimento por nome + localidade não pega variações ("Maria Silva" × "Maria da Silva") nem
-troca de localidade. A base sinaliza na coluna *Possível duplicata* todo nome com mesmo primeiro + último nome. Só
-sai do Resumo quem bate também a localidade (fica o envio mais recente); nomes iguais em localidades diferentes
-são apenas sinalizados — confira manualmente. Cada envio que muda algo vira uma linha no histórico (`pe:historico`); reenvios idênticos não geram linha.
+**Acesso.** Para incluir/remover alguém ou mudar seus pilares, edite `RESPONSAVEIS` em `lib/acesso.ts` e
+publique. Não troque o `id` de quem já respondeu: as respostas estão gravadas nele.
 
 ## Conteúdo
 

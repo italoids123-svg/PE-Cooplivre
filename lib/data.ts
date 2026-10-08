@@ -603,30 +603,8 @@ export function idsValidos(): Map<string, Pilar> {
   return m;
 }
 
-export const LOCALIDADES = [
-  "Boituva",
-  "Cabreúva",
-  "Capivari",
-  "Cerquilho",
-  "Cesário Lange",
-  "Elias Fausto",
-  "Indaiatuba",
-  "Itupeva",
-  "Jumirim",
-  "Louveira",
-  "Mombuca",
-  "Monte Mor",
-  "Pereiras",
-  "Porangaba",
-  "Porto Feliz",
-  "Rafard",
-  "Salto",
-  "Tietê",
-  "Valinhos",
-  "Vinhedo",
-];
-
-// Objetivos que precisam de avaliação para a revisão poder ser enviada.
-export function objetivosObrigatorios(): string[] {
-  return PILARES.flatMap((p) => objetivosVisiveis(p).map((o) => o.id));
+// Objetivos que precisam de avaliação para a revisão poder ser enviada:
+// os dos pilares sob responsabilidade da pessoa (lib/acesso.ts).
+export function objetivosObrigatorios(pilares: string[]): string[] {
+  return PILARES.filter((p) => pilares.includes(p.slug)).flatMap((p) => objetivosVisiveis(p).map((o) => o.id));
 }

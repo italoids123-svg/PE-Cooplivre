@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { geralId, getPilar, objetivosVisiveis, PILARES } from "@/lib/data";
-import { useParticipante } from "@/lib/participante";
+import { sair, useParticipante } from "@/lib/participante";
 import { enviarRevisao, ErroApi, temRascunho, useMinhaRevisao } from "@/lib/respostas-client";
 import { enviosDe } from "@/lib/types";
 import { BotaoAjustes } from "./BotaoAjustes";
@@ -19,7 +19,7 @@ export function MapaPage() {
   const salvoAgora = getPilar(params.get("salvo") ?? "");
   const retomada = params.get("retomada") === "1";
   const p = useParticipante();
-  const { respostas, servidor, setServidor, enviadoEm } = useMinhaRevisao(p?.id);
+  const { respostas, servidor, setServidor, pilares, enviadoEm } = useMinhaRevisao(p?.id);
   const reaberta = !enviadoEm && !!servidor && enviosDe(servidor).length > 0;
   const [enviando, setEnviando] = useState(false);
   const [erroEnvio, setErroEnvio] = useState<string | null>(null);
@@ -32,20 +32,27 @@ export function MapaPage() {
     if (!respostas || !p) return null;
     const out: Record<string, Progresso> = {};
     for (const pilar of PILARES) {
+      if (!pilares.includes(pilar.slug)) {
+        out[pilar.slug] = { salvo: false, pendente: false, concluido: false, bloqueado: true };
+        continue;
+      }
       const ids = objetivosVisiveis(pilar).map((o) => o.id);
       const salvo = ids.every((id) => !!respostas[id]?.avaliacao);
       const pendente = !enviadoEm && temRascunho(p.id, [...ids, geralId(pilar.slug)]);
-      out[pilar.slug] = { salvo, pendente, concluido: !enviadoEm && salvo && !pendente };
+      out[pilar.slug] = { salvo, pendente, concluido: !enviadoEm && salvo && !pendente, bloqueado: false };
     }
     return out;
-  }, [respostas, p, enviadoEm]);
+  }, [respostas, p, enviadoEm, pilares]);
 
   if (!p) return <div className="pagina" />;
 
-  const lista = progresso ? Object.values(progresso) : [];
-  const salvos = lista.filter((x) => x.salvo).length;
+  const total = pilares.length;
+  const salvos = PILARES.filter((pl) => progresso?.[pl.slug]?.salvo).length;
   const comPendencia = PILARES.filter((pl) => progresso?.[pl.slug]?.pendente);
-  const prontoParaEnviar = !!progresso && salvos === PILARES.length && comPendencia.length === 0 && !enviadoEm;
+  const prontoParaEnviar = !!progresso && total > 0 && salvos === total && comPendencia.length === 0 && !enviadoEm;
+  const nPilares = total === 1 ? "o pilar" : `os ${total} pilares`;
+  // Identificação antiga (antes da lista de responsáveis) ou pessoa removida da lista.
+  const semAcesso = !!respostas && total === 0;
 
   async function enviar() {
     if (!p) return;
@@ -78,28 +85,44 @@ export function MapaPage() {
                 ? `Obrigado, ${p.nome.split(" ")[0]}! Sua revisão foi enviada.`
                 : reaberta
                   ? `${p.nome.split(" ")[0]}, sua revisão está aberta para ajustes. Altere o que quiser, salve os pilares e reenvie.`
-                : `Olá, ${p.nome.split(" ")[0]}! Toque em cada pilar, revise os objetivos e salve. Depois de salvar os 5 pilares, envie sua revisão.`}
+                : `Olá, ${p.nome.split(" ")[0]}! Revise ${total === 1 ? "o pilar destacado" : "os pilares destacados"} — ${total === 1 ? "é o que está" : "são os que estão"} sob sua responsabilidade. Depois de salvar ${nPilares}, envie sua revisão.`}
             </p>
           </div>
-          {progresso && !enviadoEm && (
+          {progresso && !enviadoEm && total > 0 && (
             <div className="mapa-prog" aria-live="polite">
-              <b>{salvos}<small>/{PILARES.length}</small></b>
-              <span>pilares salvos</span>
-              <div className="barra"><i style={{ width: `${(salvos / PILARES.length) * 100}%` }} /></div>
+              <b>{salvos}<small>/{total}</small></b>
+              <span>{total === 1 ? "pilar salvo" : "pilares salvos"}</span>
+              <div className="barra"><i style={{ width: `${(salvos / total) * 100}%` }} /></div>
             </div>
           )}
         </div>
 
+        {semAcesso && (
+          <div className="aviso aviso-erro" role="alert">
+            Não encontramos seus pilares de revisão. Saia e entre de novo com seu nome e sobrenome.{" "}
+            <button
+              type="button"
+              className="btn btn-secundario"
+              onClick={() => {
+                sair();
+                router.push("/");
+              }}
+            >
+              Sair e entrar de novo
+            </button>
+          </div>
+        )}
+
         {retomada && !salvoAgora && respostas && Object.keys(respostas).length > 0 && (
           <div className="aviso aviso-ok" role="status">
-            Bem-vindo(a) de volta! Encontramos a revisão que você começou com este nome e localidade.
+            Bem-vindo(a) de volta! Encontramos a revisão que você começou.
           </div>
         )}
 
         {salvoAgora && !enviadoEm && progresso?.[salvoAgora.slug]?.salvo && (
           <div className="aviso aviso-ok" role="status">
             ✓ Pilar <b>{salvoAgora.nome}</b> salvo.{" "}
-            {salvos < PILARES.length ? "Escolha o próximo pilar para continuar." : "Todos os pilares estão salvos — agora é só enviar."}
+            {salvos < total ? "Escolha o próximo pilar para continuar." : total === 1 ? "Agora é só enviar." : "Todos os seus pilares estão salvos — agora é só enviar."}
           </div>
         )}
 
@@ -115,7 +138,7 @@ export function MapaPage() {
         ) : prontoParaEnviar ? (
           <div className="envio">
             <div>
-              <b>{reaberta ? "Revisão aberta para ajustes" : "Todos os pilares foram salvos"}</b>
+              <b>{reaberta ? "Revisão aberta para ajustes" : total === 1 ? "Pilar salvo" : "Todos os seus pilares foram salvos"}</b>
               <span>
                 {reaberta
                   ? "Abra o pilar que quer mudar, altere e salve. Quando terminar, reenvie — até lá sua revisão fica registrada como “em ajuste”."
@@ -141,17 +164,29 @@ export function MapaPage() {
         <ul className="pilar-lista">
           {PILARES.map((pilar) => {
             const prog = progresso?.[pilar.slug];
+            const conteudo = (
+              <>
+                <span className="pilar-item-nome">{pilar.nome}</span>
+                <span className="pilar-item-temas">{pilar.temas.join(" · ")}</span>
+                {prog && (
+                  <span className={`pilar-item-prog${prog.salvo && !prog.pendente ? "" : " pilar-item-prog-pend"}`}>
+                    {rotuloProgresso(prog)}
+                  </span>
+                )}
+              </>
+            );
+            const estilo = { "--cor": pilar.cor } as React.CSSProperties;
             return (
               <li key={pilar.slug}>
-                <Link href={`/pilar/${pilar.slug}`} className={`pilar-item${prog?.concluido ? " pilar-item-concluido" : ""}`} style={{ "--cor": pilar.cor } as React.CSSProperties}>
-                  <span className="pilar-item-nome">{pilar.nome}</span>
-                  <span className="pilar-item-temas">{pilar.temas.join(" · ")}</span>
-                  {prog && (
-                    <span className={`pilar-item-prog${prog.salvo && !prog.pendente ? "" : " pilar-item-prog-pend"}`}>
-                      {rotuloProgresso(prog)}
-                    </span>
-                  )}
-                </Link>
+                {!prog || prog.bloqueado ? (
+                  <div className={`pilar-item${prog ? " pilar-item-bloqueado" : ""}`} style={estilo} aria-disabled="true">
+                    {conteudo}
+                  </div>
+                ) : (
+                  <Link href={`/pilar/${pilar.slug}`} className={`pilar-item${prog.concluido ? " pilar-item-concluido" : ""}`} style={estilo}>
+                    {conteudo}
+                  </Link>
+                )}
               </li>
             );
           })}

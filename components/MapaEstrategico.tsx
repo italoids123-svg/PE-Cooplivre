@@ -42,11 +42,14 @@ export interface Progresso {
   // Salvo, sem pendências e revisão ainda não enviada: o mapa esmaece o pilar
   // para destacar os que ainda faltam.
   concluido: boolean;
+  // Pilar fora da responsabilidade da pessoa: opaco e não clicável.
+  bloqueado: boolean;
   // Há alterações digitadas e não salvas neste pilar.
   pendente: boolean;
 }
 
 export function rotuloProgresso(p: Progresso): string {
+  if (p.bloqueado) return "sem acesso";
   if (p.pendente) return "alterações não salvas";
   return p.salvo ? "✓ salvo" : "a revisar";
 }
@@ -98,13 +101,19 @@ export function MapaEstrategico({
         const a1 = a0 + SEG;
         const [lx, ly] = ponto((R_IN + R_OUT) / 2, a0 + SEG / 2);
         const prog = progresso?.[p.slug];
-        const abrir = () => router.push(`/pilar/${p.slug}`);
+        // Enquanto o acesso não carregou, nenhum pilar é clicável.
+        const bloqueado = !prog || prog.bloqueado;
+        const abrir = () => {
+          if (!bloqueado) router.push(`/pilar/${p.slug}`);
+        };
+        const classe = prog?.bloqueado ? "pilar-bloqueado" : prog?.concluido ? "pilar-concluido" : undefined;
         return (
-          <g key={p.slug} className={prog?.concluido ? "pilar-concluido" : undefined}>
+          <g key={p.slug} className={classe}>
             <g
               className="seg"
-              role="link"
-              tabIndex={0}
+              role={bloqueado ? undefined : "link"}
+              tabIndex={bloqueado ? -1 : 0}
+              aria-disabled={bloqueado || undefined}
               aria-label={`${p.nome}${prog ? ` — ${rotuloProgresso(prog)}` : ""}`}
               onClick={abrir}
               onKeyDown={(e) => {

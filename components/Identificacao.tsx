@@ -2,12 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AMBICAO, LOCALIDADES } from "@/lib/data";
-import { definirParticipante, propostaParticipante, useParticipante } from "@/lib/participante";
+import { AMBICAO } from "@/lib/data";
+import { definirParticipante, useParticipante } from "@/lib/participante";
 import type { Participante } from "@/lib/types";
 import { Brand } from "./Brand";
-
-const OUTRA = "__outra__";
 
 export function Identificacao() {
   const router = useRouter();
@@ -26,20 +24,17 @@ export function Identificacao() {
   return <Formulario key={editar ? (atual?.id ?? "novo") : "novo"} inicial={editar ? atual : null} onEntrou={() => setEnviouAgora(true)} />;
 }
 
-function Formulario({ inicial, onEntrou }: { inicial: { nome: string; cargo: string; localidade: string } | null; onEntrou: () => void }) {
+function Formulario({ inicial, onEntrou }: { inicial: { nome: string; cargo: string } | null; onEntrou: () => void }) {
   const router = useRouter();
-  const localConhecida = !inicial || LOCALIDADES.includes(inicial.localidade);
   const [nome, setNome] = useState(inicial?.nome ?? "");
   const [cargo, setCargo] = useState(inicial?.cargo ?? "");
-  const [local, setLocal] = useState(inicial ? (localConhecida ? inicial.localidade : OUTRA) : "");
-  const [outra, setOutra] = useState(localConhecida ? "" : (inicial?.localidade ?? ""));
   const [tentou, setTentou] = useState(false);
-
-  const localidade = local === OUTRA ? outra.trim() : local;
-  const valido = nome.trim().length >= 3 && cargo.trim().length >= 2 && localidade.length >= 2;
-
   const [entrando, setEntrando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+
+  // Nome + ao menos um sobrenome: a regra completa (lista de responsáveis) é do servidor.
+  const nomeOk = nome.trim().split(/\s+/).length >= 2;
+  const valido = nomeOk && cargo.trim().length >= 2;
 
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
@@ -48,11 +43,10 @@ function Formulario({ inicial, onEntrou }: { inicial: { nome: string; cargo: str
     setEntrando(true);
     setErro(null);
     try {
-      const proposta = propostaParticipante({ nome: nome.trim().replace(/\s+/g, " "), cargo: cargo.trim(), localidade });
       const res = await fetch("/api/identificar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ participante: proposta }),
+        body: JSON.stringify({ nome: nome.trim().replace(/\s+/g, " "), cargo: cargo.trim() }),
       });
       const body = (await res.json().catch(() => ({}))) as { participante?: Participante; retomou?: boolean; error?: string };
       if (!res.ok || !body.participante) throw new Error(body.error ?? "Não foi possível entrar agora. Tente novamente.");
@@ -70,17 +64,17 @@ function Formulario({ inicial, onEntrou }: { inicial: { nome: string; cargo: str
       <form className="ident-card" onSubmit={enviar} noValidate>
         <Brand />
         <p className="eyebrow">Mapa Estratégico 2027–2030</p>
-        <h1>Sua visão constrói a nossa estratégia</h1>
+        <h1>Revisão dos pilares estratégicos</h1>
         <p className="ident-ambicao">“{AMBICAO}”</p>
         <p className="ident-intro">
-          Identifique-se para revisar os objetivos, indicadores, metas e iniciativas de cada pilar. Suas
-          contribuições serão consolidadas pela equipe do planejamento.
+          Identifique-se para revisar os objetivos, indicadores, metas e iniciativas dos pilares sob sua
+          responsabilidade.
         </p>
 
         <label className="campo">
-          <span>Nome completo</span>
+          <span>Nome e sobrenome</span>
           <input value={nome} onChange={(e) => setNome(e.target.value)} autoComplete="name" maxLength={120} />
-          {tentou && nome.trim().length < 3 && <em>Informe seu nome.</em>}
+          {tentou && !nomeOk && <em>Informe seu nome e pelo menos um sobrenome.</em>}
         </label>
 
         <label className="campo">
@@ -89,33 +83,11 @@ function Formulario({ inicial, onEntrou }: { inicial: { nome: string; cargo: str
           {tentou && cargo.trim().length < 2 && <em>Informe seu cargo.</em>}
         </label>
 
-        <label className="campo">
-          <span>Localidade</span>
-          <select value={local} onChange={(e) => setLocal(e.target.value)}>
-            <option value="" disabled>Selecione…</option>
-            {LOCALIDADES.map((l) => <option key={l} value={l}>{l}</option>)}
-            <option value={OUTRA}>Outra…</option>
-          </select>
-          {local === OUTRA && (
-            <input
-              className="campo-extra"
-              value={outra}
-              onChange={(e) => setOutra(e.target.value)}
-              placeholder="Digite sua localidade"
-              maxLength={120}
-              autoFocus
-            />
-          )}
-          {tentou && localidade.length < 2 && <em>Informe sua localidade.</em>}
-        </label>
-
-        {erro && <div className="aviso aviso-erro">{erro}</div>}
+        {erro && <div className="aviso aviso-erro" role="alert">{erro}</div>}
         <button type="submit" className="btn btn-primario btn-bloco" disabled={entrando}>
           {entrando ? "Entrando…" : "Acessar o mapa"}
         </button>
-        <p className="ident-nota">
-          Já começou em outro aparelho? Use o mesmo nome e localidade para continuar de onde parou.
-        </p>
+        <p className="ident-nota">Já começou em outro aparelho? Entre com o mesmo nome para continuar de onde parou.</p>
       </form>
     </main>
   );

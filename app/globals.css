@@ -252,3 +252,22 @@ a{color:var(--teal)}
 }
 .instrucao-nota{display:block;margin-top:6px;font-size:13px}
 .instrucao-nota i{font-style:normal;font-weight:700;color:var(--amber)}
+
+/* Pilar fora da responsabilidade da pessoa: opaco, cinza e não clicável */
+.pilar-bloqueado .seg{cursor:not-allowed}
+.pilar-bloqueado .seg path{opacity:.18;filter:grayscale(1)}
+.pilar-bloqueado .seg-rotulo,.pilar-bloqueado .seg-prog{fill:#5c7176;opacity:.7}
+.pilar-bloqueado .map-temas{opacity:.3}
+.pilar-bloqueado .seg:hover,.pilar-bloqueado .seg:focus-visible{transform:none;filter:none}
+.pilar-item-bloqueado{opacity:.4;filter:grayscale(1);cursor:not-allowed;box-shadow:none}
+.pilar-item-bloqueado .pilar-item-prog{color:var(--muted)}
+.aviso .btn-secundario{margin-left:8px;padding:6px 12px;font-size:13px}
+
+/* Admin: tabela de responsáveis */
+.admin-resp h2{--cor:var(--sicoob)}
+.admin-tabela{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:14px}
+.admin-tabela th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);padding:8px 12px;border-bottom:2px solid var(--line)}
+.admin-tabela td{padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.admin-tabela .chip{margin:0}
+.admin-cargo{color:var(--muted)}
+.admin-kpis small{font-size:15px;color:var(--muted)}
