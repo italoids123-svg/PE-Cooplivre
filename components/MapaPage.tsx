@@ -33,10 +33,9 @@ export function MapaPage() {
     const out: Record<string, Progresso> = {};
     for (const pilar of PILARES) {
       const ids = objetivosVisiveis(pilar).map((o) => o.id);
-      out[pilar.slug] = {
-        salvo: ids.every((id) => respostas[id]?.avaliacao),
-        pendente: !enviadoEm && temRascunho(p.id, [...ids, geralId(pilar.slug)]),
-      };
+      const salvo = ids.every((id) => !!respostas[id]?.avaliacao);
+      const pendente = !enviadoEm && temRascunho(p.id, [...ids, geralId(pilar.slug)]);
+      out[pilar.slug] = { salvo, pendente, concluido: !enviadoEm && salvo && !pendente };
     }
     return out;
   }, [respostas, p, enviadoEm]);
@@ -144,7 +143,7 @@ export function MapaPage() {
             const prog = progresso?.[pilar.slug];
             return (
               <li key={pilar.slug}>
-                <Link href={`/pilar/${pilar.slug}`} className="pilar-item" style={{ "--cor": pilar.cor } as React.CSSProperties}>
+                <Link href={`/pilar/${pilar.slug}`} className={`pilar-item${prog?.concluido ? " pilar-item-concluido" : ""}`} style={{ "--cor": pilar.cor } as React.CSSProperties}>
                   <span className="pilar-item-nome">{pilar.nome}</span>
                   <span className="pilar-item-temas">{pilar.temas.join(" · ")}</span>
                   {prog && (

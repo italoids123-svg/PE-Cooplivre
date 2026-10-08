@@ -22,6 +22,7 @@ const NOME_CAMPO: Record<CampoResposta, string> = {
 interface InfoObjetivo {
   pilar: string;
   ordem: string;
+  codigo: string;
   objetivo: string;
   responsavel: string;
   indicadores: string;
@@ -36,16 +37,18 @@ function catalogo(): Record<string, InfoObjetivo> {
       out[o.id] = {
         pilar: p.nome,
         ordem: `${ip + 1}.${io + 1}`,
+        codigo: o.codigo,
         objetivo: o.titulo + (o.visivel ? "" : " (oculto no evento)"),
         responsavel: o.responsavel,
         indicadores: o.kpis.map((k) => k.indicador ?? "Em definição").join("\n"),
-        metas: o.kpis.map((k) => k.meta ?? (k.rascunho ? `Em definição (proposta: ${k.rascunho})` : "Em definição")).join("\n"),
+        metas: o.kpis.map((k) => (k.meta ? `${k.meta}${k.emAnalise ? " [em análise]" : ""}` : "Em definição")).join("\n"),
         iniciativas: o.iniciativas.join("\n") || "Em definição",
       };
     });
     out[geralId(p.slug)] = {
       pilar: p.nome,
       ordem: `${ip + 1}.+`,
+      codigo: `${p.nome} (geral)`,
       objetivo: "Falta algo neste pilar?",
       responsavel: "",
       indicadores: "",
@@ -157,7 +160,7 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
       const cont = Object.fromEntries(AVALIACOES.map((a) => [a, rs.filter((r) => r.avaliacao === a).length])) as Record<Avaliacao, number>;
       const avaliadas = cont.concordo + cont.ajustes + cont.discordo;
       return {
-        ordem: info[oid].ordem, pilar: info[oid].pilar, objetivo: info[oid].objetivo, responsavel: info[oid].responsavel,
+        codigo: info[oid].codigo, pilar: info[oid].pilar, objetivo: info[oid].objetivo, responsavel: info[oid].responsavel,
         respostas: rs.length, concordo: cont.concordo, ajustes: cont.ajustes, discordo: cont.discordo,
         pctConcordo: avaliadas ? cont.concordo / avaliadas : null,
         sugestoes: rs.filter((r) => r.indicador || r.meta || r.iniciativas || r.comentario).length,
@@ -165,7 +168,7 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
     }),
   );
   aba(wb, "Resumo (enviadas)", [
-    { header: "Nº", key: "ordem", width: 6 },
+    { header: "Código", key: "codigo", width: 9 },
     { header: "Pilar", key: "pilar", width: 24 },
     { header: "Objetivo", key: "objetivo", width: 55 },
     { header: "Responsável", key: "responsavel", width: 14 },
@@ -182,7 +185,7 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
     const i = info[r.objetivoId];
     const p = pessoas[r.participanteId];
     return {
-      ordem: i?.ordem, pilar: i?.pilar ?? r.pilar, objetivo: i?.objetivo ?? r.objetivoId,
+      codigo: i?.codigo ?? r.objetivoId, pilar: i?.pilar ?? r.pilar, objetivo: i?.objetivo ?? r.objetivoId,
       indicadorAtual: i?.indicadores, metaAtual: i?.metas, iniciativasAtuais: i?.iniciativas,
       nome: p?.nome, cargo: p?.cargo, localidade: p?.localidade, status: status(r.participanteId),
       duplicata: duplicata.get(r.participanteId) ?? "", noResumo: noResumo.has(r.participanteId) ? "Sim" : "Não",
@@ -192,7 +195,7 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
     };
   });
   aba(wb, "Contribuições", [
-    { header: "Nº", key: "ordem", width: 6 },
+    { header: "Código", key: "codigo", width: 9 },
     { header: "Pilar", key: "pilar", width: 22 },
     { header: "Objetivo", key: "objetivo", width: 40 },
     { header: "Indicador proposto", key: "indicadorAtual", width: 32 },

@@ -36,9 +36,9 @@ são apenas sinalizados — confira manualmente. Cada envio que muda algo vira u
 
 ## Conteúdo
 
-Todo o conteúdo está em `lib/data.ts` (transcrito da planilha *Consolidado*, pós-workshop 19/08). Regras de
+Todo o conteúdo está em `lib/data.ts` (transcrito da planilha *Cooplivre PE - Revisão*, aba Revisado), incluindo o **intuito** de cada pilar, exibido abaixo do nome na página do pilar. Regras de
 transcrição no topo do arquivo. Status/Observação da planilha **não** são exibidos. Objetivos com
-`visivel: false` (hoje `rp-2` e `rp-3`, marcados "EXCLUIR") ficam fora do evento. Nunca reaproveite um `id`.
+`visivel: false` (hoje S3.6, R2.2 e R2.3 — linhas cinza "excluída/realocada") ficam fora do evento. Nunca reaproveite um `id`.
 
 ## Rodando localmente
 

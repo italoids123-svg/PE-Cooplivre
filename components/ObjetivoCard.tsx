@@ -27,11 +27,10 @@ function Campo({ label, value, onChange, placeholder, bloqueado }: {
   );
 }
 
-function EmDefinicao({ rascunho }: { rascunho?: string }) {
+function EmDefinicao() {
   return (
     <span className="em-definicao">
       <i>Em definição</i>
-      {rascunho && <span className="rascunho">Proposta em discussão: {rascunho}</span>}
     </span>
   );
 }
@@ -44,7 +43,7 @@ export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloquead
   problema: string | null;
   bloqueado: boolean;
 }) {
-  const temPendencia = objetivo.kpis.some((k) => !k.indicador || !k.meta) || objetivo.iniciativas.length === 0;
+  const temPendencia = objetivo.kpis.some((k) => !k.indicador || !k.meta || k.emAnalise) || objetivo.iniciativas.length === 0;
   const pedeDetalhe = form.avaliacao === "ajustes" || form.avaliacao === "discordo";
   const ok = !problemaDe(form);
 
@@ -52,7 +51,13 @@ export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloquead
     <article className={`obj${ok ? " obj-feito" : ""}${problema ? " obj-problema" : ""}`} id={objetivo.id}>
       <header className="obj-head">
         <span className="obj-num">{ok ? "✓" : numero}</span>
-        <h2>{objetivo.titulo}</h2>
+        <div className="obj-tit">
+          <span className="obj-codigo">
+            {objetivo.codigo}
+            {objetivo.novo && <i className="obj-novo">Novo objetivo proposto</i>}
+          </span>
+          <h2>{objetivo.titulo}</h2>
+        </div>
       </header>
 
       <div className="obj-corpo">
@@ -64,7 +69,10 @@ export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloquead
             {objetivo.kpis.map((k, i) => (
               <tr key={i}>
                 <td data-label="Indicador">{k.indicador ?? <EmDefinicao />}</td>
-                <td data-label="Meta">{k.meta ?? <EmDefinicao rascunho={k.rascunho} />}</td>
+                <td data-label="Meta">
+                  {k.meta ?? <EmDefinicao />}
+                  {k.meta && k.emAnalise && <span className="em-definicao em-analise"><i>Meta em análise</i></span>}
+                </td>
               </tr>
             ))}
           </tbody>

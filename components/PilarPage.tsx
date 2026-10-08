@@ -38,6 +38,7 @@ export function PilarPage({ slug }: { slug: string }) {
         <div className="pilar-hero-in">
           <p className="eyebrow eyebrow-claro">Pilar estratégico</p>
           <h1>{pilar.nome}</h1>
+          <p className="pilar-intuito">{pilar.intuito}</p>
           <ul className="pilar-temas">
             {pilar.temas.map((t) => <li key={t}>{t}</li>)}
           </ul>
@@ -66,6 +67,10 @@ export function PilarPage({ slug }: { slug: string }) {
             Avalie todos os objetivos deste pilar e clique em <b className="inline">Salvar pilar</b> no fim da página. Se algo
             pode melhorar, escreva sua sugestão — seja específico: qual número, qual ação, por quê. Depois de salvar os 5
             pilares, o botão <b className="inline">Enviar revisão</b> aparece no mapa.
+            <span className="instrucao-nota">
+              <b className="inline">Linha de base 2026</b> é o valor atual do indicador, que ainda será medido.
+              Metas marcadas como <i>em análise</i> ainda estão abertas — sugestões ali são especialmente úteis.
+            </span>
           </div>
         )}
         {erro && <div className="aviso aviso-erro">{erro}</div>}

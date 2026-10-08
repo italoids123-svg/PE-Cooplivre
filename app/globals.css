@@ -227,3 +227,28 @@ a{color:var(--teal)}
 .envio-feito .envio-acoes{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
 .envio-feito .envio-acoes span{margin:0;font-size:13px}
 .aviso .envio-acoes{margin-top:10px}
+
+/* Intuito do pilar, logo abaixo do nome */
+.pilar-intuito{margin:8px 0 0;font-size:15.5px;line-height:1.4;max-width:680px;color:rgba(255,255,255,.92)}
+
+/* Código e selos do objetivo */
+.obj-tit{min-width:0}
+.obj-codigo{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;font-weight:800;letter-spacing:.6px;color:var(--cor);margin-bottom:2px}
+.obj-novo{font-style:normal;font-weight:700;font-size:11px;letter-spacing:0;color:var(--ok);background:var(--ok-light);border-radius:6px;padding:1px 7px}
+.obj-head h2{padding-top:0}
+.em-analise{display:block;margin-top:5px}
+
+/* Mapa: pilar já salvo fica esmaecido para destacar os que faltam */
+.pilar-concluido .seg path{opacity:.32}
+.pilar-concluido .seg-rotulo,.pilar-concluido .seg-prog{opacity:.75}
+.pilar-concluido .map-temas{opacity:.4}
+.pilar-concluido .seg:focus-visible path{opacity:.6}
+.seg path{transition:opacity .25s ease}
+.pilar-item-concluido{opacity:.5}
+/* Só em aparelhos com mouse: no toque o :hover "gruda" e desfaria o esmaecimento. */
+@media (hover:hover){
+  .pilar-concluido .seg:hover path{opacity:.6}
+  .pilar-item-concluido:hover{opacity:.8}
+}
+.instrucao-nota{display:block;margin-top:6px;font-size:13px}
+.instrucao-nota i{font-style:normal;font-weight:700;color:var(--amber)}

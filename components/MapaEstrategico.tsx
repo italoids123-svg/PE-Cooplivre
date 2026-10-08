@@ -39,6 +39,9 @@ function quebrar(texto: string, max = 28): string[] {
 
 export interface Progresso {
   salvo: boolean;
+  // Salvo, sem pendências e revisão ainda não enviada: o mapa esmaece o pilar
+  // para destacar os que ainda faltam.
+  concluido: boolean;
   // Há alterações digitadas e não salvas neste pilar.
   pendente: boolean;
 }
@@ -97,7 +100,7 @@ export function MapaEstrategico({
         const prog = progresso?.[p.slug];
         const abrir = () => router.push(`/pilar/${p.slug}`);
         return (
-          <g key={p.slug}>
+          <g key={p.slug} className={prog?.concluido ? "pilar-concluido" : undefined}>
             <g
               className="seg"
               role="link"
