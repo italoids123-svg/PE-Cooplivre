@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { sair, useParticipante } from "@/lib/participante";
+import { BotaoTelaCheia } from "./BotaoTelaCheia";
 import { Brand } from "./Brand";
 
 export function TopBar({ voltar }: { voltar?: boolean }) {
@@ -22,6 +23,7 @@ export function TopBar({ voltar }: { voltar?: boolean }) {
         <div className="top-user">
           <span className="top-user-nome">{p.nome}</span>
           <span className="top-user-meta">{p.cargo}</span>
+          <BotaoTelaCheia />
           <button
             type="button"
             className="top-sair"

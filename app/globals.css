@@ -295,3 +295,10 @@ a{color:var(--teal)}
 .acomp-linha{display:block;font-size:13.5px;color:var(--muted)}
 .acomp-linha b{color:var(--ink)}
 .acomp-linha-ativa{color:#8a5a12}
+
+/* Botão de tela cheia (barra superior) */
+.top-tela-cheia{display:inline-flex;align-items:center;gap:5px}
+.top-tela-cheia svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+@media (max-width:640px){.top-tela-cheia span{display:none}.top-tela-cheia{padding:6px 8px}}
+/* Celular estreito: o nome já aparece na saudação; a barra fica só com as ações. */
+@media (max-width:420px){.top-user-nome{display:none}}
