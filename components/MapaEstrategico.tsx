@@ -39,6 +39,8 @@ function quebrar(texto: string, max = 28): string[] {
 
 export interface Progresso {
   salvo: boolean;
+  // Quem tem acesso a todos os pilares só acompanha: o rótulo convida a acessar, não a revisar.
+  monitor?: boolean;
   // Salvo, sem pendências e revisão ainda não enviada: o mapa esmaece o pilar
   // para destacar os que ainda faltam.
   concluido: boolean;
@@ -51,6 +53,7 @@ export interface Progresso {
 export function rotuloProgresso(p: Progresso): string {
   if (p.bloqueado) return "sem acesso";
   if (p.pendente) return "alterações não salvas";
+  if (p.monitor) return "acessar pilar";
   return p.salvo ? "✓ salvo" : "a revisar";
 }
 

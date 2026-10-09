@@ -43,10 +43,12 @@ export function MapaPage() {
       const ids = objetivosVisiveis(pilar).map((o) => o.id);
       const salvo = ids.every((id) => !!respostas[id]?.avaliacao);
       const pendente = !enviadoEm && temRascunho(p.id, [...ids, geralId(pilar.slug)]);
-      out[pilar.slug] = { salvo, pendente, concluido: !enviadoEm && salvo && !pendente, bloqueado: false };
+      out[pilar.slug] = veTodos
+        ? { salvo: false, pendente: false, concluido: false, bloqueado: false, monitor: true }
+        : { salvo, pendente, concluido: !enviadoEm && salvo && !pendente, bloqueado: false };
     }
     return out;
-  }, [respostas, p, enviadoEm, pilares]);
+  }, [respostas, p, enviadoEm, pilares, veTodos]);
 
   if (!p) return <div className="pagina" />;
 
@@ -89,10 +91,12 @@ export function MapaPage() {
                 ? `Obrigado, ${p.nome.split(" ")[0]}! Sua revisão foi enviada.`
                 : reaberta
                   ? `${p.nome.split(" ")[0]}, sua revisão está aberta para ajustes. Altere o que quiser, salve os pilares e reenvie.`
+                : veTodos
+                  ? `Olá, ${p.nome.split(" ")[0]}! Acesse os objetivos, indicadores, metas e iniciativas de cada pilar.`
                 : `Olá, ${p.nome.split(" ")[0]}! Revise ${total === 1 ? "o pilar destacado" : "os pilares destacados"} — ${total === 1 ? "é o que está" : "são os que estão"} sob sua responsabilidade. Depois de salvar ${nPilares}, envie sua revisão.`}
             </p>
           </div>
-          {progresso && !enviadoEm && total > 0 && (
+          {progresso && !enviadoEm && total > 0 && !veTodos && (
             <div className="mapa-prog" aria-live="polite">
               <b>{salvos}<small>/{total}</small></b>
               <span>{total === 1 ? "pilar salvo" : "pilares salvos"}</span>
