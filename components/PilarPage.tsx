@@ -74,8 +74,9 @@ export function PilarPage({ slug }: { slug: string }) {
             pode melhorar, escreva sua sugestão — seja específico: qual número, qual ação, por quê. Depois de salvar os
             pilares sob sua responsabilidade, o botão <b className="inline">Enviar revisão</b> aparece no mapa.
             <span className="instrucao-nota">
-              <b className="inline">Linha de base 2026</b> é o valor atual do indicador, que ainda será medido.
-              Metas marcadas como <i>em análise</i> ainda estão abertas — sugestões ali são especialmente úteis.
+              <b className="inline">Linha de base 2026</b> é o valor atual do indicador. Caso esteja em aberto, insira o
+              resultado nos comentários do objetivo. Metas <i>“em análise”</i> estão em aberto: sua contribuição é
+              essencial nesses pontos.
             </span>
           </div>
         )}
