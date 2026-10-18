@@ -49,6 +49,9 @@ export interface Resposta {
   objetivoId: string;
   // null no campo "falta algo neste pilar?", que não tem avaliação.
   avaliacao: Avaliacao | null;
+  // Sugestão de redação do objetivo. Só existe para quem acompanha todos os pilares;
+  // respostas gravadas antes do campo não o têm.
+  objetivo?: string;
   indicador: string;
   meta: string;
   iniciativas: string;
@@ -58,8 +61,13 @@ export interface Resposta {
   atualizadoEm: string;
 }
 
-export const CAMPOS_RESPOSTA = ["avaliacao", "indicador", "meta", "iniciativas", "comentario"] as const;
+export const CAMPOS_RESPOSTA = ["avaliacao", "objetivo", "indicador", "meta", "iniciativas", "comentario"] as const;
 export type CampoResposta = (typeof CAMPOS_RESPOSTA)[number];
+
+// Valor do campo com o padrão para registros antigos (sem `objetivo`).
+export const valorCampo = (r: Partial<Record<CampoResposta, unknown>>, c: CampoResposta) => r[c] ?? (c === "avaliacao" ? null : "");
+export const mesmosCampos = (a: Partial<Record<CampoResposta, unknown>>, b: Partial<Record<CampoResposta, unknown>>) =>
+  CAMPOS_RESPOSTA.every((c) => valorCampo(a, c) === valorCampo(b, c));
 
 // Uma linha por envio que mudou algo. Guarda o participante como estava no
 // momento (nome/cargo/localidade podem ser editados depois) e os valores de
@@ -74,7 +82,7 @@ export interface Alteracao {
   depois: Pick<Resposta, CampoResposta>;
 }
 
-export type RespostaRascunho = Pick<Resposta, "avaliacao" | "indicador" | "meta" | "iniciativas" | "comentario">;
+export type RespostaRascunho = Pick<Resposta, "avaliacao" | "objetivo" | "indicador" | "meta" | "iniciativas" | "comentario">;
 
 // Rascunho de um objetivo enquanto o responsável preenche (antes de "Salvar pilar").
 // Sincronizado em segundo plano só para acompanhamento: não é resposta, não entra

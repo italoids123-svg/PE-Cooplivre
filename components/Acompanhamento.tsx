@@ -8,6 +8,7 @@ const primeiroNome = (nome: string) => nome.split(" ")[0];
 
 function Conteudo({ r }: { r: RespostaRascunho }) {
   const linhas: [string, string][] = [
+    ["Objetivo", r.objetivo ?? ""],
     ["Indicador", r.indicador],
     ["Meta", r.meta],
     ["Iniciativas", r.iniciativas],

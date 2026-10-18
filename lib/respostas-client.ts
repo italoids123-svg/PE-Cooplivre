@@ -97,7 +97,7 @@ const rascunhoKey = (pid: string, oid: string) => `pe-cooplivre:rascunho:${pid}:
 export function lerRascunho(pid: string, oid: string): RespostaRascunho | null {
   try {
     const raw = window.localStorage.getItem(rascunhoKey(pid, oid));
-    return raw ? (JSON.parse(raw) as RespostaRascunho) : null;
+    return raw ? { objetivo: "", ...(JSON.parse(raw) as RespostaRascunho) } : null;
   } catch {
     return null;
   }

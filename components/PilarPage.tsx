@@ -7,16 +7,18 @@ import { geralId, getPilar, objetivosVisiveis, PILARES, type Pilar } from "@/lib
 import { useParticipante } from "@/lib/participante";
 import { criarSincronizador, useAcompanhamento } from "@/lib/acompanhamento";
 import { gravarRascunho, lerRascunho, salvarPilar, useMinhaRevisao, type MapaRespostas } from "@/lib/respostas-client";
-import { CAMPOS_RESPOSTA, type Acompanhamento, type Participante, type Resposta, type RespostaRascunho } from "@/lib/types";
-import { ObjetivoCard, problemaDe, SugestaoGeralCard, VAZIO, type Mudar } from "./ObjetivoCard";
+import { mesmosCampos, type Acompanhamento, type Participante, type Resposta, type RespostaRascunho } from "@/lib/types";
+import { ObjetivoCard, problemaDe, SugestaoGeralCard, temTexto, VAZIO, type Mudar } from "./ObjetivoCard";
 import { BotaoAjustes } from "./BotaoAjustes";
 import { QuadroObjetivo } from "./Acompanhamento";
 import { TopBar } from "./TopBar";
 
 const deResposta = (r: Resposta | undefined): RespostaRascunho =>
-  r ? { avaliacao: r.avaliacao, indicador: r.indicador, meta: r.meta, iniciativas: r.iniciativas, comentario: r.comentario } : VAZIO;
+  r
+    ? { avaliacao: r.avaliacao, objetivo: r.objetivo ?? "", indicador: r.indicador, meta: r.meta, iniciativas: r.iniciativas, comentario: r.comentario }
+    : VAZIO;
 
-const igual = (a: RespostaRascunho, b: RespostaRascunho) => CAMPOS_RESPOSTA.every((c) => a[c] === b[c]);
+const igual = mesmosCampos;
 
 export function PilarPage({ slug }: { slug: string }) {
   const router = useRouter();
@@ -51,6 +53,8 @@ export function PilarPage({ slug }: { slug: string }) {
           <p className="pilar-hero-prog">
             {!respostas
               ? "Carregando suas respostas…"
+              : veTodos
+                ? `${objetivos.length} objetivos · campos abertos para ajustes`
               : salvos === objetivos.length
                 ? "✓ Pilar salvo"
                 : `${objetivos.length} objetivos para revisar`}
@@ -66,6 +70,14 @@ export function PilarPage({ slug }: { slug: string }) {
             <div className="envio-acoes">
               <BotaoAjustes participanteId={p.id} onReaberto={setServidor} />
             </div>
+          </div>
+        ) : veTodos ? (
+          <div className="instrucao">
+            <b>Como ajustar</b>
+            Cada objetivo tem campos abertos para ajustar o objetivo, os indicadores, as metas e as iniciativas. Use{" "}
+            <b className="inline">Editar texto atual</b> para partir da redação do plano, ou escreva só o que muda. A
+            avaliação é opcional. Clique em <b className="inline">Salvar ajustes</b> no fim da página — os campos em
+            branco mantêm o texto atual.
           </div>
         ) : (
           <div className="instrucao">
@@ -97,6 +109,7 @@ export function PilarPage({ slug }: { slug: string }) {
             participante={p}
             respostas={respostas}
             bloqueado={!!enviadoEm}
+            livre={veTodos}
             sincronizar={!veTodos && !enviadoEm}
             acompanhamento={veTodos ? acomp : null}
             onSalvo={(lista) => {
@@ -110,11 +123,13 @@ export function PilarPage({ slug }: { slug: string }) {
   );
 }
 
-function FormularioPilar({ pilar, participante, respostas, bloqueado, sincronizar, acompanhamento, onSalvo }: {
+function FormularioPilar({ pilar, participante, respostas, bloqueado, livre, sincronizar, acompanhamento, onSalvo }: {
   pilar: Pilar;
   participante: Participante;
   respostas: MapaRespostas;
   bloqueado: boolean;
+  // Quem acompanha todos os pilares: ajustes livres, sem avaliação obrigatória.
+  livre: boolean;
   sincronizar: boolean;
   acompanhamento: Acompanhamento | null;
   onSalvo: (r: Resposta[]) => void;
@@ -153,7 +168,8 @@ function FormularioPilar({ pilar, participante, respostas, bloqueado, sincroniza
 
   const sujos = ids.filter((id) => !igual(forms[id], deResposta(respostas[id])));
   const completo = objetivos.every((o) => respostas[o.id]?.avaliacao);
-  const problemas = Object.fromEntries(objetivos.map((o) => [o.id, problemaDe(forms[o.id])]));
+  const problemas = Object.fromEntries(objetivos.map((o) => [o.id, problemaDe(forms[o.id], livre)]));
+  const algumSalvo = ids.some((id) => respostas[id]);
   const pendentes = objetivos.filter((o) => problemas[o.id]).length;
 
   // Efeitos (rascunho local e sincronização) ficam no handler, fora do updater de
@@ -178,7 +194,10 @@ function FormularioPilar({ pilar, participante, respostas, bloqueado, sincroniza
     setErro(null);
     try {
       // Todos os objetivos vão juntos; o campo geral só se tiver algo ou já existia.
-      const itens = objetivos.map((o) => ({ objetivoId: o.id, dados: forms[o.id] }));
+      // No modo livre só vai o que tem conteúdo ou já existia (para poder apagar).
+      const itens = objetivos
+        .filter((o) => !livre || forms[o.id].avaliacao || temTexto(forms[o.id]) || respostas[o.id])
+        .map((o) => ({ objetivoId: o.id, dados: forms[o.id] }));
       if (forms[gid].comentario.trim() || respostas[gid]) itens.push({ objetivoId: gid, dados: forms[gid] });
       sinc?.cancelar();
       const gravadas = await salvarPilar(participante, itens);
@@ -201,6 +220,7 @@ function FormularioPilar({ pilar, participante, respostas, bloqueado, sincroniza
           mudar={mudarDe(o.id)}
           problema={mostrarProblemas ? problemas[o.id] : null}
           bloqueado={bloqueado}
+          livre={livre}
           acompanhamento={quadro(o.id)}
         />
       ))}
@@ -209,6 +229,27 @@ function FormularioPilar({ pilar, participante, respostas, bloqueado, sincroniza
       {bloqueado ? (
         <div className="salvar-barra">
           <Link href="/mapa" className="btn btn-primario">Voltar ao mapa</Link>
+        </div>
+      ) : livre ? (
+        <div className="salvar-barra">
+          <div className="salvar-status">
+            {erro ? (
+              <span className="status status-erro" role="alert">{erro}</span>
+            ) : sujos.length > 0 ? (
+              <span className="status status-pendente">Ajustes ainda não salvos</span>
+            ) : algumSalvo ? (
+              <span className="status status-ok">✓ Ajustes salvos</span>
+            ) : (
+              <span className="status">Nenhum ajuste neste pilar</span>
+            )}
+          </div>
+          {sujos.length === 0 ? (
+            <Link href="/mapa" className="btn btn-primario">Voltar ao mapa</Link>
+          ) : (
+            <button type="button" className="btn btn-primario" onClick={salvar} disabled={salvando}>
+              {salvando ? "Salvando…" : "Salvar ajustes"}
+            </button>
+          )}
         </div>
       ) : (
         <div className="salvar-barra">

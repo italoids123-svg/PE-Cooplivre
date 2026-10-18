@@ -4,7 +4,7 @@ import { geralId, PILARES } from "./data";
 import type { Snapshot } from "./store";
 import { RESPONSAVEIS, responsavelPorId } from "./acesso";
 import {
-  AVALIACAO_LABEL, AVALIACOES, CAMPOS_RESPOSTA, enviosDe, STATUS_LABEL, statusRevisao,
+  AVALIACAO_LABEL, AVALIACOES, CAMPOS_RESPOSTA, enviosDe, STATUS_LABEL, statusRevisao, valorCampo as valorDe,
   type Avaliacao, type CampoResposta,
 } from "./types";
 
@@ -13,6 +13,7 @@ const COR_CABECALHO = "FF003641";
 
 const NOME_CAMPO: Record<CampoResposta, string> = {
   avaliacao: "Avaliação",
+  objetivo: "Sugestão p/ objetivo",
   indicador: "Sugestão p/ indicador",
   meta: "Sugestão p/ meta",
   iniciativas: "Sugestão p/ iniciativas",
@@ -131,7 +132,7 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
         codigo: info[oid].codigo, pilar: info[oid].pilar, objetivo: info[oid].objetivo, responsavel: info[oid].responsavel,
         respostas: rs.length, concordo: cont.concordo, ajustes: cont.ajustes, discordo: cont.discordo,
         pctConcordo: avaliadas ? cont.concordo / avaliadas : null,
-        sugestoes: rs.filter((r) => r.indicador || r.meta || r.iniciativas || r.comentario).length,
+        sugestoes: rs.filter((r) => r.objetivo || r.indicador || r.meta || r.iniciativas || r.comentario).length,
       };
     }),
   );
@@ -157,7 +158,7 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
       indicadorAtual: i?.indicadores, metaAtual: i?.metas, iniciativasAtuais: i?.iniciativas,
       nome: p?.nome, cargo: p?.cargo, status: status(r.participanteId),
       noResumo: noResumo.has(r.participanteId) ? "Sim" : "Não",
-      avaliacao: rotulo(r.avaliacao), indicador: r.indicador, meta: r.meta, iniciativas: r.iniciativas, comentario: r.comentario,
+      avaliacao: rotulo(r.avaliacao), sugObjetivo: r.objetivo ?? "", indicador: r.indicador, meta: r.meta, iniciativas: r.iniciativas, comentario: r.comentario,
       edicoes: edicoes[`${r.participanteId}|${r.objetivoId}`] ?? 1,
       criadoEm: dataLocal(r.criadoEm ?? r.atualizadoEm), atualizadoEm: dataLocal(r.atualizadoEm),
     };
@@ -174,6 +175,7 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
     { header: "Status da revisão", key: "status", width: 16 },
     { header: "Entra no resumo", key: "noResumo", width: 10 },
     { header: "Avaliação", key: "avaliacao", width: 16 },
+    { header: "Sugestão p/ objetivo", key: "sugObjetivo", width: 34 },
     { header: "Sugestão p/ indicador", key: "indicador", width: 34 },
     { header: "Sugestão p/ meta", key: "meta", width: 34 },
     { header: "Sugestão p/ iniciativas", key: "iniciativas", width: 34 },
@@ -187,7 +189,7 @@ export async function montarPlanilha(dados: Snapshot): Promise<ArrayBuffer> {
   const hist = [...dados.historico]
     .sort((a, b) => a.em.localeCompare(b.em))
     .flatMap((h) =>
-      CAMPOS_RESPOSTA.filter((c) => (h.antes?.[c] ?? (c === "avaliacao" ? null : "")) !== h.depois[c]).map((c) => ({
+      CAMPOS_RESPOSTA.filter((c) => (h.antes ? valorDe(h.antes, c) : c === "avaliacao" ? null : "") !== valorDe(h.depois, c)).map((c) => ({
         em: dataLocal(h.em),
         nome: h.participante.nome, cargo: h.participante.cargo,
         pilar: info[h.objetivoId]?.pilar ?? h.pilar, objetivo: info[h.objetivoId]?.objetivo ?? h.objetivoId,

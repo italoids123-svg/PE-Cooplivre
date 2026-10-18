@@ -127,7 +127,13 @@ export function MapaPage() {
           </div>
         )}
 
-        {salvoAgora && !enviadoEm && progresso?.[salvoAgora.slug]?.salvo && (
+        {salvoAgora && veTodos && (
+          <div className="aviso aviso-ok" role="status">
+            ✓ Ajustes em <b>{salvoAgora.nome}</b> salvos.
+          </div>
+        )}
+
+        {salvoAgora && !veTodos && !enviadoEm && progresso?.[salvoAgora.slug]?.salvo && (
           <div className="aviso aviso-ok" role="status">
             ✓ Pilar <b>{salvoAgora.nome}</b> salvo.{" "}
             {salvos < total ? "Escolha o próximo pilar para continuar." : total === 1 ? "Agora é só enviar." : "Todos os seus pilares estão salvos — agora é só enviar."}

@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { pilaresDe, responsavelPorId } from "@/lib/acesso";
+import { pilaresDe, responsavelPorId, veTodos } from "@/lib/acesso";
 import { AcessoNegadoError, respostaDeErro } from "@/lib/api-erros";
 import { getStore } from "@/lib/store";
 import { participanteId, validarParticipante, validarResposta, ValidationError } from "@/lib/validate";
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const participante = { ...enviado, nome: pessoa.nome };
     const lista = Array.isArray(body?.respostas) ? body.respostas : [];
     if (lista.length > 50) throw new ValidationError("Respostas demais em um envio");
-    const respostas = lista.map((r) => validarResposta(r, participante.id));
+    const respostas = lista.map((r) => validarResposta(r, participante.id, veTodos(participante.id)));
     const fora = respostas.find((r) => !pessoa.pilares.includes(r.pilar));
     if (fora) throw new AcessoNegadoError("Você não tem acesso a este pilar.");
     const store = getStore();

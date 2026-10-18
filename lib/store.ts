@@ -1,7 +1,7 @@
 import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { CAMPOS_RESPOSTA, enviosDe, type Alteracao, type Participante, type Rascunho, type Resposta } from "./types";
+import { CAMPOS_RESPOSTA, enviosDe, mesmosCampos, valorCampo, type Alteracao, type Participante, type Rascunho, type Resposta } from "./types";
 
 // Armazenamento das respostas do evento.
 //
@@ -93,7 +93,7 @@ function conferirCompleta(respostas: Resposta[], obrigatorios: string[]) {
 const chave = (r: Resposta) => `${r.participanteId}|${r.objetivoId}`;
 
 const campos = (r: Resposta) =>
-  Object.fromEntries(CAMPOS_RESPOSTA.map((c) => [c, r[c]])) as Alteracao["depois"];
+  Object.fromEntries(CAMPOS_RESPOSTA.map((c) => [c, valorCampo(r, c)])) as Alteracao["depois"];
 
 // Junta o envio com o que já estava gravado: preserva criadoEm, descarta envios
 // idênticos e gera uma linha de histórico por envio que mudou algo.
@@ -103,7 +103,7 @@ function mesclar(p: Participante, anteriores: (Resposta | null)[], novas: Respos
   const quem = { id: p.id, nome: p.nome, cargo: p.cargo, localidade: p.localidade };
   novas.forEach((r, i) => {
     const prev = anteriores[i];
-    if (prev && CAMPOS_RESPOSTA.every((c) => prev[c] === r[c])) {
+    if (prev && mesmosCampos(prev, r)) {
       gravar.push(prev);
       return;
     }

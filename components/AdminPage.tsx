@@ -145,7 +145,7 @@ export function AdminPage() {
             {[...objetivosVisiveis(p).map((o) => ({ id: o.id, titulo: o.titulo })), { id: geralId(p.slug), titulo: "Falta algo neste pilar?" }].map((o) => {
               const rs = porObjetivo[o.id] ?? [];
               const cont = Object.fromEntries(AVALIACOES.map((a) => [a, rs.filter((r) => r.avaliacao === a).length]));
-              const textos = rs.filter((r) => r.indicador || r.meta || r.iniciativas || r.comentario);
+              const textos = rs.filter((r) => r.objetivo || r.indicador || r.meta || r.iniciativas || r.comentario);
               return (
                 <details key={o.id} className="admin-obj">
                   <summary>
@@ -173,6 +173,7 @@ export function AdminPage() {
                                 <span className="chip">editado {edicoes[`${r.participanteId}|${r.objetivoId}`] - 1}×</span>
                               )}
                             </div>
+                            {r.objetivo && <p><i>Objetivo:</i> {r.objetivo}</p>}
                             {r.indicador && <p><i>Indicador:</i> {r.indicador}</p>}
                             {r.meta && <p><i>Meta:</i> {r.meta}</p>}
                             {r.iniciativas && <p><i>Iniciativas:</i> {r.iniciativas}</p>}

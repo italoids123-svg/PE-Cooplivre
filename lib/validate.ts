@@ -33,14 +33,15 @@ export function validarParticipante(v: unknown): Participante {
   return p;
 }
 
-export function validarResposta(v: unknown, pid: string): Resposta {
+// livre: quem acompanha todos os pilares ajusta sem precisar avaliar o objetivo.
+export function validarResposta(v: unknown, pid: string, livre = false): Resposta {
   const o = (v ?? {}) as Record<string, unknown>;
   const objetivoId = texto(o.objetivoId, "objetivoId", MAX_CAMPO_ID);
   const pilar = IDS.get(objetivoId);
   if (!pilar) throw new ValidationError(`Objetivo desconhecido: ${objetivoId}`);
   const geral = objetivoId.endsWith(":geral");
   const avaliacao = o.avaliacao == null ? null : (o.avaliacao as Avaliacao);
-  if (geral ? avaliacao !== null : !AVALIACOES.includes(avaliacao as Avaliacao)) {
+  if (geral ? avaliacao !== null : avaliacao === null ? !livre : !AVALIACOES.includes(avaliacao)) {
     throw new ValidationError("Selecione uma avaliação");
   }
   const r: Resposta = {
@@ -48,6 +49,7 @@ export function validarResposta(v: unknown, pid: string): Resposta {
     pilar: pilar.slug,
     objetivoId,
     avaliacao,
+    ...(livre && { objetivo: texto(o.objetivo, "objetivo") }),
     indicador: texto(o.indicador, "indicador"),
     meta: texto(o.meta, "meta"),
     iniciativas: texto(o.iniciativas, "iniciativas"),
@@ -58,8 +60,8 @@ export function validarResposta(v: unknown, pid: string): Resposta {
   };
   // "Discordo" ou "com ajustes" sem dizer o quê não é acionável. O campo geral
   // ("falta algo?") é opcional e pode ser enviado vazio para apagar o que havia.
-  const temTexto = !!(r.indicador || r.meta || r.iniciativas || r.comentario);
-  if (!geral && avaliacao !== "concordo" && !temTexto) {
+  const temTexto = !!(r.objetivo || r.indicador || r.meta || r.iniciativas || r.comentario);
+  if (!geral && !livre && avaliacao !== "concordo" && !temTexto) {
     throw new ValidationError("Descreva sua sugestão em pelo menos um dos campos");
   }
   return r;
@@ -81,6 +83,7 @@ export function validarRascunho(v: unknown): { objetivoId: string; pilar: string
     pilar: pilar.slug,
     dados: {
       avaliacao,
+      objetivo: texto(d.objetivo, "objetivo"),
       indicador: texto(d.indicador, "indicador"),
       meta: texto(d.meta, "meta"),
       iniciativas: texto(d.iniciativas, "iniciativas"),

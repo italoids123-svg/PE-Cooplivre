@@ -3,12 +3,12 @@ import { responsaveisAcompanhados, veTodos } from "@/lib/acesso";
 import { AcessoNegadoError, respostaDeErro } from "@/lib/api-erros";
 import { geralId, objetivosVisiveis, PILARES } from "@/lib/data";
 import { getStore } from "@/lib/store";
-import { CAMPOS_RESPOSTA, statusRevisao, type Acompanhamento, type ObjetivoAcompanhado, type RespostaRascunho, type ResponsavelAcompanhado } from "@/lib/types";
+import { CAMPOS_RESPOSTA, mesmosCampos, statusRevisao, valorCampo, type Acompanhamento, type ObjetivoAcompanhado, type RespostaRascunho, type ResponsavelAcompanhado } from "@/lib/types";
 import { participanteId } from "@/lib/validate";
 
 const campos = (x: RespostaRascunho): RespostaRascunho =>
-  Object.fromEntries(CAMPOS_RESPOSTA.map((c) => [c, x[c]])) as unknown as RespostaRascunho;
-const iguais = (a: RespostaRascunho, b: RespostaRascunho) => CAMPOS_RESPOSTA.every((c) => a[c] === b[c]);
+  Object.fromEntries(CAMPOS_RESPOSTA.map((c) => [c, valorCampo(x, c)])) as unknown as RespostaRascunho;
+const iguais = (a: RespostaRascunho, b: RespostaRascunho) => mesmosCampos(a, b);
 
 // Evolução das revisões dos responsáveis de cada pilar. Só para quem tem acesso a
 // todos os pilares (lib/acesso.ts). ?pilar=slug restringe a um pilar.
