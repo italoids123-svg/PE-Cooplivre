@@ -12,6 +12,8 @@
 //   iniciativas/metas (ex.: "migram para C4.3") foram removidas.
 // - `visivel: false` esconde do evento sem apagar o registro (linhas cinza da planilha:
 //   excluídas/realocadas). O id nunca deve ser reaproveitado: respostas gravadas apontam para ele.
+// - Out/2026: atualizado com a validação da diretoria (aba Contribuições da base exportada).
+//   Objetivos excluídos nessa validação ficaram ocultos (visivel: false), com o motivo.
 
 export interface Kpi {
   indicador: string | null;
@@ -68,9 +70,11 @@ export const PILARES: Pilar[] = [
         titulo: "Desenvolver líderes e times de alta performance",
         responsavel: "Silvanira",
         kpis: [
-          { indicador: "Índice GPTW geral (favorabilidade)", meta: "75 (2026) → ≥80 em 2027 → ≥85 em 2029 → ≥88 em 2030" },
-          { indicador: "% de colaboradores com PDI ativo e conversa 1:1 registrada no período (Feedz)", meta: "≥90% dos colaboradores com PDI ativo e ≥1 conversa 1:1 registrada por mês/trimestre, a partir de 2027" },
-          { indicador: "% de vagas de liderança e de especialistas preenchidas por recrutamento interno", meta: "≥80% das vagas preenchidas internamente a partir de 2028 (linha de base 2026: medir)" },
+          { indicador: "Índice GPTW geral (favorabilidade)", meta: "75 (2026) → ≥85 em 2027 → ≥88 em 2029 → ≥91 em 2030" },
+          { indicador: "% de colaboradores com PDI executado", meta: "≥50% dos colaboradores com PDI executado em 2027" },
+          { indicador: "Conversas 1:1 registradas no período (Feedz)", meta: "≥1 conversa 1:1 registrada por trimestre, a partir de 2027" },
+          { indicador: "% de vagas de liderança e de especialistas preenchidas por recrutamento interno", meta: "30% (2026) → ≥50% em 2027 → ≥70% das vagas preenchidas internamente a partir de 2028" },
+          { indicador: "Reuniões de alinhamento dos times registradas no relatório RIN", meta: "No mínimo 2 reuniões mensais" },
         ],
         iniciativas: [
           "Academia de Líderes Cooplivre (trilha por nível, começando pelos líderes de primeiro nível)",
@@ -121,7 +125,7 @@ export const PILARES: Pilar[] = [
         responsavel: "Silvanira",
         kpis: [
           { indicador: "% de colaboradores com formação em cooperativismo concluída (trilha básica + atualização bienal)", meta: "100% dos colaboradores até 2027; novos admitidos em até 90 dias" },
-          { indicador: "% de colaboradores que são cooperados ativos da Cooplivre, com produtos além da conta", meta: "(linha de base 2026: medir) → xx% até 2028", emAnalise: true },
+          { indicador: "% de colaboradores com IAP acima de 8 produtos", meta: "55,05% (2026, colaboradores com 9 ou mais produtos) → 70% em 2027 → 80% em 2028, mantido até 2030 (avaliar linha de base)" },
         ],
         iniciativas: [
           "Trilha de cooperativismo para colaboradores (onboarding + atualização)",
@@ -135,9 +139,9 @@ export const PILARES: Pilar[] = [
         titulo: "Promover uma experiência do colaborador com propósito e pertencimento",
         responsavel: "Silvanira",
         kpis: [
-          { indicador: "e-NPS", meta: "53 (2026) → ≥65 em 2027 → ≥72 em 2028 → ≥80 em 2030" },
-          { indicador: "GPTW — item 'Tenho orgulho de contar a outras pessoas que trabalho aqui'", meta: "≥85 até 2028 (linha de base 2026: a confirmar no relatório GPTW)" },
-          { indicador: "Turnover voluntário anual (monitoramento, sem meta de retenção forçada)", meta: "≤2% em 2027" },
+          { indicador: "e-NPS", meta: "53 (2026) → ≥75 em 2027 → ≥80 em 2028 → ≥85 em 2030" },
+          { indicador: "GPTW — item 'Tenho orgulho de contar a outras pessoas que trabalho aqui'", meta: "≥85 até 2028 (linha de base 2026: resultado do GPTW 2026)" },
+          { indicador: "Turnover voluntário anual (monitoramento, sem meta de retenção forçada)", meta: "≤4% em 2027" },
         ],
         iniciativas: [
           "Guardiões da Cultura",
@@ -170,15 +174,17 @@ export const PILARES: Pilar[] = [
         titulo: "Ampliar a principalidade por geração de valor no diferencial socioeconômico",
         responsavel: "Nelson/Rafael",
         kpis: [
-          { indicador: "Índice de principalidade %", meta: "(linha de base 2026: medir) → +10 p.p. até 2030, com marcos anuais" },
-          { indicador: "NPS do cooperado", meta: "≥68 em 2027 → ≥75 em 2030" },
+          { indicador: "NPS do cooperado", meta: "≥68 em 2027 → ≥75 em 2030 (valores a confirmar)", emAnalise: true },
           { indicador: "Benefício econômico entregue ao cooperado (taxas + sobras + juros ao capital), em R$/cooperado/ano vs. Mercado", meta: "(linha de base 2026: medir) → crescer acima da inflação a cada ano" },
+          { indicador: "% da base elegível no Q2", meta: "≥22% em 2027 → ≥25% em 2028 → ≥27% em 2029 → 30% até 2030" },
+          { indicador: "IAP do cooperado (referência: IAP ≥6)", meta: "≥4 em 2027 → ≥5 em 2028 → ≥6 em 2029 → ≥6 em 2030" },
+          { indicador: "Quantidade de visitas ao cooperado", meta: "≥2 visitas diárias" },
+          { indicador: "% de visitas ao cooperado com geração de resultado", meta: "≥50% de conversão em negócios" },
         ],
         iniciativas: [
-          "Modelo de atendimento consultivo por fase de vida (jovem, família, empreendedor, maturidade) praticado pelas lideranças comerciais no dia a dia",
-          "Cadência de contato definida por faixa de relacionamento",
-          "Ativação de cooperados não correntistas (30% do potencial não explorado até 2028 — meta operacional desta iniciativa)",
+          "Realização de visitas",
           "Comunicação anual do benefício econômico a cada cooperado",
+          "Mapear perfil do cooperado, avaliar nível de risco (CRL) e fomentar consultoria financeira para migração",
         ],
         visivel: true,
       },
@@ -225,7 +231,8 @@ export const PILARES: Pilar[] = [
           "Integrar com o mapa de potencial por praça (S3.5)",
           "Registrar a definição formal dos quadrantes Q1–Q4 e do CRL no glossário do plano",
         ],
-        visivel: true,
+        // Oculto: excluído na validação da diretoria (out/2026). % da base no Q2 e mapeamento de perfil/risco absorvidos em R2.1.
+        visivel: false,
       },
       {
         id: "r2-5",
@@ -242,7 +249,8 @@ export const PILARES: Pilar[] = [
           "Régua de reativação por fase de vida (motivo da inatividade)",
           "Encerramento assistido para quem não tem aderência (limpa a base e melhora o indicador de principalidade)",
         ],
-        visivel: true,
+        // Oculto: excluído na validação da diretoria (out/2026).
+        visivel: false,
       },
     ],
   },
@@ -262,16 +270,15 @@ export const PILARES: Pilar[] = [
       {
         id: "s3-1",
         codigo: "S3.1",
-        titulo: "Aumentar a capitalização do cooperado como proporção do crédito tomado",
+        titulo: "Fomentar a integralização de capital social",
         responsavel: "Amaya",
         kpis: [
-          { indicador: "Capital social ÷ carteira de crédito (%)", meta: "(linha de base 2026: medir) → +X p.p. ao ano até 2030 — fechar o valor a partir do índice de Basileia-alvo e do crescimento de carteira previsto em S3.3", emAnalise: true },
-          { indicador: "% de cooperados ativos com integralização mensal recorrente", meta: "(linha de base 2026: medir) → ≥60% até 2030" },
+          { indicador: "% de cooperados ativos com integralização recorrente", meta: "≥10% em 2027 → ≥15% até 2028 → ≥25% até 2029 → ≥30% até 2030" },
         ],
         iniciativas: [
-          "Política de integralização proporcional ao crédito e aos produtos (regra pública e simples)",
-          "Campanha permanente ligada à distribuição de sobras e juros ao capital ('seu capital trabalha para você')",
-          "Mapeamento de perfil por faixa de relacionamento (R1–R7)",
+          "Manual de integralização de capital",
+          "Uma campanha anual voltada à conscientização do cooperado",
+          "Criação da Store Cooplivre em cada PA para incentivo ao aporte no capital social",
         ],
         visivel: true,
       },
@@ -281,13 +288,11 @@ export const PILARES: Pilar[] = [
         titulo: "Equilibrar os prazos entre captação e carteira de crédito, garantindo liquidez sem perder resultado",
         responsavel: "Amaya",
         kpis: [
-          { indicador: "Descasamento de prazos: duration média da carteira de crédito ÷ duration média da captação", meta: "(linha de base 2026: medir) → reduzir o descasamento em 40% até 2030, com marcos anuais (≈10% ao ano)" },
-          { indicador: "% da captação em instrumentos de prazo ≥ 12 meses", meta: "(linha de base 2026: medir) → definir mínimo após a medição", emAnalise: true },
+          { indicador: "% da captação em instrumentos de prazo ≥ 6 meses", meta: "≥20% em 2027 → ≥25% em 2028 → ≥30% em 2029 → ≥30% em 2030" },
         ],
         iniciativas: [
           "Política de ALM (gestão de ativos e passivos) com limites aprovados pelo Conselho",
           "Portfólio de captação de longo prazo com incentivo ao cooperado (taxa escalonada por prazo)",
-          "Acompanhamento mensal no comitê de resultado",
         ],
         visivel: true,
       },
@@ -306,21 +311,22 @@ export const PILARES: Pilar[] = [
           "Revisão trimestral com plano de ação para desvios >5%",
           "Política de destinação das sobras comunicada ao cooperado",
         ],
-        visivel: true,
+        // Oculto: excluído na validação da diretoria (out/2026).
+        visivel: false,
       },
       {
         id: "s3-4",
         codigo: "S3.4",
-        titulo: "Melhorar a eficiência operacional, com despesas crescendo abaixo das receitas",
+        titulo: "Garantir a eficiência operacional (IEO)",
         responsavel: "Amaya",
         kpis: [
-          { indicador: "IEO — Índice de Eficiência Operacional (despesas administrativas ÷ receitas)", meta: "(linha de base 2026: medir) → reduzir o IEO em 10 p.p. até 2030, com marcos anuais" },
-          { indicador: "Crescimento anual das despesas administrativas vs. crescimento das receitas (p.p.)", meta: "Despesas crescendo ao menos 3 p.p. abaixo das receitas a cada ano" },
+          { indicador: "IEO — Índice de Eficiência Operacional (despesas administrativas ÷ receitas)", meta: "55% em 2027 → 50% em 2028 → 45% em 2029 → 40% em 2030" },
+          { indicador: "Índice de cobertura administrativa", meta: "65% em 2027 → 75% em 2028 → 85% em 2029 → 100% em 2030" },
         ],
         iniciativas: [
-          "Guardiões e norteadores de resultado com painel mensal de custos por unidade",
-          "Automação e simplificação de processos (E5.2 e E5.3) como fonte principal de eficiência",
-          "Revisão de contratos e despesas recorrentes. Redução de quadro não é alavanca padrão deste objetivo",
+          "Controle de despesas por centro de custo",
+          "Revisão de contratos e despesas recorrentes",
+          "Ajuste trimestral do precificador de taxas",
         ],
         visivel: true,
       },
@@ -338,7 +344,8 @@ export const PILARES: Pilar[] = [
           "Escalonamento de metas e de reconhecimento por complexidade da unidade",
           "Integração com o modelo de quadrantes (R2.4)",
         ],
-        visivel: true,
+        // Oculto: excluído na validação da diretoria (out/2026).
+        visivel: false,
       },
       {
         id: "s3-6",
@@ -369,7 +376,8 @@ export const PILARES: Pilar[] = [
           "Formação básica em riscos para 100% do quadro",
           "Revisão de alçadas e da porta de entrada de demandas (reduz risco operacional e demanda criada)",
         ],
-        visivel: true,
+        // Oculto: excluído na validação da diretoria (out/2026).
+        visivel: false,
       },
     ],
   },
@@ -393,15 +401,13 @@ export const PILARES: Pilar[] = [
         titulo: "Promover educação cooperativista e financeira que gere resultado socioeconômico nas comunidades",
         responsavel: "Rafael",
         kpis: [
-          { indicador: "Nº de pessoas que concluem ações de educação cooperativista e financeira no ano (cooperados e não cooperados, separados)", meta: "(linha de base 2026: medir) → +20% ao ano até 2030" },
+          { indicador: "Nº de pessoas que concluem ações de educação financeira no ano", meta: "Aumento de pessoas impactadas na comunidade: +20% ao ano" },
           { indicador: "% dos cooperados participantes com melhora de saúde financeira após 12 meses (ex.: redução de endividamento/atraso)", meta: "≥30% dos participantes com melhora mensurável até 2029" },
-          { indicador: "% das sobras/FATES destinado a programas de educação e comunidade", meta: "% definido pela política de destinação das sobras (decisão do percentual pendente) · Selo ODS: marco de iniciativa", emAnalise: true },
         ],
         iniciativas: [
           "Programa estruturado de educação cooperativista (primeiro) e financeira, com trilhas por público (jovem, família, empreendedor, escola)",
           "Diagnóstico de saúde financeira antes/depois",
-          "Certificação ODS como marco (1 projeto por ODS prioritário)",
-          "Modelo de % das sobras por comunidade",
+          "Certificação ODS — selo ouro",
         ],
         visivel: true,
       },
@@ -411,30 +417,27 @@ export const PILARES: Pilar[] = [
         titulo: "Fortalecer o relacionamento com as comunidades e instituições de cada praça",
         responsavel: "Rafael",
         kpis: [
-          { indicador: "Nº de parcerias ativas com instituições prioritárias por agência (escolas, associações, sindicatos rurais, prefeituras)", meta: "≥3 parcerias ativas por agência até 2028" },
-          { indicador: "Nº de novos cooperados originados em ações comunitárias no ano", meta: "(linha de base 2026: medir) → definir após 2027", emAnalise: true },
-          { indicador: "Participações em eventos relevantes por agência (atividade)", meta: "≥2 por agência/ano (mantida)" },
+          { indicador: "Participações em eventos relevantes por agência (atividade)", meta: "≥2 por agência/ano" },
         ],
         iniciativas: [
           "Mapear eventos relevantes",
           "Plano de relacionamento com instituições prioritárias",
-          "Agenda comunitária anual por agência, com dono",
-          "Registro de origem do cooperado (campo no cadastro) para medir o indicador 2",
+          "Agenda comunitária anual por agência",
         ],
         visivel: true,
       },
       {
         id: "c4-3",
         codigo: "C4.3",
-        titulo: "Formar e integrar cooperados na cultura cooperativista (do onboarding à participação em assembleias)",
+        titulo: "Formar e integrar cooperados na cultura cooperativista",
         responsavel: "Rafael",
         kpis: [
           { indicador: "% de novos cooperados que concluem a jornada de integração em até 90 dias", meta: "≥60% em 2027 → ≥80% em 2029" },
-          { indicador: "% da base ativa com formação cooperativista concluída (acumulado)", meta: "10% (2027) · 15% (2028) · 20% (2029) · 25% (2030) — mantida" },
-          { indicador: "% de participação de cooperados em assembleias", meta: "(linha de base 2026: medir) → +2 p.p. ao ano" },
+          { indicador: "% da base ativa com formação cooperativista concluída (acumulado)", meta: "10% (2027) · 15% (2028) · 20% (2029) · 25% (2030)" },
+          { indicador: "% de participação de cooperados em assembleias", meta: "28% (2026) → 35% (2027) · 40% (2028) · 45% (2029) · 50% (2030)" },
         ],
         iniciativas: [
-          "Onboarding cooperativista padronizado (absorve 'onboarding do cooperado' e 'padronização de abordagem' de P1.4)",
+          "Onboarding cooperativista padronizado",
           "Programa de multiplicadores (cooperados e colaboradores)",
           "Incentivo à participação em assembleias e conselhos",
         ],
@@ -443,12 +446,12 @@ export const PILARES: Pilar[] = [
       {
         id: "c4-4",
         codigo: "C4.4",
-        titulo: "Mobilizar colaboradores como agentes do cooperativismo na comunidade (voluntariado)",
+        titulo: "Mobilizar colaboradores como agentes do cooperativismo na comunidade",
         responsavel: "Rafael",
         kpis: [
-          { indicador: "% de colaboradores que participam, por opção, de ≥1 ação voluntária no ano", meta: "50% (2027) · 60% (2028) · 70% (2029) · 80% (2030) — mantida, condicionada à adesão voluntária (linha de base 2026: medir)" },
+          { indicador: "% de colaboradores que participam, por opção, de ≥1 ação voluntária no ano", meta: "50% (2027) · 60% (2028) · 70% (2029) · 80% (2030)" },
           { indicador: "Horas de voluntariado por colaborador participante", meta: "≥8 h/ano" },
-          { indicador: "Satisfação dos voluntários com as ações (pesquisa simples pós-ação)", meta: "≥85% de satisfação", emAnalise: true },
+          { indicador: "Satisfação dos voluntários com as ações (pesquisa simples pós-ação)", meta: "≥85% de satisfação" },
         ],
         iniciativas: [
           "Política de voluntariado",
@@ -463,13 +466,14 @@ export const PILARES: Pilar[] = [
         titulo: "Fortalecer a governança cooperativista",
         responsavel: "Rafael",
         kpis: [
-          { indicador: "% de dirigentes (CA, Conselho Fiscal e Direx) com formação concluída conforme a Política de Formação de Dirigentes", meta: "100% até 2028 (política aprovada até jun/2027 — marco, não meta)" },
-          { indicador: "Nº de candidatos elegíveis e preparados por cadeira do CA na próxima eleição", meta: "≥2 candidatos preparados por cadeira na próxima eleição" },
+          { indicador: "% de dirigentes (CA e Direx) com formação concluída conforme a Política de Formação de Dirigentes", meta: "100% até 2028 (política aprovada até jun/2027)" },
+          { indicador: "Nº de candidatos elegíveis e preparados por cadeira do CA na próxima eleição", meta: "≥3 candidatos preparados por cadeira na próxima eleição" },
         ],
         iniciativas: [
           "Política de Formação de Dirigentes (escrita e aprovada em 2027)",
-          "Programa de formação de novos dirigentes e capacitação contínua (CA, Fiscal e Direx)",
+          "Programa de formação de novos dirigentes e capacitação contínua (CA e Direx)",
           "Integração com o plano de sucessão (P1.2) e com a governança de acompanhamento da estratégia",
+          "Implementar sucessão no CA",
         ],
         visivel: true,
       },
@@ -495,12 +499,14 @@ export const PILARES: Pilar[] = [
         titulo: "Decidir com base em dados: indicadores e rituais de gestão em todas as áreas",
         responsavel: "Cleber",
         kpis: [
-          { indicador: "% das metas deste plano com indicador medido e publicado mensalmente (painel único)", meta: "100% até jun/2027 (hoje a maioria das linhas não tem linha de base)" },
+          { indicador: "% das metas deste plano com indicador medido e publicado mensalmente (painel único)", meta: "100% até set–dez/2027 (mapeamentos até mar/2027, construções até jun/2027, entregáveis até set–dez/2027)" },
           { indicador: "Aderência aos rituais de gestão: realizados ÷ planejados, por área", meta: "≥90% de aderência, com ritual mensal em 100% das áreas a partir de 2027" },
         ],
         iniciativas: [
           "Painel único da estratégia (um indicador = uma fonte = um dono)",
           "Levantamento das linhas de base 2026",
+          "Cronograma em três etapas: todos os mapeamentos até mar/2027, construções até jun/2027 e entregáveis até set–dez/2027",
+          "Planos trimestrais de acompanhamento da implantação",
           "Rituais em cascata (Direx mensal → GE quinzenal → líder-time mensal) com registro de decisões",
           "Capacitação de líderes em leitura de indicadores",
         ],
@@ -531,12 +537,16 @@ export const PILARES: Pilar[] = [
         titulo: "Simplificar os processos e a jornada do cooperado",
         responsavel: "Cleber",
         kpis: [
-          { indicador: "Tempo de ciclo das jornadas críticas do cooperado (ex: abertura de conta, concessão de crédito, cartão), em dias", meta: "−25% até 2028 e −40% até 2030, sobre a linha de base 2026" },
+          { indicador: "Tempo de ciclo das jornadas críticas do cooperado (ex: abertura de conta, concessão de crédito, cartão), em dias", meta: "−25% até 2028 e −40% até 2030, sobre a linha de base 2026, separando a parcela que depende da Cooperativa da parcela sistêmica (CCS/Central)" },
+          { indicador: "% de demandas internas resolvidas dentro do SLA", meta: "≥30% dentro do SLA em 2027 → ≥30% em 2028 → ≥90% a partir de 2029 (calibrar com o volume levantado no mapeamento)" },
           { indicador: "Esforço do cooperado: nº de interações/documentos para concluir a jornada", meta: "Jornadas prioritárias concluídas em 1 interação até 2029" },
-          { indicador: "% de demandas internas resolvidas dentro do SLA", meta: "≥90% dentro do SLA a partir de 2027" },
+          { indicador: "% de jornadas prioritárias (contratações de contas, crédito e produtos) iniciadas ou concluídas em canal digital", meta: "≥40% até 2030" },
         ],
         iniciativas: [
           "Programa de simplificação por jornada (mapear a jornada do cooperado - Realizar mapeamento com as áreas a respeito dos atendimentos prestados, assim como SLA se estabelecida, se não estabelecer em conjunto com área demandante para obtenção do mdc de SLA)",
+          "Leitura do fluxo de cada jornada (flow process), indicando quanto cada etapa contribui para a simplificação e o que depende da Cooperativa ou do sistema (CCS/Central)",
+          "Mapeamento conjunto Comercial (agência) + Back Office (UAD), com cronograma ajustado à disponibilidade das áreas",
+          "Digitalização das jornadas prioritárias do cooperado: identificar etapas que podem ser iniciadas ou concluídas digitalmente e acompanhar a adoção dos canais digitais",
           "Revisão de alçadas e eliminação de possíveis aprovações redundantes",
           "Avaliar ferramental ou metodologia atual que permita mensurar e montar mapa de calor para avaliar, mitigar, treinar, melhorar, mensurar e iniciar o ciclo continuamente (mensal)",
           "Consolidação de sistemas",
@@ -558,7 +568,8 @@ export const PILARES: Pilar[] = [
           "Campanhas segmentadas por fase de vida do cooperado",
           "Calendário anual de ações de fomento",
         ],
-        visivel: true,
+        // Oculto: excluído na validação da diretoria (out/2026). Digitalização das jornadas absorvida em E5.3.
+        visivel: false,
       },
       {
         id: "e5-5",
@@ -572,6 +583,7 @@ export const PILARES: Pilar[] = [
         ],
         iniciativas: [
           "Canal único de ideias com fluxo de resposta e reconhecimento público das implementadas",
+          "Canal de manifestações do cliente interno via Lecom, com campos obrigatórios: PA/UAD e reclamante, área envolvida, abrangência (pontual ou várias unidades) e descrição objetiva; prazo de retorno conforme a complexidade",
           "Programa de Gestão de Demanda (priorização e capacidade)",
           "Ciclos curtos de melhoria por área com participação do time",
         ],
