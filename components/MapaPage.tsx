@@ -44,7 +44,7 @@ export function MapaPage() {
       const salvo = ids.every((id) => !!respostas[id]?.avaliacao);
       const pendente = !enviadoEm && temRascunho(p.id, [...ids, geralId(pilar.slug)]);
       out[pilar.slug] = veTodos
-        ? { salvo: false, pendente: false, concluido: false, bloqueado: false, monitor: true }
+        ? { salvo: false, pendente, concluido: false, bloqueado: false, monitor: true }
         : { salvo, pendente, concluido: !enviadoEm && salvo && !pendente, bloqueado: false };
     }
     return out;
@@ -55,7 +55,9 @@ export function MapaPage() {
   const total = pilares.length;
   const salvos = PILARES.filter((pl) => progresso?.[pl.slug]?.salvo).length;
   const comPendencia = PILARES.filter((pl) => progresso?.[pl.slug]?.pendente);
-  const prontoParaEnviar = !!progresso && total > 0 && salvos === total && comPendencia.length === 0 && !enviadoEm;
+  // Quem acompanha todos os pilares ajusta livremente: envia quando não houver ajuste por salvar.
+  const prontoParaEnviar =
+    !!progresso && total > 0 && (veTodos || salvos === total) && comPendencia.length === 0 && !enviadoEm;
   const nPilares = total === 1 ? "o pilar" : `os ${total} pilares`;
   // Identificação antiga (antes da lista de responsáveis) ou pessoa removida da lista.
   const semAcesso = !!respostas && total === 0;
@@ -152,9 +154,19 @@ export function MapaPage() {
         ) : prontoParaEnviar ? (
           <div className="envio">
             <div>
-              <b>{reaberta ? "Revisão aberta para ajustes" : total === 1 ? "Pilar salvo" : "Todos os seus pilares foram salvos"}</b>
-              <span>
+              <b>
                 {reaberta
+                  ? "Revisão aberta para ajustes"
+                  : veTodos
+                    ? "Terminou seus ajustes?"
+                    : total === 1
+                      ? "Pilar salvo"
+                      : "Todos os seus pilares foram salvos"}
+              </b>
+              <span>
+                {veTodos && !reaberta
+                  ? "Salve os ajustes em cada pilar e envie sua revisão. Pilares sem ajuste mantêm o texto atual do plano."
+                  : reaberta
                   ? "Abra o pilar que quer mudar, altere e salve. Quando terminar, reenvie — até lá sua revisão fica registrada como “em ajuste”."
                   : "Confira se está tudo certo antes de enviar."}
               </span>

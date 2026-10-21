@@ -77,7 +77,7 @@ export function PilarPage({ slug }: { slug: string }) {
             Cada objetivo tem campos abertos para ajustar o objetivo, os indicadores, as metas e as iniciativas. Use{" "}
             <b className="inline">Editar texto atual</b> para partir da redação do plano, ou escreva só o que muda. A
             avaliação é opcional. Clique em <b className="inline">Salvar ajustes</b> no fim da página — os campos em
-            branco mantêm o texto atual.
+            branco mantêm o texto atual. Ao terminar, use <b className="inline">Enviar revisão</b> no mapa.
           </div>
         ) : (
           <div className="instrucao">
