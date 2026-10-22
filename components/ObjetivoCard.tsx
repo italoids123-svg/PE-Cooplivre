@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Objetivo, Pilar } from "@/lib/data";
 import { AVALIACAO_LABEL, AVALIACOES, type RespostaRascunho } from "@/lib/types";
 
@@ -52,21 +53,22 @@ function EmDefinicao() {
   );
 }
 
-export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloqueado, acompanhamento, livre = false }: {
+export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloqueado, livre = false }: {
   numero: number;
   objetivo: Objetivo;
   form: RespostaRascunho;
   mudar: Mudar;
   problema: string | null;
   bloqueado: boolean;
-  // Quadro com a revisão do responsável (só para quem tem acesso a todos os pilares).
-  acompanhamento?: React.ReactNode;
-  // Quem acompanha todos os pilares: campos de ajuste sempre abertos, avaliação opcional.
+  // Quem acompanha todos os pilares: revisão aberta pelo botão "Revisar objetivo", avaliação opcional.
   livre?: boolean;
 }) {
   const temPendencia = objetivo.kpis.some((k) => !k.indicador || !k.meta || k.emAnalise) || objetivo.iniciativas.length === 0;
   const pedeDetalhe = form.avaliacao === "ajustes" || form.avaliacao === "discordo";
-  const ok = livre ? !!form.avaliacao || temTexto(form) : !problemaDe(form);
+  const temConteudo = !!form.avaliacao || temTexto(form);
+  const ok = livre ? temConteudo : !problemaDe(form);
+  // Modo livre: os campos ficam fechados até "Revisar objetivo"; já abertos se houver revisão.
+  const [revisando, setRevisando] = useState(temConteudo);
 
   return (
     <article className={`obj${ok ? " obj-feito" : ""}${problema ? " obj-problema" : ""}`} id={objetivo.id}>
@@ -112,63 +114,70 @@ export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloquead
         )}
       </div>
 
-      {acompanhamento}
-
-      <div className="rev">
-        <p className="rev-titulo">Sua avaliação{livre && <small className="opcional"> (opcional)</small>}</p>
-        <div className="seg-btns" role="radiogroup" aria-label="Sua avaliação">
-          {AVALIACOES.map((a) => (
-            <button
-              key={a}
-              type="button"
-              role="radio"
-              aria-checked={form.avaliacao === a}
-              disabled={bloqueado}
-              className={`seg-btn seg-btn-${a}${form.avaliacao === a ? " ativo" : ""}`}
-              // No modo livre, tocar de novo na avaliação marcada desmarca.
-              onClick={() => mudar("avaliacao", livre && form.avaliacao === a ? null : a)}
-            >
-              {AVALIACAO_LABEL[a]}
+      {livre && !revisando ? (
+        !bloqueado && (
+          <div className="rev rev-fechada">
+            <button type="button" className="btn btn-secundario" onClick={() => setRevisando(true)}>
+              Revisar objetivo
             </button>
-          ))}
-        </div>
+          </div>
+        )
+      ) : (
+        <div className="rev">
+          <p className="rev-titulo">Sua avaliação{livre && <small className="opcional"> (opcional)</small>}</p>
+          <div className="seg-btns" role="radiogroup" aria-label="Sua avaliação">
+            {AVALIACOES.map((a) => (
+              <button
+                key={a}
+                type="button"
+                role="radio"
+                aria-checked={form.avaliacao === a}
+                disabled={bloqueado}
+                className={`seg-btn seg-btn-${a}${form.avaliacao === a ? " ativo" : ""}`}
+                // No modo livre, tocar de novo na avaliação marcada desmarca.
+                onClick={() => mudar("avaliacao", livre && form.avaliacao === a ? null : a)}
+              >
+                {AVALIACAO_LABEL[a]}
+              </button>
+            ))}
+          </div>
 
-        {livre ? (
-          <div className="rev-campos">
-            <p className="rev-dica">Ajuste o que for necessário. Campos em branco mantêm o texto atual do plano.</p>
-            <Campo label="Ajuste no objetivo" value={form.objetivo ?? ""} onChange={(v) => mudar("objetivo", v)} bloqueado={bloqueado} atual={objetivo.titulo} />
-            <Campo label="Ajuste nos indicadores" value={form.indicador} onChange={(v) => mudar("indicador", v)} bloqueado={bloqueado} atual={textoAtual(objetivo.kpis.map((k) => k.indicador))} />
-            <Campo label="Ajuste nas metas" value={form.meta} onChange={(v) => mudar("meta", v)} bloqueado={bloqueado} atual={textoAtual(objetivo.kpis.map((k) => k.meta))} />
-            <Campo label="Ajuste nas iniciativas" value={form.iniciativas} onChange={(v) => mudar("iniciativas", v)} bloqueado={bloqueado} atual={textoAtual(objetivo.iniciativas)} />
-            <Campo label="Comentário / decisão" value={form.comentario} onChange={(v) => mudar("comentario", v)} bloqueado={bloqueado} />
-          </div>
-        ) : form.avaliacao && (
-          <div className="rev-campos">
-            {pedeDetalhe ? (
-              <>
-                <p className="rev-dica">O que você mudaria? Preencha ao menos um campo.</p>
-                <Campo label="Sugestão para o indicador" value={form.indicador} onChange={(v) => mudar("indicador", v)} bloqueado={bloqueado} />
-                <Campo label="Sugestão para a meta" value={form.meta} onChange={(v) => mudar("meta", v)} bloqueado={bloqueado} />
-                <Campo label="Sugestão para as iniciativas" value={form.iniciativas} onChange={(v) => mudar("iniciativas", v)} bloqueado={bloqueado} />
-                <Campo label="Comentário geral" value={form.comentario} onChange={(v) => mudar("comentario", v)} bloqueado={bloqueado} />
-              </>
-            ) : (
-              <Campo label="Comentário (opcional)" value={form.comentario} onChange={(v) => mudar("comentario", v)} bloqueado={bloqueado} />
-            )}
-          </div>
-        )}
-        {problema && <p className="obj-erro" role="alert">{problema}</p>}
-      </div>
+          {livre ? (
+            <div className="rev-campos">
+              <p className="rev-dica">Ajuste o que for necessário. Campos em branco mantêm o texto atual do plano.</p>
+              <Campo label="Ajuste no objetivo" value={form.objetivo ?? ""} onChange={(v) => mudar("objetivo", v)} bloqueado={bloqueado} atual={objetivo.titulo} />
+              <Campo label="Ajuste nos indicadores" value={form.indicador} onChange={(v) => mudar("indicador", v)} bloqueado={bloqueado} atual={textoAtual(objetivo.kpis.map((k) => k.indicador))} />
+              <Campo label="Ajuste nas metas" value={form.meta} onChange={(v) => mudar("meta", v)} bloqueado={bloqueado} atual={textoAtual(objetivo.kpis.map((k) => k.meta))} />
+              <Campo label="Ajuste nas iniciativas" value={form.iniciativas} onChange={(v) => mudar("iniciativas", v)} bloqueado={bloqueado} atual={textoAtual(objetivo.iniciativas)} />
+              <Campo label="Comentário / decisão" value={form.comentario} onChange={(v) => mudar("comentario", v)} bloqueado={bloqueado} />
+            </div>
+          ) : form.avaliacao && (
+            <div className="rev-campos">
+              {pedeDetalhe ? (
+                <>
+                  <p className="rev-dica">O que você mudaria? Preencha ao menos um campo.</p>
+                  <Campo label="Sugestão para o indicador" value={form.indicador} onChange={(v) => mudar("indicador", v)} bloqueado={bloqueado} />
+                  <Campo label="Sugestão para a meta" value={form.meta} onChange={(v) => mudar("meta", v)} bloqueado={bloqueado} />
+                  <Campo label="Sugestão para as iniciativas" value={form.iniciativas} onChange={(v) => mudar("iniciativas", v)} bloqueado={bloqueado} />
+                  <Campo label="Comentário geral" value={form.comentario} onChange={(v) => mudar("comentario", v)} bloqueado={bloqueado} />
+                </>
+              ) : (
+                <Campo label="Comentário (opcional)" value={form.comentario} onChange={(v) => mudar("comentario", v)} bloqueado={bloqueado} />
+              )}
+            </div>
+          )}
+          {problema && <p className="obj-erro" role="alert">{problema}</p>}
+        </div>
+      )}
     </article>
   );
 }
 
-export function SugestaoGeralCard({ pilar, form, mudar, bloqueado, acompanhamento }: {
+export function SugestaoGeralCard({ pilar, form, mudar, bloqueado }: {
   pilar: Pilar;
   form: RespostaRascunho;
   mudar: Mudar;
   bloqueado: boolean;
-  acompanhamento?: React.ReactNode;
 }) {
   return (
     <article className="obj obj-geral">
@@ -176,7 +185,6 @@ export function SugestaoGeralCard({ pilar, form, mudar, bloqueado, acompanhament
         <span className="obj-num">+</span>
         <h2>Falta algo neste pilar? <small className="opcional">(opcional)</small></h2>
       </header>
-      {acompanhamento}
       <div className="rev">
         <Campo
           label={`Objetivo, indicador ou iniciativa que você incluiria em “${pilar.nome}”`}

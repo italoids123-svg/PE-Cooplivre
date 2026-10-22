@@ -5,12 +5,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { geralId, getPilar, objetivosVisiveis, PILARES, type Pilar } from "@/lib/data";
 import { useParticipante } from "@/lib/participante";
-import { criarSincronizador, useAcompanhamento } from "@/lib/acompanhamento";
+import { criarSincronizador } from "@/lib/acompanhamento";
 import { gravarRascunho, lerRascunho, salvarPilar, useMinhaRevisao, type MapaRespostas } from "@/lib/respostas-client";
-import { mesmosCampos, type Acompanhamento, type Participante, type Resposta, type RespostaRascunho } from "@/lib/types";
+import { mesmosCampos, type Participante, type Resposta, type RespostaRascunho } from "@/lib/types";
 import { ObjetivoCard, problemaDe, SugestaoGeralCard, temTexto, VAZIO, type Mudar } from "./ObjetivoCard";
 import { BotaoAjustes } from "./BotaoAjustes";
-import { QuadroObjetivo } from "./Acompanhamento";
 import { TopBar } from "./TopBar";
 
 const deResposta = (r: Resposta | undefined): RespostaRascunho =>
@@ -24,10 +23,9 @@ export function PilarPage({ slug }: { slug: string }) {
   const router = useRouter();
   const p = useParticipante();
   const { respostas, enviadoEm, setServidor, pilares, erro, registrar } = useMinhaRevisao(p?.id);
-  // Quem tem acesso a todos os pilares acompanha os responsáveis; os demais têm
-  // o preenchimento sincronizado em segundo plano para esse acompanhamento.
+  // Quem tem acesso a todos os pilares vê só o conteúdo atual e revisa por objetivo;
+  // os demais têm o preenchimento sincronizado para o painel de acompanhamento do mapa.
   const veTodos = pilares.length === PILARES.length;
-  const { dados: acomp } = useAcompanhamento(p?.id, veTodos, slug);
   const pilar = getPilar(slug)!;
 
   useEffect(() => {
@@ -54,7 +52,7 @@ export function PilarPage({ slug }: { slug: string }) {
             {!respostas
               ? "Carregando suas respostas…"
               : veTodos
-                ? `${objetivos.length} objetivos · campos abertos para ajustes`
+                ? `${objetivos.length} objetivos`
               : salvos === objetivos.length
                 ? "✓ Pilar salvo"
                 : `${objetivos.length} objetivos para revisar`}
@@ -74,9 +72,9 @@ export function PilarPage({ slug }: { slug: string }) {
         ) : veTodos ? (
           <div className="instrucao">
             <b>Como ajustar</b>
-            Cada objetivo tem campos abertos para ajustar o objetivo, os indicadores, as metas e as iniciativas. Use{" "}
-            <b className="inline">Editar texto atual</b> para partir da redação do plano, ou escreva só o que muda. A
-            avaliação é opcional. Clique em <b className="inline">Salvar ajustes</b> no fim da página — os campos em
+            Clique em <b className="inline">Revisar objetivo</b> para abrir os campos de ajuste do objetivo, dos
+            indicadores, das metas e das iniciativas. Use <b className="inline">Editar texto atual</b> para partir da
+            redação do plano, ou escreva só o que muda. A avaliação é opcional. Clique em <b className="inline">Salvar ajustes</b> no fim da página — os campos em
             branco mantêm o texto atual. Ao terminar, use <b className="inline">Enviar revisão</b> no mapa.
           </div>
         ) : (
@@ -111,7 +109,6 @@ export function PilarPage({ slug }: { slug: string }) {
             bloqueado={!!enviadoEm}
             livre={veTodos}
             sincronizar={!veTodos && !enviadoEm}
-            acompanhamento={veTodos ? acomp : null}
             onSalvo={(lista) => {
               registrar(lista);
               router.push(`/mapa?salvo=${pilar.slug}`);
@@ -123,7 +120,7 @@ export function PilarPage({ slug }: { slug: string }) {
   );
 }
 
-function FormularioPilar({ pilar, participante, respostas, bloqueado, livre, sincronizar, acompanhamento, onSalvo }: {
+function FormularioPilar({ pilar, participante, respostas, bloqueado, livre, sincronizar, onSalvo }: {
   pilar: Pilar;
   participante: Participante;
   respostas: MapaRespostas;
@@ -131,15 +128,8 @@ function FormularioPilar({ pilar, participante, respostas, bloqueado, livre, sin
   // Quem acompanha todos os pilares: ajustes livres, sem avaliação obrigatória.
   livre: boolean;
   sincronizar: boolean;
-  acompanhamento: Acompanhamento | null;
   onSalvo: (r: Resposta[]) => void;
 }) {
-  const responsaveis = acompanhamento?.pilares.find((p) => p.slug === pilar.slug)?.responsaveis ?? [];
-  const quadro = (oid: string) =>
-    acompanhamento && responsaveis.length ? (
-      <QuadroObjetivo objetivoId={oid} responsaveis={responsaveis} geradoEm={acompanhamento.geradoEm} />
-    ) : undefined;
-
   // Sincronização do rascunho para o acompanhamento (só responsáveis de pilar específico).
   // Criado uma vez: o formulário é remontado (key) quando participante/envio mudam.
   const [sinc] = useState(() => (sincronizar ? criarSincronizador(participante.id) : null));
@@ -221,10 +211,9 @@ function FormularioPilar({ pilar, participante, respostas, bloqueado, livre, sin
           problema={mostrarProblemas ? problemas[o.id] : null}
           bloqueado={bloqueado}
           livre={livre}
-          acompanhamento={quadro(o.id)}
         />
       ))}
-      <SugestaoGeralCard pilar={pilar} form={forms[gid]} mudar={mudarDe(gid)} bloqueado={bloqueado} acompanhamento={quadro(gid)} />
+      <SugestaoGeralCard pilar={pilar} form={forms[gid]} mudar={mudarDe(gid)} bloqueado={bloqueado} />
 
       {bloqueado ? (
         <div className="salvar-barra">

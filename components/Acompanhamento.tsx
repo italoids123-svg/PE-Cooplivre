@@ -2,61 +2,9 @@
 
 import { idade } from "@/lib/acompanhamento";
 import { PILARES } from "@/lib/data";
-import { AVALIACAO_LABEL, STATUS_LABEL, type Acompanhamento, type ResponsavelAcompanhado, type RespostaRascunho } from "@/lib/types";
+import { STATUS_LABEL, type Acompanhamento, type ResponsavelAcompanhado } from "@/lib/types";
 
 const primeiroNome = (nome: string) => nome.split(" ")[0];
-
-function Conteudo({ r }: { r: RespostaRascunho }) {
-  const linhas: [string, string][] = [
-    ["Objetivo", r.objetivo ?? ""],
-    ["Indicador", r.indicador],
-    ["Meta", r.meta],
-    ["Iniciativas", r.iniciativas],
-    ["Comentário", r.comentario],
-  ];
-  return (
-    <>
-      {r.avaliacao && <span className={`chip chip-${r.avaliacao}`}>{AVALIACAO_LABEL[r.avaliacao]}</span>}
-      {linhas.filter(([, v]) => v.trim()).map(([k, v]) => (
-        <p key={k}><i>{k}:</i> {v}</p>
-      ))}
-      {!r.avaliacao && !linhas.some(([, v]) => v.trim()) && <p className="acomp-vazio">Sem conteúdo ainda.</p>}
-    </>
-  );
-}
-
-// Quadro dentro de cada objetivo: o que cada responsável do pilar marcou/escreveu.
-export function QuadroObjetivo({ objetivoId, responsaveis, geradoEm }: {
-  objetivoId: string;
-  responsaveis: ResponsavelAcompanhado[];
-  geradoEm: string;
-}) {
-  if (!responsaveis.length) return null;
-  return (
-    <div className="acomp">
-      <p className="acomp-titulo">Revisão do responsável <span>· atualiza a cada 10 s</span></p>
-      {responsaveis.map((resp) => {
-        const o = resp.objetivos[objetivoId];
-        const atual = o?.emEdicao ?? o?.salvo;
-        return (
-          <div key={resp.id} className="acomp-resp">
-            <div className="acomp-quem">
-              <b>{primeiroNome(resp.nome)}</b>
-              {o?.emEdicao ? (
-                <span className="acomp-tag acomp-editando">em edição · {idade(geradoEm, o.emEdicao.atualizadoEm)}</span>
-              ) : o?.salvo ? (
-                <span className="acomp-tag acomp-salvo">✓ salvo · {idade(geradoEm, o.salvo.atualizadoEm)}</span>
-              ) : (
-                <span className="acomp-tag">{resp.acessou ? "ainda não preencheu" : "ainda não acessou"}</span>
-              )}
-            </div>
-            {atual && <Conteudo r={atual} />}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
 
 function resumo(r: ResponsavelAcompanhado, geradoEm: string): string {
   if (!r.acessou) return "ainda não acessou";
