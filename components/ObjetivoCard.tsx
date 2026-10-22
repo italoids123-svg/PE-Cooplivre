@@ -67,8 +67,8 @@ export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloquead
   const pedeDetalhe = form.avaliacao === "ajustes" || form.avaliacao === "discordo";
   const temConteudo = !!form.avaliacao || temTexto(form);
   const ok = livre ? temConteudo : !problemaDe(form);
-  // Modo livre: os campos ficam fechados até "Revisar objetivo"; já abertos se houver revisão.
-  const [revisando, setRevisando] = useState(temConteudo);
+  // Modo livre: avaliação e campos ficam sempre fechados até "Revisar objetivo".
+  const [revisando, setRevisando] = useState(false);
 
   return (
     <article className={`obj${ok ? " obj-feito" : ""}${problema ? " obj-problema" : ""}`} id={objetivo.id}>
@@ -115,16 +115,24 @@ export function ObjetivoCard({ numero, objetivo, form, mudar, problema, bloquead
       </div>
 
       {livre && !revisando ? (
-        !bloqueado && (
+        (!bloqueado || temConteudo) && (
           <div className="rev rev-fechada">
+            {temConteudo && <span className="rev-salva">✓ Objetivo com revisão</span>}
             <button type="button" className="btn btn-secundario" onClick={() => setRevisando(true)}>
-              Revisar objetivo
+              {bloqueado ? "Ver revisão" : temConteudo ? "Editar revisão" : "Revisar objetivo"}
             </button>
           </div>
         )
       ) : (
         <div className="rev">
-          <p className="rev-titulo">Sua avaliação{livre && <small className="opcional"> (opcional)</small>}</p>
+          <div className="rev-topo">
+            <p className="rev-titulo">Sua avaliação{livre && <small className="opcional"> (opcional)</small>}</p>
+            {livre && (
+              <button type="button" className="rev-fechar" onClick={() => setRevisando(false)}>
+                Fechar revisão
+              </button>
+            )}
+          </div>
           <div className="seg-btns" role="radiogroup" aria-label="Sua avaliação">
             {AVALIACOES.map((a) => (
               <button
