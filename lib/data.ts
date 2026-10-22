@@ -258,7 +258,7 @@ export const PILARES: Pilar[] = [
     slug: "sustentabilidade-financeira",
     nome: "Sustentabilidade Financeira",
     rotulo: ["Sustentabilidade", "Financeira"],
-    cor: "#0fa999",
+    cor: "#008a52",
     intuito: "Garantir eficiência, rentabilidade, geração de sobras, qualidade do crescimento e gestão de riscos.",
     temas: [
       "Mix PJ / PF / Agro equilibrado",
@@ -385,7 +385,7 @@ export const PILARES: Pilar[] = [
     slug: "cooperativismo-comunidade",
     nome: "Cooperativismo & Comunidade",
     rotulo: ["Cooperativismo", "& Comunidade"],
-    cor: "#008a52",
+    cor: "#0fa999",
     intuito: "Medir alcance, educação, impacto e geração de valor social, sem reduzir as iniciativas a uma mera obrigação de meta.",
     temas: [
       "Escolhas que privilegiam a comunidade",
