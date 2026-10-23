@@ -474,7 +474,7 @@ function TelaGovernanca() {
   return (
     <>
       <Cabecalho etiqueta="Governança da execução" titulo="Quem acompanha e como" />
-      <main className={s.pagina}>
+      <main className={`${s.pagina} ${s.paginaLarga}`}>
         <div className={s.governanca}>
           <ol className={s.govLista}>
             {GOVERNANCA.map((g) => (
