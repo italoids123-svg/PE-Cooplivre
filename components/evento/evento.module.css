@@ -111,7 +111,7 @@
 .cabTitulo { margin: 18px 0 0; font-size: clamp(32px, 4.6vw, 54px); font-weight: 800; line-height: 1.05; letter-spacing: -.01em; }
 .cabOnda { position: absolute; left: 0; right: 0; bottom: -1px; width: 100%; height: 60px; color: #fff; }
 .pontos { display: flex; gap: 10px; padding-top: 6px; }
-.pontinho { width: 30px; height: 30px; border-radius: 50%; border: 0; padding: 0; display: block; transition: transform .15s, box-shadow .15s; }
+.pontinho { width: 30px; height: 30px; border-radius: 50%; border: 0; padding: 0; display: block; box-shadow: 0 0 0 2px rgba(255, 255, 255, .35); transition: transform .15s, box-shadow .15s; }
 button.pontinho:hover { transform: scale(1.12); }
 .pontinhoAtivo { box-shadow: 0 0 0 3px var(--escuro), 0 0 0 5px #fff; }
 
@@ -122,7 +122,7 @@ button.pontinho:hover { transform: scale(1.12); }
 .zigueItem { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: 0; padding: 0; color: var(--tinta); align-self: start; transition: transform .2s; }
 .zigueBaixo { margin-top: 115px; }
 .zigueItem:hover { transform: translateY(-6px); }
-.zigueItem b { margin-top: 12px; font-size: 20px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--escuro); }
+.zigueItem b { margin-top: 12px; font-size: 18px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; color: var(--escuro); max-width: 210px; line-height: 1.2; text-align: center; }
 .zigueItem > span:last-child { font-size: 15px; color: var(--suave); }
 .zigueAro { position: relative; width: 160px; height: 160px; border-radius: 50%; background: #fff; border: 2px solid var(--linha); display: grid; place-items: center; }
 .zigueBola { width: 138px; height: 138px; border-radius: 50%; display: grid; place-items: center; transition: box-shadow .2s; }
@@ -137,7 +137,7 @@ button.pontinho:hover { transform: scale(1.12); }
 /* ---------- Detalhe do pilar (imagem 3) */
 .pilarCard { display: grid; grid-template-columns: 250px 1fr; border-radius: 34px; overflow: hidden; background: var(--fundo); }
 .pilarLado { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 40px 20px; text-align: center; }
-.pilarNum { font-size: 64px; font-weight: 800; line-height: 1; }
+.pilarNum { font-size: 64px; font-weight: 800; line-height: 1; color: #fff; }
 .pilarIco { width: 128px; height: 128px; border-radius: 50%; background: #fff; display: grid; place-items: center; }
 .pilarIco svg { width: 62px; height: 62px; }
 .pilarLema { font-size: 15px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; max-width: 170px; }
@@ -208,15 +208,15 @@ button.pontinho:hover { transform: scale(1.12); }
 .principioTexto { margin: 0; font-size: clamp(18px, 2vw, 24px); line-height: 1.45; }
 
 /* ---------- Painel de sucesso 2030 */
-.painel { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.painel { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
 .painelItem { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; animation: entrar .5s ease both; }
-.painelItem:nth-child(2) { animation-delay: .1s; } .painelItem:nth-child(3) { animation-delay: .2s; } .painelItem:nth-child(4) { animation-delay: .3s; }
-.painelBola { position: relative; width: 170px; height: 170px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 12px; transition: transform .2s; }
+.painelItem:nth-child(2) { animation-delay: .1s; } .painelItem:nth-child(3) { animation-delay: .2s; } .painelItem:nth-child(4) { animation-delay: .3s; } .painelItem:nth-child(5) { animation-delay: .4s; }
+.painelBola { position: relative; width: 150px; height: 150px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 12px; transition: transform .2s; }
 .painelItem:hover .painelBola { transform: scale(1.05); }
 .painelBola > svg { width: 70px; height: 70px; }
 .painelCheck { position: absolute; top: -4px; right: -4px; width: 54px; height: 54px; border-radius: 50%; background: #fff; color: var(--roxo); display: grid; place-items: center; box-shadow: 0 2px 8px rgba(0, 0, 0, .12); }
 .painelCheck svg { width: 28px; height: 28px; }
-.painelItem b { font-size: 21px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--escuro); }
+.painelItem b { font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--escuro); }
 .painelItem > span:last-child { font-size: 17px; color: var(--suave); line-height: 1.4; max-width: 240px; }
 
 /* ---------- Palco (tela inteira, sem rolagem): medidas fixas do slide 1180×840,
@@ -251,7 +251,7 @@ button.pontinho:hover { transform: scale(1.12); }
 .palcoIn .zigueAro { width: 160px; height: 160px; }
 .palcoIn .zigueBola { width: 138px; height: 138px; }
 .palcoIn .zigueBola svg { width: 58px; height: 58px; }
-.palcoIn .zigueItem b { font-size: 20px; }
+.palcoIn .zigueItem b { font-size: 18px; }
 .palcoIn .zigueItem > span:last-child { font-size: 15px; }
 .palcoIn .govLista { grid-template-columns: repeat(6, 1fr); }
 .palcoIn .govLista li:nth-child(4)::before { display: block; }

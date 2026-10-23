@@ -252,12 +252,12 @@ function TelaEstrategia() {
               onClick={() => ir(`pilar-${i + 1}`)}
             >
               <span className={s.zigueAro}>
-                <span className={s.zigueBola} style={{ background: pl.cor, color: pl.tinta }}>
+                <span className={s.zigueBola} style={{ background: pl.cor, color: "#ffffff" }}>
                   <Ico nome={pl.icone} />
                 </span>
-                <span className={s.zigueNum} style={i === 4 ? { background: COR.lima, color: COR.escuro } : undefined}>{i + 1}</span>
+                <span className={s.zigueNum}>{i + 1}</span>
               </span>
-              <b>{pl.curto}</b>
+              <b>{pl.nome}</b>
               <span>{pl.lema}</span>
             </button>
           ))}
@@ -298,7 +298,7 @@ function TelaPilar({ indice }: { indice: number }) {
                 aria-label={x.nome}
                 title={x.nome}
                 className={`${s.pontinho}${i === indice ? ` ${s.pontinhoAtivo}` : ""}`}
-                style={{ background: x.cor === COR.escuro ? "#5c7b82" : x.cor }}
+                style={{ background: x.cor }}
                 onClick={() => ir(`pilar-${i + 1}`)}
               />
             ))}
@@ -307,9 +307,9 @@ function TelaPilar({ indice }: { indice: number }) {
       />
       <main className={s.pagina}>
         <article className={s.pilarCard}>
-          <aside className={s.pilarLado} style={{ background: pl.cor, color: pl.tinta }}>
-            <span className={s.pilarNum} style={{ color: pl.destaque === "#ffffff" ? "#ffffff" : pl.destaque }}>{pl.numero}</span>
-            <span className={s.pilarIco} style={{ color: COR.escuro }}><Ico nome={pl.icone} /></span>
+          <aside className={s.pilarLado} style={{ background: pl.cor, color: "#ffffff" }}>
+            <span className={s.pilarNum}>{pl.numero}</span>
+            <span className={s.pilarIco} style={{ color: pl.cor }}><Ico nome={pl.icone} /></span>
             <span className={s.pilarLema}>{pl.lema}</span>
           </aside>
           <div className={s.pilarCorpo}>
@@ -317,22 +317,22 @@ function TelaPilar({ indice }: { indice: number }) {
             <p className={s.pilarIntencao}><Destaque texto={pl.intencao} /></p>
             <div className={s.pilarColunas}>
               <div>
-                <p className={s.rotulo} style={{ color: corRotulo(pl.cor) }}>Prioridades</p>
+                <p className={s.rotulo} style={{ color: pl.cor }}>Prioridades</p>
                 <ul className={s.prioridades}>
                   {pl.prioridades.map((t) => (
                     <li key={t}>
-                      <span className={s.checkMini} style={{ background: corMarca(pl.cor) }}><Check /></span>
+                      <span className={s.checkMini} style={{ background: pl.cor }}><Check /></span>
                       {t}
                     </li>
                   ))}
                 </ul>
               </div>
               <div>
-                <p className={s.rotulo} style={{ color: corRotulo(pl.cor) }}>Indicadores</p>
+                <p className={s.rotulo} style={{ color: pl.cor }}>Indicadores</p>
                 <ul className={s.chips}>
                   {pl.indicadores.map((t) => (
-                    <li key={t} style={{ borderColor: corMarca(pl.cor) }}>
-                      <i style={{ background: corMarca(pl.cor) }} />
+                    <li key={t} style={{ borderColor: pl.cor }}>
+                      <i style={{ background: pl.cor }} />
                       {t}
                     </li>
                   ))}
@@ -348,7 +348,7 @@ function TelaPilar({ indice }: { indice: number }) {
           {objetivos.map((o) => (
             <details key={o.id} className={s.objetivo}>
               <summary>
-                <span className={s.objCodigo} style={{ background: corMarca(pl.cor), color: pl.cor === COR.lima ? COR.escuro : "#ffffff" }}>{o.codigo}</span>
+                <span className={s.objCodigo} style={{ background: pl.cor, color: "#ffffff" }}>{o.codigo}</span>
                 <span className={s.objTitulo}>{o.titulo}</span>
                 <span className={s.objSeta} aria-hidden="true">+</span>
               </summary>
@@ -381,11 +381,11 @@ function TelaPilar({ indice }: { indice: number }) {
 
         <div className={s.seguir}>
           <button type="button" className={s.btnLinha} onClick={() => ir(indice ? `pilar-${indice}` : "estrategia")}>
-            ← {indice ? PILARES_EVENTO[indice - 1].curto : "Os 5 pilares"}
+            ← {indice ? PILARES_EVENTO[indice - 1].nome : "Os 5 pilares"}
           </button>
           {indice < 4 ? (
             <button type="button" className={s.btnLima} onClick={() => ir(`pilar-${indice + 2}`)}>
-              {PILARES_EVENTO[indice + 1].curto} →
+              {PILARES_EVENTO[indice + 1].nome} →
             </button>
           ) : (
             <button type="button" className={s.btnLima} onClick={() => ir("estrategia")}>
@@ -398,9 +398,6 @@ function TelaPilar({ indice }: { indice: number }) {
   );
 }
 
-// Lima e escuro não contrastam como texto sobre fundo claro: usa tons legíveis.
-const corRotulo = (cor: string) => (cor === COR.lima ? "#7f9220" : cor === COR.escuro ? COR.teal : cor);
-const corMarca = (cor: string) => (cor === COR.escuro ? COR.teal : cor);
 
 // ---------------- Nosso caminho (imagem 4)
 
@@ -503,7 +500,7 @@ function TelaChegar() {
             <div key={x.titulo} className={s.painelItem}>
               <span className={s.painelBola} style={{ background: x.cor, color: x.tinta }}>
                 <Ico nome={x.icone} />
-                <span className={s.painelCheck}><Check /></span>
+                <span className={s.painelCheck} style={{ color: x.cor }}><Check /></span>
               </span>
               <b>{x.titulo}</b>
               <span>{x.texto}</span>
