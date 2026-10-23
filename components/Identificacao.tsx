@@ -16,7 +16,8 @@ export function Identificacao() {
   // após enviar o formulário, quando o próprio formulário escolhe o destino.
   const [enviouAgora, setEnviouAgora] = useState(false);
   useEffect(() => {
-    if (atual && !editar && !enviouAgora) router.replace("/mapa");
+    // "inicio": o mapa leva direto à visão evento quem tem esse acesso.
+    if (atual && !editar && !enviouAgora) router.replace("/mapa?inicio=1");
   }, [atual, editar, enviouAgora, router]);
 
   if (atual === undefined || (atual && !editar && !enviouAgora)) return <div className="ident-bg" />;
@@ -48,11 +49,11 @@ function Formulario({ inicial, onEntrou }: { inicial: { nome: string; cargo: str
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome: nome.trim().replace(/\s+/g, " "), cargo: cargo.trim() }),
       });
-      const body = (await res.json().catch(() => ({}))) as { participante?: Participante; retomou?: boolean; error?: string };
+      const body = (await res.json().catch(() => ({}))) as { participante?: Participante; retomou?: boolean; evento?: boolean; error?: string };
       if (!res.ok || !body.participante) throw new Error(body.error ?? "Não foi possível entrar agora. Tente novamente.");
       onEntrou();
       definirParticipante(body.participante);
-      router.push(body.retomou ? "/mapa?retomada=1" : "/mapa");
+      router.push(body.evento ? "/evento" : body.retomou ? "/mapa?retomada=1" : "/mapa");
     } catch (err) {
       setErro(err instanceof TypeError ? "Sem conexão. Verifique a internet e tente de novo." : (err as Error).message);
       setEntrando(false);

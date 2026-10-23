@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       { id: r.pessoa.id, nome: r.pessoa.nome, cargo, atualizadoEm: new Date().toISOString() },
       [],
     );
-    return Response.json({ participante, pilares: r.pessoa.pilares, retomou: !!existente });
+    return Response.json({ participante, pilares: r.pessoa.pilares, retomou: !!existente, evento: !!r.pessoa.visaoEvento });
   } catch (e) {
     return respostaDeErro(e, "Não foi possível entrar agora. Tente novamente.");
   }

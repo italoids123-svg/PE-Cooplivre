@@ -29,6 +29,12 @@ export function MapaPage() {
     if (p === null) router.replace("/");
   }, [p, router]);
 
+  // Quem tem a visão evento começa por ela; o mapa continua acessível pelo botão.
+  const inicio = params.get("inicio") === "1";
+  useEffect(() => {
+    if (evento && inicio) router.replace("/evento");
+  }, [evento, inicio, router]);
+
   const progresso = useMemo(() => {
     if (!respostas || !p) return null;
     const out: Record<string, Progresso> = {};
@@ -93,7 +99,9 @@ export function MapaPage() {
               )}
             </h1>
             <p className="mapa-sub">
-              {enviadoEm
+              {evento
+                ? `Olá, ${p.nome.split(" ")[0]}! Acesse os objetivos, indicadores, metas e iniciativas de cada pilar.`
+                : enviadoEm
                 ? `Obrigado, ${p.nome.split(" ")[0]}! Sua revisão foi enviada.`
                 : reaberta
                   ? `${p.nome.split(" ")[0]}, sua revisão está aberta para ajustes. Altere o que quiser, salve os pilares e reenvie.`
@@ -127,7 +135,7 @@ export function MapaPage() {
           </div>
         )}
 
-        {retomada && !salvoAgora && respostas && Object.keys(respostas).length > 0 && (
+        {retomada && !evento && !salvoAgora && respostas && Object.keys(respostas).length > 0 && (
           <div className="aviso aviso-ok" role="status">
             Bem-vindo(a) de volta! Encontramos a revisão que você começou.
           </div>
@@ -146,7 +154,8 @@ export function MapaPage() {
           </div>
         )}
 
-        {enviadoEm ? (
+        {/* Quem tem a visão evento usa o mapa só para consulta: sem mensagens de revisão. */}
+        {evento ? null : enviadoEm ? (
           <div className="envio envio-feito">
             <b>✓ Revisão {servidor && enviosDe(servidor).length > 1 ? "reenviada" : "enviada"} em {dataHora(enviadoEm)}</b>
             <span>Suas respostas foram registradas. Abra os pilares para consultar o que respondeu.</span>
