@@ -14,6 +14,8 @@
 //   excluídas/realocadas). O id nunca deve ser reaproveitado: respostas gravadas apontam para ele.
 // - Out/2026: atualizado com a validação da diretoria (aba Contribuições da base exportada).
 //   Objetivos excluídos nessa validação ficaram ocultos (visivel: false), com o motivo.
+// - Os códigos dos objetivos visíveis são sequenciais por pilar; os ocultos levam o prefixo
+//   "ex-" (código anterior), para não colidir no export. O `id` nunca muda.
 
 export interface Kpi {
   indicador: string | null;
@@ -190,7 +192,7 @@ export const PILARES: Pilar[] = [
       },
       {
         id: "r2-2",
-        codigo: "R2.2",
+        codigo: "ex-R2.2",
         titulo: "(Excluído como objetivo) Taxas diferenciadas com retorno financeiro ao cooperado → absorvido em R2.1",
         responsavel: "Nelson/Rafael",
         kpis: [
@@ -204,7 +206,7 @@ export const PILARES: Pilar[] = [
       },
       {
         id: "r2-3",
-        codigo: "R2.3",
+        codigo: "ex-R2.3",
         titulo: "(Excluído como objetivo) Atendimento consultivo presencial pelas lideranças comerciais → iniciativa de R2.1",
         responsavel: "Nelson/Rafael",
         kpis: [
@@ -218,7 +220,7 @@ export const PILARES: Pilar[] = [
       },
       {
         id: "r2-4",
-        codigo: "R2.4",
+        codigo: "ex-R2.4",
         titulo: "Aumentar a quantidade de cooperados ativos no quadrante Q2 (maior crédito e mais produtos), com risco controlado",
         responsavel: "Nelson/Rafael",
         kpis: [
@@ -236,7 +238,7 @@ export const PILARES: Pilar[] = [
       },
       {
         id: "r2-5",
-        codigo: "R2.5",
+        codigo: "ex-R2.5",
         titulo: "Converter base de inativos em ativos (critério de elegibilidade: IAP mínimo 2)",
         responsavel: "Nelson/Rafael",
         kpis: [
@@ -298,7 +300,7 @@ export const PILARES: Pilar[] = [
       },
       {
         id: "s3-3",
-        codigo: "S3.3",
+        codigo: "ex-S3.3",
         titulo: "Crescer de forma sustentável, com orçamento construído com as unidades, balizado pelo IEO e pela realidade regional, potencializando as sobras",
         responsavel: "Amaya",
         kpis: [
@@ -316,7 +318,7 @@ export const PILARES: Pilar[] = [
       },
       {
         id: "s3-4",
-        codigo: "S3.4",
+        codigo: "S3.3",
         titulo: "Garantir a eficiência operacional (IEO)",
         responsavel: "Amaya",
         kpis: [
@@ -332,7 +334,7 @@ export const PILARES: Pilar[] = [
       },
       {
         id: "s3-5",
-        codigo: "S3.5",
+        codigo: "ex-S3.5",
         titulo: "Definir metas por unidade proporcionais ao potencial e à complexidade de cada praça",
         responsavel: "Amaya",
         kpis: [
@@ -349,7 +351,7 @@ export const PILARES: Pilar[] = [
       },
       {
         id: "s3-6",
-        codigo: "S3.6",
+        codigo: "ex-S3.6",
         titulo: "(Ritual, não objetivo) Comitê mensal de resultado e correção de rota da gestão financeira",
         responsavel: "Amaya",
         kpis: [
@@ -363,7 +365,7 @@ export const PILARES: Pilar[] = [
       },
       {
         id: "s3-7",
-        codigo: "S3.7",
+        codigo: "ex-S3.7",
         titulo: "Fortalecer a gestão de riscos como responsabilidade de todos",
         responsavel: "Amaya (sugestão: com Riscos/Compliance)",
         novo: true,
@@ -526,7 +528,7 @@ export const PILARES: Pilar[] = [
           "Inventário e priorização dos processos críticos (risco × volume × impacto no cooperado)",
           "Padronização com documentação viva - manual que demonstre funcionamento passo a passo do processo e backup humano",
           "Rodízio e treinamento cruzado para eliminar pessoa única",
-          "Dimensionamento de capacidade por processo (dado de entrada para o NR-1 e para S3.4)",
+          "Dimensionamento de capacidade por processo (dado de entrada para o NR-1 e para S3.3)",
           "Possível automação de processos de maior volume",
         ],
         visivel: true,
@@ -555,7 +557,7 @@ export const PILARES: Pilar[] = [
       },
       {
         id: "e5-4",
-        codigo: "E5.4",
+        codigo: "ex-E5.4",
         titulo: "Digitalizar as jornadas do cooperado, mantendo a proximidade como diferencial",
         responsavel: "Cleber",
         kpis: [
@@ -573,7 +575,7 @@ export const PILARES: Pilar[] = [
       },
       {
         id: "e5-5",
-        codigo: "E5.5",
+        codigo: "E5.4",
         titulo: "Fomentar a cultura de melhoria contínua de processos e a criatividade",
         responsavel: "Cleber",
         kpis: [

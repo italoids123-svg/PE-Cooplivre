@@ -278,6 +278,17 @@ function TelaEstrategia() {
 
 // ---------------- Detalhe do pilar (imagem 3)
 
+// Prioridade clicada: abre o objetivo correspondente na lista e rola até ele.
+function abrirObjetivo(id: string) {
+  const el = document.getElementById(`obj-${id}`) as HTMLDetailsElement | null;
+  if (!el) return;
+  el.open = true;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+  el.classList.remove(s.objetivoDestaque);
+  void el.offsetWidth;
+  el.classList.add(s.objetivoDestaque);
+}
+
 function TelaPilar({ indice }: { indice: number }) {
   const pl = PILARES_EVENTO[indice];
   const objetivos = objetivosVisiveis(getPilar(pl.slug)!);
@@ -317,10 +328,15 @@ function TelaPilar({ indice }: { indice: number }) {
             <p className={s.pilarIntencao}><Destaque texto={pl.intencao} /></p>
             <p className={s.rotulo} style={{ color: pl.cor }}>Prioridades</p>
             <ul className={s.prioridades}>
-              {pl.prioridades.map((t) => (
-                <li key={t}>
-                  <span className={s.checkMini} style={{ background: pl.cor }}><Check /></span>
-                  {t}
+              {pl.prioridades.map((pr) => (
+                <li key={pr.texto}>
+                  <button type="button" className={s.prioridade} onClick={() => abrirObjetivo(pr.objetivo)}>
+                    <span className={s.checkMini} style={{ background: pl.cor }}><Check /></span>
+                    <span className={s.prioridadeTexto}>{pr.texto}</span>
+                    <span className={s.prioridadeCodigo} style={{ color: pl.cor, borderColor: pl.cor }}>
+                      {getPilar(pl.slug)!.objetivos.find((o) => o.id === pr.objetivo)?.codigo}
+                    </span>
+                  </button>
                 </li>
               ))}
             </ul>
@@ -331,7 +347,7 @@ function TelaPilar({ indice }: { indice: number }) {
           <p className={s.eyebrow}>No plano 2027–2030</p>
           <h2 className={s.secTitulo}>Objetivos do pilar</h2>
           {objetivos.map((o) => (
-            <details key={o.id} className={s.objetivo}>
+            <details key={o.id} id={`obj-${o.id}`} className={s.objetivo}>
               <summary>
                 <span className={s.objCodigo} style={{ background: pl.cor, color: "#ffffff" }}>{o.codigo}</span>
                 <span className={s.objTitulo}>{o.titulo}</span>

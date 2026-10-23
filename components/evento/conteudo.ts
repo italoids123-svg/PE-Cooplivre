@@ -22,7 +22,9 @@ interface PilarMaterial {
   lema: string;
   // Intenção com o trecho em destaque entre [colchetes].
   intencao: string;
-  prioridades: string[];
+  // Prioridades do pilar: cada uma resume um objetivo do plano (id em lib/data.ts) e,
+  // na tela, abre esse objetivo na lista abaixo.
+  prioridades: { texto: string; objetivo: string }[];
   icone: Icone;
 }
 
@@ -38,31 +40,56 @@ const MATERIAL: PilarMaterial[] = [
   {
     numero: "01", slug: "pessoas-protagonistas", lema: "Gente que faz acontecer",
     intencao: "Construir uma cultura de [alta performance], desenvolvimento e responsabilidade compartilhada.",
-    prioridades: ["Formação de líderes e sucessores", "Trilhas de desenvolvimento por função", "Reconhecimento por resultados e atitudes", "Cultura de feedback e protagonismo"],
+    prioridades: [
+      { texto: "Líderes e times de alta performance", objetivo: "p1-1" },
+      { texto: "Sucessão como alavanca de continuidade", objetivo: "p1-2" },
+      { texto: "Reconhecimento por resultados e atitudes", objetivo: "p1-3" },
+      { texto: "Cultura cooperativista de dentro pra fora", objetivo: "p1-4" },
+      { texto: "Experiência com propósito e pertencimento", objetivo: "p1-5" },
+    ],
     icone: "pessoas",
   },
   {
     numero: "02", slug: "processos-eficientes", lema: "Agilidade e simplicidade",
     intencao: "Tornar a operação mais [simples, digital e segura], orientada à experiência do cooperado.",
-    prioridades: ["Mapear e redesenhar processos críticos", "Digitalizar jornadas", "Automatizar tarefas repetitivas", "Gestão por indicadores e SLAs"],
+    prioridades: [
+      { texto: "Decisões com base em dados e rituais de gestão", objetivo: "e5-1" },
+      { texto: "Gestão do conhecimento", objetivo: "e5-2" },
+      { texto: "Simplificação e digitalização como diferencial", objetivo: "e5-3" },
+      { texto: "Melhoria contínua com as ideias do time", objetivo: "e5-5" },
+    ],
     icone: "processos",
   },
   {
     numero: "03", slug: "sustentabilidade-financeira", lema: "Solidez para crescer",
     intencao: "Garantir crescimento com [rentabilidade], qualidade da carteira, eficiência e gestão prudente de riscos.",
-    prioridades: ["Crescimento equilibrado da carteira", "Fortalecer receitas recorrentes", "Controle de despesas e eficiência", "Gestão ativa de liquidez, capital e risco"],
+    prioridades: [
+      { texto: "Fortalecimento do Capital Social", objetivo: "s3-1" },
+      { texto: "Sustentabilidade no longo prazo", objetivo: "s3-2" },
+      { texto: "Eficiência operacional", objetivo: "s3-4" },
+    ],
     icone: "negocio",
   },
   {
     numero: "04", slug: "relacionamento-principalidade", lema: "Principalidade e confiança",
     intencao: "Ser a [principal instituição financeira] do cooperado, ampliando relacionamento, confiança e utilização de soluções.",
-    prioridades: ["Conhecer melhor cada cooperado", "Estratégia de relacionamento por segmentos", "Oferta consultiva e completa", "Jornada pós-venda e fidelização"],
+    prioridades: [
+      { texto: "Geração de benefício econômico", objetivo: "r2-1" },
+      { texto: "Atendimento como diferencial na geração de resultado", objetivo: "r2-1" },
+      { texto: "Experiência que gera recomendação (NPS)", objetivo: "r2-1" },
+    ],
     icone: "coracao",
   },
   {
     numero: "05", slug: "cooperativismo-comunidade", lema: "Desenvolvimento local",
     intencao: "Transformar o resultado econômico em [desenvolvimento sustentável] para os cooperados e para a região.",
-    prioridades: ["Educação financeira e cooperativista", "Projetos sociais e ambientais com impacto mensurável", "Participação ativa dos cooperados", "Parcerias com empresas, entidades e comunidade"],
+    prioridades: [
+      { texto: "Educação cooperativista e financeira com resultado na vida do cooperado", objetivo: "c4-1" },
+      { texto: "Parcerias e presença ativa", objetivo: "c4-2" },
+      { texto: "Cooperado integrado e participativo", objetivo: "c4-3" },
+      { texto: "Colaboradores como agentes do cooperativismo", objetivo: "c4-4" },
+      { texto: "Governança sucessória", objetivo: "c4-5" },
+    ],
     icone: "casa",
   },
 ];

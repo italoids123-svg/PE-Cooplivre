@@ -146,7 +146,15 @@ button.pontinho:hover { transform: scale(1.12); }
 .pilarIntencao { margin: 0 0 28px; font-size: 19px; line-height: 1.5; color: #355a62; }
 .pilarIntencao strong { color: var(--escuro); }
 .prioridades { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 14px 32px; }
-.prioridades li { display: flex; gap: 12px; align-items: flex-start; font-size: 18px; line-height: 1.35; }
+.prioridades li { display: flex; }
+.prioridade {
+  flex: 1; display: flex; gap: 12px; align-items: flex-start; text-align: left; font-size: 18px; line-height: 1.35; color: var(--tinta);
+  background: none; border: 0; border-radius: 12px; padding: 6px 8px; margin: -6px -8px; transition: background .15s;
+}
+.prioridade:hover { background: #fff; }
+.prioridade:hover .prioridadeTexto { text-decoration: underline; text-underline-offset: 3px; }
+.prioridadeTexto { flex: 1; }
+.prioridadeCodigo { flex: none; align-self: center; font-size: 11px; font-weight: 800; letter-spacing: .04em; border: 1.5px solid; border-radius: 999px; padding: 1px 7px; opacity: .85; }
 .checkMini { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; color: #fff; }
 .checkMini svg { width: 15px; height: 15px; }
 .objetivos { margin-top: 40px; }
@@ -158,6 +166,9 @@ button.pontinho:hover { transform: scale(1.12); }
 .objTitulo { flex: 1; font-size: 17px; font-weight: 700; color: var(--escuro); line-height: 1.35; }
 .objSeta { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--fundo); display: grid; place-items: center; font-weight: 800; color: var(--teal); transition: transform .2s; }
 .objetivo[open] .objSeta { transform: rotate(45deg); }
+.objetivo { scroll-margin-top: 80px; }
+.objetivoDestaque { animation: destacar 1.6s ease; }
+@keyframes destacar { 0%, 40% { box-shadow: 0 0 0 3px var(--lima); } 100% { box-shadow: 0 0 0 0 transparent; } }
 .objCorpo { padding: 4px 18px 18px; }
 .objCorpo table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 15px; }
 .objCorpo th { text-align: left; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--suave); padding: 8px 10px; border-bottom: 2px solid var(--linha); }
@@ -308,7 +319,7 @@ button.pontinho:hover { transform: scale(1.12); }
   .pilarLema { text-align: left; }
   .pilarCorpo { padding: 24px 20px; }
   .prioridades { grid-template-columns: 1fr; }
-  .prioridades li { font-size: 16px; }
+  .prioridade { font-size: 16px; }
   .estrada { display: none; }
   .linhaTempo { display: grid; gap: 22px; position: relative; }
   .linhaTempo::before { content: ""; position: absolute; left: 38px; top: 20px; bottom: 20px; border-left: 3px dashed #c9dad8; }
