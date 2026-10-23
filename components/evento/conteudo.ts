@@ -23,7 +23,6 @@ interface PilarMaterial {
   // Intenção com o trecho em destaque entre [colchetes].
   intencao: string;
   prioridades: string[];
-  indicadores: string[];
   icone: Icone;
 }
 
@@ -40,35 +39,30 @@ const MATERIAL: PilarMaterial[] = [
     numero: "01", slug: "pessoas-protagonistas", lema: "Gente que faz acontecer",
     intencao: "Construir uma cultura de [alta performance], desenvolvimento e responsabilidade compartilhada.",
     prioridades: ["Formação de líderes e sucessores", "Trilhas de desenvolvimento por função", "Reconhecimento por resultados e atitudes", "Cultura de feedback e protagonismo"],
-    indicadores: ["eNPS / clima", "Retenção de talentos", "Horas de capacitação", "% sucessores preparados"],
     icone: "pessoas",
   },
   {
     numero: "02", slug: "processos-eficientes", lema: "Agilidade e simplicidade",
     intencao: "Tornar a operação mais [simples, digital e segura], orientada à experiência do cooperado.",
     prioridades: ["Mapear e redesenhar processos críticos", "Digitalizar jornadas", "Automatizar tarefas repetitivas", "Gestão por indicadores e SLAs"],
-    indicadores: ["Tempo de atendimento", "Custo por operação", "% digitalização", "Retrabalho / erros"],
     icone: "processos",
   },
   {
     numero: "03", slug: "sustentabilidade-financeira", lema: "Solidez para crescer",
     intencao: "Garantir crescimento com [rentabilidade], qualidade da carteira, eficiência e gestão prudente de riscos.",
     prioridades: ["Crescimento equilibrado da carteira", "Fortalecer receitas recorrentes", "Controle de despesas e eficiência", "Gestão ativa de liquidez, capital e risco"],
-    indicadores: ["ROE / resultado", "Inadimplência", "Eficiência operacional", "Capital / liquidez"],
     icone: "negocio",
   },
   {
     numero: "04", slug: "relacionamento-principalidade", lema: "Principalidade e confiança",
     intencao: "Ser a [principal instituição financeira] do cooperado, ampliando relacionamento, confiança e utilização de soluções.",
     prioridades: ["Conhecer melhor cada cooperado", "Estratégia de relacionamento por segmentos", "Oferta consultiva e completa", "Jornada pós-venda e fidelização"],
-    indicadores: ["Principalidade", "Produtos por cooperado", "Ativação / recorrência", "NPS / satisfação"],
     icone: "coracao",
   },
   {
     numero: "05", slug: "cooperativismo-comunidade", lema: "Desenvolvimento local",
     intencao: "Transformar o resultado econômico em [desenvolvimento sustentável] para os cooperados e para a região.",
     prioridades: ["Educação financeira e cooperativista", "Projetos sociais e ambientais com impacto mensurável", "Participação ativa dos cooperados", "Parcerias com empresas, entidades e comunidade"],
-    indicadores: ["Participação em ações", "Pessoas impactadas", "Projetos realizados", "Recursos / benefícios gerados"],
     icone: "casa",
   },
 ];

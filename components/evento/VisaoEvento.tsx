@@ -239,7 +239,7 @@ function TelaEstrategia() {
     <>
       <Cabecalho etiqueta="Nossa estratégia" titulo="Os 5 pilares" />
       <main className={s.pagina}>
-        <p className={s.dica}>Toque em um pilar para ver prioridades, indicadores e objetivos.</p>
+        <p className={s.dica}>Toque em um pilar para ver prioridades e objetivos.</p>
         <div className={s.zigue}>
           <svg className={s.zigueLinha} viewBox="0 0 1000 360" preserveAspectRatio="none" aria-hidden="true">
             <polyline points="100,80 300,195 500,80 700,195 900,80" />
@@ -315,30 +315,15 @@ function TelaPilar({ indice }: { indice: number }) {
           <div className={s.pilarCorpo}>
             <h2>{pl.nome}</h2>
             <p className={s.pilarIntencao}><Destaque texto={pl.intencao} /></p>
-            <div className={s.pilarColunas}>
-              <div>
-                <p className={s.rotulo} style={{ color: pl.cor }}>Prioridades</p>
-                <ul className={s.prioridades}>
-                  {pl.prioridades.map((t) => (
-                    <li key={t}>
-                      <span className={s.checkMini} style={{ background: pl.cor }}><Check /></span>
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <p className={s.rotulo} style={{ color: pl.cor }}>Indicadores</p>
-                <ul className={s.chips}>
-                  {pl.indicadores.map((t) => (
-                    <li key={t} style={{ borderColor: pl.cor }}>
-                      <i style={{ background: pl.cor }} />
-                      {t}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+            <p className={s.rotulo} style={{ color: pl.cor }}>Prioridades</p>
+            <ul className={s.prioridades}>
+              {pl.prioridades.map((t) => (
+                <li key={t}>
+                  <span className={s.checkMini} style={{ background: pl.cor }}><Check /></span>
+                  {t}
+                </li>
+              ))}
+            </ul>
           </div>
         </article>
 
