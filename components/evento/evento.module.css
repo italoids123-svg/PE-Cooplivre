@@ -265,18 +265,19 @@ button.pontinho:hover { transform: scale(1.12); }
 .palcoIn .direcionador { padding: 24px 40px; }
 .palcoIn .aspas { width: 92px; height: 92px; font-size: 68px; padding-top: 22px; }
 .palcoIn .direcionadorTexto { font-size: 23px; }
-.palcoIn .principioTexto { font-size: 28px; line-height: 1.4; }
-/* Governança no palco: ícones e quadro do princípio ampliados. */
-.palcoIn .governanca { padding: 52px 40px; border-radius: 40px; }
-.palcoIn .govIco { width: 128px; height: 128px; }
-.palcoIn .govIco svg { width: 58px; height: 58px; }
-.palcoIn .govLista li { gap: 18px; }
-.palcoIn .govLista b { font-size: 22px; }
-.palcoIn .govLista li + li::before { top: 64px; right: calc(50% + 76px); width: calc(100% - 152px); border-top-width: 3px; }
-.palcoIn .principio { margin-top: 32px; padding: 40px 52px; gap: 36px; border-radius: 34px; }
-.palcoIn .principioIco { width: 112px; height: 112px; }
-.palcoIn .principioIco svg { width: 58px; height: 58px; }
-.palcoIn .principioEtiqueta { font-size: 16px; }
+.palcoIn .principioTexto { font-size: 25px; line-height: 1.4; }
+/* Governança no palco: ícones e quadro do princípio um pouco maiores que o padrão. */
+.palcoIn .paginaMedia { max-width: 1340px; }
+.palcoIn .governanca { padding: 44px 36px; border-radius: 36px; }
+.palcoIn .govIco { width: 108px; height: 108px; }
+.palcoIn .govIco svg { width: 48px; height: 48px; }
+.palcoIn .govLista li { gap: 16px; }
+.palcoIn .govLista b { font-size: 19px; }
+.palcoIn .govLista li + li::before { top: 54px; right: calc(50% + 64px); width: calc(100% - 128px); border-top-width: 2px; }
+.palcoIn .principio { margin-top: 28px; padding: 34px 46px; gap: 30px; border-radius: 30px; }
+.palcoIn .principioIco { width: 96px; height: 96px; }
+.palcoIn .principioIco svg { width: 50px; height: 50px; }
+.palcoIn .principioEtiqueta { font-size: 14px; }
 .palcoIn .estrada { flex: 1; min-height: 0; aspect-ratio: auto; margin: 0; }
 .palcoIn .linhaTempo { display: none; }
 .palcoIn .elos { flex: 1; min-height: 0; }
