@@ -224,16 +224,21 @@ button.pontinho:hover { transform: scale(1.12); }
 .palco { overflow: hidden; }
 .palcoIn { display: flex; flex-direction: column; transform-origin: 0 0; }
 .palcoIn .capa { flex: 1; min-height: 0; }
-.palcoIn .capaIn { padding: 34px 110px 96px; }
-.palcoIn .capaTitulo { font-size: 112px; margin: 20px 0 18px; }
-.palcoIn .capaSub { font-size: 24px; }
-.palcoIn .bolaTeal { width: 460px; }
-.palcoIn .bolaVerde { width: 270px; }
-.palcoIn .bolaRoxa { width: 92px; }
-.palcoIn .bolaLima { width: 190px; }
-.palcoIn .acessos { flex: none; width: 100%; padding: 0 40px 30px; }
-.palcoIn .acessosGrade { margin-top: 10px; }
-.palcoIn .acesso { padding: 18px 18px 20px; }
+.palcoIn .capaIn { padding: 22px 110px 70px; }
+.palcoIn .capaTitulo { font-size: 92px; margin: 16px 0 14px; }
+.palcoIn .capaSub { font-size: 21px; }
+.palcoIn .bolaTeal { width: 390px; }
+.palcoIn .bolaVerde { width: 225px; }
+.palcoIn .bolaRoxa { width: 80px; }
+.palcoIn .bolaLima { width: 160px; }
+.palcoIn .acessos { flex: none; width: 100%; max-width: 1420px; padding: 4px 40px 34px; }
+.palcoIn .acessosGrade { margin-top: 12px; gap: 20px; }
+.palcoIn .acesso { padding: 26px 24px 28px; min-height: 250px; gap: 8px; }
+.palcoIn .acesso b { font-size: 24px; margin-top: 14px; line-height: 1.2; }
+.palcoIn .acesso > span:last-child { font-size: 17px; line-height: 1.4; }
+.palcoIn .acessoIco { width: 76px; height: 76px; }
+.palcoIn .acessoIco svg { width: 38px; height: 38px; }
+.palcoIn .acessoNum { font-size: 16px; top: 20px; right: 22px; }
 .palcoIn .cab { flex: none; padding-bottom: 50px; }
 .palcoIn .cabIn { padding-top: 26px; }
 .palcoIn .cabTitulo { font-size: 50px; margin-top: 14px; }
