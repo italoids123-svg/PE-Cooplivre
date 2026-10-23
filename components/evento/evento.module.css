@@ -218,14 +218,14 @@ button.pontinho:hover { transform: scale(1.12); }
 
 /* ---------- Painel de sucesso 2030 */
 /* Painel 2030: corrente de infinitos pontilhada e animada laçando cada bola. A bola fica
-   centrada em y = 150px da área do SVG (300px de altura). */
+   centrada em y = 170px da área do SVG (340px de altura). */
 .elos { display: flex; align-items: center; justify-content: center; }
 .elosIn { position: relative; width: 100%; }
-.elosSvg { position: absolute; left: 0; top: 0; width: 100%; height: 300px; overflow: visible; pointer-events: none; }
-.elosSvg path { fill: none; stroke: #8fb8b3; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 0.1 11; vector-effect: non-scaling-stroke; animation: andarPontos 1.4s linear infinite; }
-@keyframes andarPontos { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -11.1; } }
+.elosSvg { position: absolute; left: 0; top: 0; width: 100%; height: 340px; overflow: visible; pointer-events: none; }
+.elosSvg path { fill: none; stroke: #8fb8b3; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 0.1 14; vector-effect: non-scaling-stroke; animation: andarPontos 1.4s linear infinite; }
+@keyframes andarPontos { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -14.1; } }
 .painel { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
-.painelItem { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 80px 10px 0; animation: entrar .5s ease both; }
+.painelItem { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 100px 10px 0; animation: entrar .5s ease both; }
 .painelItem:nth-child(2) { animation-delay: .1s; } .painelItem:nth-child(3) { animation-delay: .2s; } .painelItem:nth-child(4) { animation-delay: .3s; } .painelItem:nth-child(5) { animation-delay: .4s; }
 .painelBola { position: relative; width: 140px; height: 140px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 36px; transition: transform .2s; }
 .painelItem:hover .painelBola { transform: scale(1.05); }
@@ -271,12 +271,14 @@ button.pontinho:hover { transform: scale(1.12); }
 .palcoIn .elos { flex: 1; min-height: 0; }
 .palcoIn .painel { grid-template-columns: repeat(5, 1fr); row-gap: 0; }
 .palcoIn .elosSvg { display: block; }
-.palcoIn .painelItem { padding-top: 80px; }
-.palcoIn .painelBola { margin-bottom: 34px; width: 120px; height: 120px; }
-.palcoIn .painelItem { padding-top: 90px; }
-.palcoIn .painelBola > svg { width: 58px; height: 58px; }
-.palcoIn .painelCheck { width: 44px; height: 44px; top: -8px; right: -8px; }
-.palcoIn .painelCheck svg { width: 22px; height: 22px; }
+.palcoIn .paginaLarga { max-width: 1520px; }
+.palcoIn .painelItem { padding-top: 88px; }
+.palcoIn .painelBola { margin-bottom: 46px; width: 164px; height: 164px; }
+.palcoIn .painelBola > svg { width: 78px; height: 78px; }
+.palcoIn .painelCheck { width: 54px; height: 54px; top: -6px; right: -6px; }
+.palcoIn .painelCheck svg { width: 27px; height: 27px; }
+.palcoIn .painelItem b { font-size: 22px; }
+.palcoIn .painelItem > span:last-child { font-size: 18px; max-width: 260px; }
 /* No palco vale sempre o layout de desktop, mesmo em janelas médias. */
 .palcoIn .acessosGrade { grid-template-columns: repeat(5, 1fr); }
 .palcoIn .acessoEscuro { grid-column: auto; }

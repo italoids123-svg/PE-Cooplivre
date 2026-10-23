@@ -503,7 +503,8 @@ function TelaGovernanca() {
 // Corrente de "infinitos": uma linha contínua que laça cada bola, alternando por cima
 // e por baixo, e se cruza entre uma bola e a seguinte. viewBox 1000×300 esticado na
 // largura (as bolas ficam no centro de cada uma das 5 colunas: x = 100, 300, …, 900).
-const ELOS = { cy: 150, rx: 78, ry: 92 };
+// A bola fica centrada em y = 170px da área do SVG (340px de altura).
+const ELOS = { cy: 170, rx: 80, ry: 112 };
 function caminhoElos(n: number): string {
   const xs = Array.from({ length: n }, (_, i) => 100 + i * 200);
   // Lado do laço: na ida, bolas pares por cima e ímpares por baixo; na volta, o inverso.
@@ -541,10 +542,10 @@ function TelaChegar() {
   return (
     <>
       <Cabecalho etiqueta="Onde queremos chegar" titulo="Painel de sucesso 2030" />
-      <main className={s.pagina}>
+      <main className={`${s.pagina} ${s.paginaLarga}`}>
         <div className={s.elos}>
           <div className={s.elosIn}>
-            <svg className={s.elosSvg} viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true">
+            <svg className={s.elosSvg} viewBox="0 0 1000 340" preserveAspectRatio="none" aria-hidden="true">
               <path d={CAMINHO_ELOS} />
             </svg>
             <div className={s.painel}>
