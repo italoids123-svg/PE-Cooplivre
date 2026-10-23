@@ -100,7 +100,7 @@ export function VisaoEvento({ fonte }: { fonte: string }) {
         </div>
       </nav>
       <div key={tela} className={s.entrada}>
-        {tela === "" || tela === "estrategia" || tela === "governanca" || tela === "caminho" ? <Palco>{conteudo}</Palco> : conteudo}
+        {tela === "" || tela === "estrategia" || tela === "governanca" || tela === "caminho" || tela === "chegar" ? <Palco>{conteudo}</Palco> : conteudo}
       </div>
     </div>
   );
@@ -108,7 +108,7 @@ export function VisaoEvento({ fonte }: { fonte: string }) {
 
 // ---------------- Palco: tela inteira sem rolagem
 
-// Capa, Nossa estratégia, Nosso caminho e Governança são desenhadas como um slide de 1180×840 e
+// Capa, Nossa estratégia, Nosso caminho, Governança e Onde queremos chegar são desenhadas como um slide de 1180×840 e
 // escaladas para caber na janela (abaixo da barra), como numa apresentação. A largura
 // acompanha a janela, então os fundos vão de ponta a ponta. Em telas pequenas
 // (celular ou janela muito baixa) a página volta a rolar normalmente.
@@ -500,11 +500,60 @@ function TelaGovernanca() {
 
 // ---------------- Onde queremos chegar (painel de sucesso 2030)
 
+// Lemniscata (∞) no viewBox 1100×700, esticada na vertical para abrir espaço nos laços.
+const INF = { cx: 550, cy: 350, a: 500, k: 1.45 };
+function pontoInfinito(t: number): [number, number] {
+  const d = 1 + Math.sin(t) ** 2;
+  return [INF.cx + (INF.a * Math.cos(t)) / d, INF.cy + (INF.k * INF.a * Math.sin(t) * Math.cos(t)) / d];
+}
+const CAMINHO_INFINITO =
+  Array.from({ length: 241 }, (_, i) => pontoInfinito((2 * Math.PI * i) / 240))
+    .map(([x, y], i) => `${i ? "L" : "M"} ${x.toFixed(1)} ${y.toFixed(1)}`)
+    .join(" ") + " Z";
+// Cooperado no cruzamento ("o cooperado no centro"); os demais nos laços.
+// `texto`: lado do rótulo em relação à bola (para dentro do laço).
+const POSICOES: Record<string, { t: number | null; texto: "abaixo" | "acima" }> = {
+  Cooperado: { t: null, texto: "abaixo" },
+  Pessoas: { t: Math.PI - 0.6, texto: "abaixo" },
+  Negócio: { t: Math.PI + 0.6, texto: "acima" },
+  Comunidade: { t: -0.6, texto: "abaixo" },
+  Processos: { t: 0.6, texto: "acima" },
+};
+
 function TelaChegar() {
   return (
     <>
       <Cabecalho etiqueta="Onde queremos chegar" titulo="Painel de sucesso 2030" />
       <main className={s.pagina}>
+        <div className={s.infinito}>
+          <div className={s.infinitoIn}>
+            <svg className={s.infinitoSvg} viewBox="0 0 1100 700" aria-hidden="true">
+              <path d={CAMINHO_INFINITO} />
+            </svg>
+            {PAINEL_2030.map((x, i) => {
+              const pos = POSICOES[x.titulo] ?? { t: null, texto: "abaixo" };
+              const [px, py] = pos.t === null ? [INF.cx, INF.cy] : pontoInfinito(pos.t);
+              return (
+                <div
+                  key={x.titulo}
+                  className={`${s.infItem}${pos.t === null ? ` ${s.infCentro}` : ""}`}
+                  style={{ left: `${(px / 1100) * 100}%`, top: `${(py / 700) * 100}%`, animationDelay: `${i * 0.1}s` }}
+                >
+                  <span className={s.painelBola} style={{ background: x.cor, color: x.tinta }}>
+                    <Ico nome={x.icone} />
+                    <span className={s.painelCheck} style={{ color: x.cor }}><Check /></span>
+                  </span>
+                  <div className={`${s.infTexto} ${pos.texto === "acima" ? s.infAcima : s.infAbaixo}`}>
+                    <b>{x.titulo}</b>
+                    <span>{x.texto}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Telas estreitas: grade simples, sem o infinito */}
         <div className={s.painel}>
           {PAINEL_2030.map((x) => (
             <div key={x.titulo} className={s.painelItem}>
