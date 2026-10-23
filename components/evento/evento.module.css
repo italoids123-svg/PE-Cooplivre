@@ -18,7 +18,7 @@
 
 /* ---------- Barra superior */
 .barra {
-  position: sticky; top: 0; z-index: 20;
+  position: sticky; top: 0; z-index: 20; height: 56px; box-sizing: border-box;
   display: flex; align-items: center; gap: 16px;
   padding: 10px clamp(16px, 4vw, 40px);
   background: rgba(13, 62, 70, .96);
@@ -218,6 +218,43 @@ button.pontinho:hover { transform: scale(1.12); }
 .painelCheck svg { width: 28px; height: 28px; }
 .painelItem b { font-size: 21px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--escuro); }
 .painelItem > span:last-child { font-size: 17px; color: var(--suave); line-height: 1.4; max-width: 240px; }
+
+/* ---------- Palco (tela inteira, sem rolagem): medidas fixas do slide 1180×840,
+   escalado por inteiro no componente Palco. */
+.palco { overflow: hidden; }
+.palcoIn { display: flex; flex-direction: column; transform-origin: 0 0; }
+.palcoIn .capa { flex: 1; min-height: 0; }
+.palcoIn .capaIn { padding: 34px 110px 96px; }
+.palcoIn .capaTitulo { font-size: 112px; margin: 20px 0 18px; }
+.palcoIn .capaSub { font-size: 24px; }
+.palcoIn .bolaTeal { width: 460px; }
+.palcoIn .bolaVerde { width: 270px; }
+.palcoIn .bolaRoxa { width: 92px; }
+.palcoIn .bolaLima { width: 190px; }
+.palcoIn .acessos { flex: none; width: 100%; padding: 0 40px 30px; }
+.palcoIn .acessosGrade { margin-top: 10px; }
+.palcoIn .acesso { padding: 18px 18px 20px; }
+.palcoIn .cab { flex: none; padding-bottom: 50px; }
+.palcoIn .cabIn { padding-top: 26px; }
+.palcoIn .cabTitulo { font-size: 50px; margin-top: 14px; }
+.palcoIn .cabOnda { height: 44px; }
+.palcoIn .pagina { flex: 1; min-height: 0; width: 100%; display: flex; flex-direction: column; padding-top: 14px; padding-bottom: 18px; }
+.palcoIn .seguir { margin-top: auto; padding-top: 14px; }
+.palcoIn .zigue { margin: 4px 0 14px; }
+.palcoIn .direcionador { padding: 24px 40px; }
+.palcoIn .aspas { width: 92px; height: 92px; font-size: 68px; padding-top: 22px; }
+.palcoIn .direcionadorTexto { font-size: 23px; }
+.palcoIn .principioTexto { font-size: 22px; }
+/* No palco vale sempre o layout de desktop, mesmo em janelas médias. */
+.palcoIn .acessosGrade { grid-template-columns: repeat(5, 1fr); }
+.palcoIn .acessoEscuro { grid-column: auto; }
+.palcoIn .zigueAro { width: 160px; height: 160px; }
+.palcoIn .zigueBola { width: 138px; height: 138px; }
+.palcoIn .zigueBola svg { width: 58px; height: 58px; }
+.palcoIn .zigueItem b { font-size: 20px; }
+.palcoIn .zigueItem > span:last-child { font-size: 15px; }
+.palcoIn .govLista { grid-template-columns: repeat(6, 1fr); }
+.palcoIn .govLista li:nth-child(4)::before { display: block; }
 
 /* ---------- Telas médias e celular */
 @media (max-width: 1040px) {

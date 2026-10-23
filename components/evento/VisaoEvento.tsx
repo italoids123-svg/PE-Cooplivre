@@ -100,7 +100,36 @@ export function VisaoEvento({ fonte }: { fonte: string }) {
         </div>
       </nav>
       <div key={tela} className={s.entrada}>
-        {conteudo}
+        {tela === "" || tela === "estrategia" || tela === "governanca" ? <Palco>{conteudo}</Palco> : conteudo}
+      </div>
+    </div>
+  );
+}
+
+// ---------------- Palco: tela inteira sem rolagem
+
+// Capa, Nossa estratégia e Governança são desenhadas como um slide de 1180×840 e
+// escaladas para caber na janela (abaixo da barra), como numa apresentação. A largura
+// acompanha a janela, então os fundos vão de ponta a ponta. Em telas pequenas
+// (celular ou janela muito baixa) a página volta a rolar normalmente.
+const PALCO = { largura: 1180, altura: 840, barra: 56 };
+
+function assinarJanela(cb: () => void) {
+  window.addEventListener("resize", cb);
+  return () => window.removeEventListener("resize", cb);
+}
+const lerJanela = () => `${window.innerWidth}x${window.innerHeight}`;
+
+function Palco({ children }: { children: React.ReactNode }) {
+  const janela = useSyncExternalStore(assinarJanela, lerJanela, () => "");
+  const [w, h] = janela.split("x").map(Number);
+  const util = h - PALCO.barra;
+  if (!janela || w < 760 || util < 460) return <>{children}</>;
+  const escala = Math.min(util / PALCO.altura, w / PALCO.largura);
+  return (
+    <div className={s.palco} style={{ height: util }}>
+      <div className={s.palcoIn} style={{ width: w / escala, height: util / escala, transform: `scale(${escala})` }}>
+        {children}
       </div>
     </div>
   );
