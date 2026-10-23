@@ -1,5 +1,6 @@
-// Conteúdo da "Visão evento", transcrito do material "Plano Estratégico — Ciclo 2027–2030"
-// (Sicoob_Plano_Estrategico_2027-2030.pdf). Nome, cor e objetivos de cada pilar vêm do
+// Conteúdo da "Visão evento", a partir do material "Plano Estratégico — Ciclo 2027–2030"
+// (Sicoob_Plano_Estrategico_2027-2030.pdf). Intenções e prioridades dos pilares foram
+// reescritas a partir dos objetivos validados (out/2026). Nome, cor e objetivos de cada pilar vêm do
 // mapa estratégico (lib/data.ts), pelo `slug`, para as duas visões ficarem iguais.
 import { getPilar } from "@/lib/data";
 
@@ -39,7 +40,7 @@ export const DIRECIONADOR =
 const MATERIAL: PilarMaterial[] = [
   {
     numero: "01", slug: "pessoas-protagonistas", lema: "Gente que faz acontecer",
-    intencao: "Construir uma cultura de [alta performance], desenvolvimento e responsabilidade compartilhada.",
+    intencao: "Desenvolver [pessoas protagonistas] que entregam resultado, com lideranças preparadas, reconhecimento justo e orgulho de pertencer.",
     prioridades: [
       { texto: "Líderes e times de alta performance", objetivo: "p1-1" },
       { texto: "Sucessão como alavanca de continuidade", objetivo: "p1-2" },
@@ -51,7 +52,7 @@ const MATERIAL: PilarMaterial[] = [
   },
   {
     numero: "02", slug: "processos-eficientes", lema: "Agilidade e simplicidade",
-    intencao: "Tornar a operação mais [simples, digital e segura], orientada à experiência do cooperado.",
+    intencao: "Tornar a operação [simples, digital e orientada por dados], com conhecimento preservado e melhoria contínua feita pelo time.",
     prioridades: [
       { texto: "Decisões com base em dados e rituais de gestão", objetivo: "e5-1" },
       { texto: "Gestão do conhecimento", objetivo: "e5-2" },
@@ -62,7 +63,7 @@ const MATERIAL: PilarMaterial[] = [
   },
   {
     numero: "03", slug: "sustentabilidade-financeira", lema: "Solidez para crescer",
-    intencao: "Garantir crescimento com [rentabilidade], qualidade da carteira, eficiência e gestão prudente de riscos.",
+    intencao: "Crescer com [solidez]: capital social fortalecido, liquidez equilibrada no longo prazo e eficiência na gestão dos recursos.",
     prioridades: [
       { texto: "Fortalecimento do Capital Social", objetivo: "s3-1" },
       { texto: "Sustentabilidade no longo prazo", objetivo: "s3-2" },
@@ -72,7 +73,7 @@ const MATERIAL: PilarMaterial[] = [
   },
   {
     numero: "04", slug: "relacionamento-principalidade", lema: "Principalidade e confiança",
-    intencao: "Ser a [principal instituição financeira] do cooperado, ampliando relacionamento, confiança e utilização de soluções.",
+    intencao: "Ser a [primeira escolha financeira] do cooperado, com benefício econômico real e um atendimento que faz diferença no resultado.",
     prioridades: [
       { texto: "Geração de benefício econômico", objetivo: "r2-1" },
       { texto: "Atendimento como diferencial na geração de resultado", objetivo: "r2-1" },
@@ -82,7 +83,7 @@ const MATERIAL: PilarMaterial[] = [
   },
   {
     numero: "05", slug: "cooperativismo-comunidade", lema: "Desenvolvimento local",
-    intencao: "Transformar o resultado econômico em [desenvolvimento sustentável] para os cooperados e para a região.",
+    intencao: "Transformar resultado em [desenvolvimento local], com educação, parcerias, cooperados participativos e governança preparada para o futuro.",
     prioridades: [
       { texto: "Educação cooperativista e financeira com resultado na vida do cooperado", objetivo: "c4-1" },
       { texto: "Parcerias e presença ativa", objetivo: "c4-2" },
