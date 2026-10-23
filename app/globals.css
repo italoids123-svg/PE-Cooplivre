@@ -308,3 +308,5 @@ a{color:var(--teal)}
 .rev-salva{font-size:13px;font-weight:700;color:var(--ok)}
 .rev-topo{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
 .rev-fechar{border:0;background:none;color:var(--teal);font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:0;text-decoration:underline}
+.btn-evento{display:inline-block;margin-left:14px;vertical-align:middle;font-size:14px;padding:8px 16px;background:#bed62f;color:#0d3e46;border:0;border-radius:999px;font-weight:800;text-decoration:none}
+.btn-evento:hover{background:#cfe24f}

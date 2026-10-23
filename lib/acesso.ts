@@ -14,6 +14,8 @@ export interface Responsavel {
   // Se definido, SÓ estes sobrenomes dão acesso (os demais do nome não contam).
   // Usado quando duas pessoas dividem primeiro nome e sobrenome.
   sobrenomesChave?: string[];
+  // Acesso à "Visão evento" (landing page do plano para apresentação).
+  visaoEvento?: boolean;
 }
 
 export const RESPONSAVEIS: Responsavel[] = [
@@ -26,8 +28,8 @@ export const RESPONSAVEIS: Responsavel[] = [
   { id: "joao-angelo-de-moraes", nome: "João Angelo de Moraes", pilares: TODOS },
   { id: "domingos-savio-oriente-franciulli", nome: "Domingos Savio Oriente Franciulli", pilares: TODOS },
   { id: "rafael-kerche-de-oliveira", nome: "Rafael Kerche de Oliveira", pilares: TODOS, sobrenomesChave: ["Kerche"] },
-  { id: "italo-leal-dos-santos", nome: "Italo Leal dos Santos", pilares: TODOS },
-  { id: "patricia-antunes", nome: "Patricia Antunes", pilares: TODOS },
+  { id: "italo-leal-dos-santos", nome: "Italo Leal dos Santos", pilares: TODOS, visaoEvento: true },
+  { id: "patricia-antunes", nome: "Patricia Antunes", pilares: TODOS, visaoEvento: true },
 ];
 
 const PARTICULAS = new Set(["de", "da", "do", "das", "dos", "e"]);
@@ -84,6 +86,10 @@ export function responsavelPorId(id: string): Responsavel | undefined {
 // Pilares que a pessoa revisa (vazio para quem não está na lista).
 export function pilaresDe(id: string): string[] {
   return responsavelPorId(id)?.pilares ?? [];
+}
+
+export function veEvento(id: string): boolean {
+  return !!responsavelPorId(id)?.visaoEvento;
 }
 
 // Quem tem acesso a todos os pilares acompanha a evolução dos demais responsáveis.

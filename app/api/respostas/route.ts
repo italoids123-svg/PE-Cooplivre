@@ -1,16 +1,17 @@
 import type { NextRequest } from "next/server";
-import { pilaresDe, responsavelPorId, veTodos } from "@/lib/acesso";
+import { pilaresDe, responsavelPorId, veEvento, veTodos } from "@/lib/acesso";
 import { AcessoNegadoError, respostaDeErro } from "@/lib/api-erros";
 import { getStore } from "@/lib/store";
 import { participanteId, validarParticipante, validarResposta, ValidationError } from "@/lib/validate";
 
-// Estado salvo do próprio participante: respostas, envio e pilares que ele revisa.
+// Estado salvo do próprio participante: respostas, envio, pilares que ele revisa e
+// se tem acesso à visão evento.
 export async function GET(request: NextRequest) {
   try {
     const pid = participanteId(request.nextUrl.searchParams.get("pid"));
     const store = getStore();
     const [participante, respostas] = await Promise.all([store.participante(pid), store.respostasDe(pid)]);
-    return Response.json({ participante, respostas, pilares: pilaresDe(pid) });
+    return Response.json({ participante, respostas, pilares: pilaresDe(pid), evento: veEvento(pid) });
   } catch (e) {
     return respostaDeErro(e, "Falha ao carregar suas respostas");
   }

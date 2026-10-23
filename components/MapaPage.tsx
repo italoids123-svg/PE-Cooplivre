@@ -19,7 +19,7 @@ export function MapaPage() {
   const salvoAgora = getPilar(params.get("salvo") ?? "");
   const retomada = params.get("retomada") === "1";
   const p = useParticipante();
-  const { respostas, servidor, setServidor, pilares, enviadoEm } = useMinhaRevisao(p?.id);
+  const { respostas, servidor, setServidor, pilares, evento, enviadoEm } = useMinhaRevisao(p?.id);
   const veTodos = pilares.length === PILARES.length;
   const reaberta = !enviadoEm && !!servidor && enviosDe(servidor).length > 0;
   const [enviando, setEnviando] = useState(false);
@@ -84,7 +84,14 @@ export function MapaPage() {
         <div className="mapa-head">
           <div>
             <p className="eyebrow">Avança Cooplivre 27–30</p>
-            <h1>Mapa Estratégico Cooplivre</h1>
+            <h1>
+              Mapa Estratégico Cooplivre
+              {evento && (
+                <Link href="/evento" className="btn btn-evento">
+                  Visão evento
+                </Link>
+              )}
+            </h1>
             <p className="mapa-sub">
               {enviadoEm
                 ? `Obrigado, ${p.nome.split(" ")[0]}! Sua revisão foi enviada.`
