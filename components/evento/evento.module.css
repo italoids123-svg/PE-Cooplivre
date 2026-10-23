@@ -217,28 +217,17 @@ button.pontinho:hover { transform: scale(1.12); }
 .principioTexto { margin: 0; font-size: clamp(18px, 2vw, 24px); line-height: 1.45; }
 
 /* ---------- Painel de sucesso 2030 */
-/* Infinito: linha pontilhada "andando" em ∞, com as bolas sobre ela. */
-.infinito { display: flex; justify-content: center; }
-.infinitoIn { position: relative; width: 100%; max-width: 1060px; aspect-ratio: 1100 / 700; }
-.infinitoSvg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.infinitoSvg path { fill: none; stroke: #9fc1bd; stroke-width: 4; stroke-linecap: round; stroke-dasharray: 0.1 14; animation: andarPontos 1.4s linear infinite; }
-@keyframes andarPontos { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -14.1; } }
-.infItem { position: absolute; width: 0; height: 0; animation: surgir .6s ease both; }
-.infItem .painelBola { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); width: 124px; height: 124px; margin: 0; box-shadow: 0 0 0 8px #fff; }
-.infItem:hover .painelBola { transform: translate(-50%, -50%) scale(1.06); }
-.infItem .painelBola > svg { width: 56px; height: 56px; }
-.infItem .painelCheck { width: 44px; height: 44px; top: -6px; right: -6px; }
-.infItem .painelCheck svg { width: 22px; height: 22px; }
-.infTexto { position: absolute; left: 0; transform: translateX(-50%); width: 240px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
-.infAbaixo { top: 76px; }
-.infAcima { bottom: 76px; }
-.infCentro .infTexto { background: #fff; border-radius: 14px; padding: 6px 10px; }
-.infTexto b { font-size: 20px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--escuro); }
-.infTexto span { font-size: 16px; color: var(--suave); line-height: 1.35; }
-.painel { display: none; grid-template-columns: repeat(5, 1fr); gap: 20px; }
-.painelItem { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; animation: entrar .5s ease both; }
+/* Painel 2030: corrente de infinitos pontilhada e animada laçando cada bola. A bola fica
+   centrada em y = 150px da área do SVG (300px de altura). */
+.elos { display: flex; align-items: center; justify-content: center; }
+.elosIn { position: relative; width: 100%; }
+.elosSvg { position: absolute; left: 0; top: 0; width: 100%; height: 300px; overflow: visible; pointer-events: none; }
+.elosSvg path { fill: none; stroke: #8fb8b3; stroke-width: 3; stroke-linecap: round; stroke-dasharray: 0.1 11; vector-effect: non-scaling-stroke; animation: andarPontos 1.4s linear infinite; }
+@keyframes andarPontos { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -11.1; } }
+.painel { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
+.painelItem { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 80px 10px 0; animation: entrar .5s ease both; }
 .painelItem:nth-child(2) { animation-delay: .1s; } .painelItem:nth-child(3) { animation-delay: .2s; } .painelItem:nth-child(4) { animation-delay: .3s; } .painelItem:nth-child(5) { animation-delay: .4s; }
-.painelBola { position: relative; width: 150px; height: 150px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 12px; transition: transform .2s; }
+.painelBola { position: relative; width: 140px; height: 140px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 36px; transition: transform .2s; }
 .painelItem:hover .painelBola { transform: scale(1.05); }
 .painelBola > svg { width: 70px; height: 70px; }
 .painelCheck { position: absolute; top: -4px; right: -4px; width: 54px; height: 54px; border-radius: 50%; background: #fff; color: var(--roxo); display: grid; place-items: center; box-shadow: 0 2px 8px rgba(0, 0, 0, .12); }
@@ -279,8 +268,15 @@ button.pontinho:hover { transform: scale(1.12); }
 .palcoIn .principioTexto { font-size: 22px; }
 .palcoIn .estrada { flex: 1; min-height: 0; aspect-ratio: auto; margin: 0; }
 .palcoIn .linhaTempo { display: none; }
-.palcoIn .infinito { flex: 1; min-height: 0; padding: 6px 0; }
-.palcoIn .infinitoIn { width: auto; height: 100%; max-width: 100%; }
+.palcoIn .elos { flex: 1; min-height: 0; }
+.palcoIn .painel { grid-template-columns: repeat(5, 1fr); row-gap: 0; }
+.palcoIn .elosSvg { display: block; }
+.palcoIn .painelItem { padding-top: 80px; }
+.palcoIn .painelBola { margin-bottom: 34px; width: 120px; height: 120px; }
+.palcoIn .painelItem { padding-top: 90px; }
+.palcoIn .painelBola > svg { width: 58px; height: 58px; }
+.palcoIn .painelCheck { width: 44px; height: 44px; top: -8px; right: -8px; }
+.palcoIn .painelCheck svg { width: 22px; height: 22px; }
 /* No palco vale sempre o layout de desktop, mesmo em janelas médias. */
 .palcoIn .acessosGrade { grid-template-columns: repeat(5, 1fr); }
 .palcoIn .acessoEscuro { grid-column: auto; }
@@ -305,6 +301,9 @@ button.pontinho:hover { transform: scale(1.12); }
   .govLista { grid-template-columns: repeat(3, 1fr); row-gap: 32px; }
   .govLista li:nth-child(4)::before { display: none; }
   .painel { grid-template-columns: repeat(2, 1fr); row-gap: 36px; }
+  .elosSvg { display: none; }
+  .painelItem { padding-top: 0; }
+  .painelBola { margin-bottom: 12px; }
 }
 @media (max-width: 720px) {
   .barra { gap: 8px; }
@@ -354,8 +353,10 @@ button.pontinho:hover { transform: scale(1.12); }
   .govIco svg { width: 32px; height: 32px; }
   .govLista b { font-size: 15px; }
   .principio { flex-direction: column; align-items: flex-start; padding: 26px 22px; }
-  .infinito { display: none; }
-  .painel { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .elosSvg { display: none; }
+  .painel { grid-template-columns: 1fr 1fr; gap: 20px; }
+  .painelItem { padding-top: 0; }
+  .painelBola { margin-bottom: 12px; }
   .painelBola { width: 120px; height: 120px; }
   .painelBola > svg { width: 48px; height: 48px; }
   .painelCheck { width: 40px; height: 40px; }
@@ -363,6 +364,6 @@ button.pontinho:hover { transform: scale(1.12); }
   .painelItem > span:last-child { font-size: 14px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .entrada, .marco > *, .govLista li, .painelItem, .infItem, .infinitoSvg path, .bolaTeal, .bolaVerde, .bolaRoxa { animation: none; }
+  .entrada, .marco > *, .govLista li, .painelItem, .elosSvg path, .bolaTeal, .bolaVerde, .bolaRoxa { animation: none; }
   .estradaFaixa { animation: none; }
 }

@@ -500,71 +500,66 @@ function TelaGovernanca() {
 
 // ---------------- Onde queremos chegar (painel de sucesso 2030)
 
-// Lemniscata (∞) no viewBox 1100×700, esticada na vertical para abrir espaço nos laços.
-const INF = { cx: 550, cy: 350, a: 500, k: 1.45 };
-function pontoInfinito(t: number): [number, number] {
-  const d = 1 + Math.sin(t) ** 2;
-  return [INF.cx + (INF.a * Math.cos(t)) / d, INF.cy + (INF.k * INF.a * Math.sin(t) * Math.cos(t)) / d];
+// Corrente de "infinitos": uma linha contínua que laça cada bola, alternando por cima
+// e por baixo, e se cruza entre uma bola e a seguinte. viewBox 1000×300 esticado na
+// largura (as bolas ficam no centro de cada uma das 5 colunas: x = 100, 300, …, 900).
+const ELOS = { cy: 150, rx: 78, ry: 92 };
+function caminhoElos(n: number): string {
+  const xs = Array.from({ length: n }, (_, i) => 100 + i * 200);
+  // Lado do laço: na ida, bolas pares por cima e ímpares por baixo; na volta, o inverso.
+  const lado = (i: number, volta: boolean) => ((i % 2 === 0) !== volta ? -1 : 1);
+  const k = Math.SQRT1_2;
+  const arco = (x: number, sy: number, dir: 1 | -1): [number, number][] => [
+    [x - dir * ELOS.rx * k, ELOS.cy + sy * ELOS.ry * k],
+    [x, ELOS.cy + sy * ELOS.ry],
+    [x + dir * ELOS.rx * k, ELOS.cy + sy * ELOS.ry * k],
+  ];
+  const p: [number, number][] = [[xs[0] - ELOS.rx, ELOS.cy]];
+  xs.forEach((x, i) => {
+    p.push(...arco(x, lado(i, false), 1));
+    if (i < n - 1) p.push([x + 100, ELOS.cy]);
+  });
+  p.push([xs[n - 1] + ELOS.rx, ELOS.cy]);
+  for (let i = n - 1; i >= 0; i--) {
+    p.push(...arco(xs[i], lado(i, true), -1));
+    if (i > 0) p.push([xs[i] - 100, ELOS.cy]);
+  }
+  // Catmull-Rom fechado → Bézier cúbicas (curva suave passando por todos os pontos).
+  const m = p.length;
+  let d = `M ${p[0][0].toFixed(1)} ${p[0][1].toFixed(1)}`;
+  for (let i = 0; i < m; i++) {
+    const [p0, p1, p2, p3] = [p[(i - 1 + m) % m], p[i], p[(i + 1) % m], p[(i + 2) % m]];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C ${c1[0].toFixed(1)} ${c1[1].toFixed(1)}, ${c2[0].toFixed(1)} ${c2[1].toFixed(1)}, ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+  }
+  return d;
 }
-const CAMINHO_INFINITO =
-  Array.from({ length: 241 }, (_, i) => pontoInfinito((2 * Math.PI * i) / 240))
-    .map(([x, y], i) => `${i ? "L" : "M"} ${x.toFixed(1)} ${y.toFixed(1)}`)
-    .join(" ") + " Z";
-// Cooperado no cruzamento ("o cooperado no centro"); os demais nos laços.
-// `texto`: lado do rótulo em relação à bola (para dentro do laço).
-const POSICOES: Record<string, { t: number | null; texto: "abaixo" | "acima" }> = {
-  Cooperado: { t: null, texto: "abaixo" },
-  Pessoas: { t: Math.PI - 0.6, texto: "abaixo" },
-  Negócio: { t: Math.PI + 0.6, texto: "acima" },
-  Comunidade: { t: -0.6, texto: "abaixo" },
-  Processos: { t: 0.6, texto: "acima" },
-};
+const CAMINHO_ELOS = caminhoElos(PAINEL_2030.length);
 
 function TelaChegar() {
   return (
     <>
       <Cabecalho etiqueta="Onde queremos chegar" titulo="Painel de sucesso 2030" />
       <main className={s.pagina}>
-        <div className={s.infinito}>
-          <div className={s.infinitoIn}>
-            <svg className={s.infinitoSvg} viewBox="0 0 1100 700" aria-hidden="true">
-              <path d={CAMINHO_INFINITO} />
+        <div className={s.elos}>
+          <div className={s.elosIn}>
+            <svg className={s.elosSvg} viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true">
+              <path d={CAMINHO_ELOS} />
             </svg>
-            {PAINEL_2030.map((x, i) => {
-              const pos = POSICOES[x.titulo] ?? { t: null, texto: "abaixo" };
-              const [px, py] = pos.t === null ? [INF.cx, INF.cy] : pontoInfinito(pos.t);
-              return (
-                <div
-                  key={x.titulo}
-                  className={`${s.infItem}${pos.t === null ? ` ${s.infCentro}` : ""}`}
-                  style={{ left: `${(px / 1100) * 100}%`, top: `${(py / 700) * 100}%`, animationDelay: `${i * 0.1}s` }}
-                >
+            <div className={s.painel}>
+              {PAINEL_2030.map((x) => (
+                <div key={x.titulo} className={s.painelItem}>
                   <span className={s.painelBola} style={{ background: x.cor, color: x.tinta }}>
                     <Ico nome={x.icone} />
                     <span className={s.painelCheck} style={{ color: x.cor }}><Check /></span>
                   </span>
-                  <div className={`${s.infTexto} ${pos.texto === "acima" ? s.infAcima : s.infAbaixo}`}>
-                    <b>{x.titulo}</b>
-                    <span>{x.texto}</span>
-                  </div>
+                  <b>{x.titulo}</b>
+                  <span>{x.texto}</span>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Telas estreitas: grade simples, sem o infinito */}
-        <div className={s.painel}>
-          {PAINEL_2030.map((x) => (
-            <div key={x.titulo} className={s.painelItem}>
-              <span className={s.painelBola} style={{ background: x.cor, color: x.tinta }}>
-                <Ico nome={x.icone} />
-                <span className={s.painelCheck} style={{ color: x.cor }}><Check /></span>
-              </span>
-              <b>{x.titulo}</b>
-              <span>{x.texto}</span>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
         <Seguir atual="chegar" />
       </main>
