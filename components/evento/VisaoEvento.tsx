@@ -100,7 +100,7 @@ export function VisaoEvento({ fonte }: { fonte: string }) {
         </div>
       </nav>
       <div key={tela} className={s.entrada}>
-        {tela === "" || tela === "estrategia" || tela === "governanca" ? <Palco>{conteudo}</Palco> : conteudo}
+        {tela === "" || tela === "estrategia" || tela === "governanca" || tela === "caminho" ? <Palco>{conteudo}</Palco> : conteudo}
       </div>
     </div>
   );
@@ -108,7 +108,7 @@ export function VisaoEvento({ fonte }: { fonte: string }) {
 
 // ---------------- Palco: tela inteira sem rolagem
 
-// Capa, Nossa estratégia e Governança são desenhadas como um slide de 1180×840 e
+// Capa, Nossa estratégia, Nosso caminho e Governança são desenhadas como um slide de 1180×840 e
 // escaladas para caber na janela (abaixo da barra), como numa apresentação. A largura
 // acompanha a janela, então os fundos vão de ponta a ponta. Em telas pequenas
 // (celular ou janela muito baixa) a página volta a rolar normalmente.
@@ -386,13 +386,16 @@ function TelaPilar({ indice }: { indice: number }) {
 
 // ---------------- Nosso caminho (imagem 4)
 
-// Posições (em % da área da estrada) de cada marco e do seu texto.
-const MARCOS: { bola: [number, number]; fase: [number, number]; caixa: React.CSSProperties }[] = [
-  { bola: [8, 12.2], fase: [14, 12.2], caixa: { left: "17%", top: "27%" } },
-  { bola: [56, 23.8], fase: [62, 23.8], caixa: { left: "60%", top: "31%" } },
-  { bola: [9, 65], fase: [15, 65], caixa: { left: "17%", top: "70%" } },
-  { bola: [54, 83.7], fase: [60, 83.7], caixa: { right: "8%", top: "88.5%" } },
+// Estrada horizontal (viewBox 1000×460): marcos alternando acima e abaixo da linha
+// central, com o texto do lado de fora da curva.
+const MARCOS = [
+  { x: 13, y: 190, cima: true },
+  { x: 37.5, y: 270, cima: false },
+  { x: 62.5, y: 190, cima: true },
+  { x: 87, y: 270, cima: false },
 ];
+const ESTRADA =
+  "M -20 270 C 50 270, 80 190, 130 190 C 230 190, 280 270, 375 270 C 470 270, 530 190, 625 190 C 720 190, 770 270, 870 270 C 940 270, 960 230, 1020 230";
 
 function TelaCaminho() {
   return (
@@ -408,17 +411,23 @@ function TelaCaminho() {
       />
       <main className={s.pagina}>
         <div className={s.estrada}>
-          <svg className={s.estradaSvg} viewBox="0 0 1000 860" preserveAspectRatio="none" aria-hidden="true">
-            <path className={s.estradaPista} d="M 80 105 C 150 175, 240 205, 340 205 L 760 205 C 910 205, 940 300, 940 340 C 940 430, 860 470, 760 470 L 220 470 C 110 470, 70 520, 70 600 C 70 690, 130 720, 230 720 L 900 720" />
-            <path className={s.estradaFaixa} d="M 80 105 C 150 175, 240 205, 340 205 L 760 205 C 910 205, 940 300, 940 340 C 940 430, 860 470, 760 470 L 220 470 C 110 470, 70 520, 70 600 C 70 690, 130 720, 230 720 L 900 720" />
+          <svg className={s.estradaSvg} viewBox="0 0 1000 460" preserveAspectRatio="none" aria-hidden="true">
+            <path className={s.estradaPista} d={ESTRADA} />
+            <path className={s.estradaFaixa} d={ESTRADA} />
           </svg>
           {AGENDA.map((a, i) => {
             const m = MARCOS[i];
+            const topo = (m.y / 460) * 100;
             return (
               <div key={a.ano} className={s.marco} style={{ "--atraso": `${i * 0.15}s` } as React.CSSProperties}>
-                <span className={s.marcoBola} style={{ left: `${m.bola[0]}%`, top: `${m.bola[1]}%`, background: a.cor, color: a.tinta }}>{a.ano}</span>
-                <b className={s.marcoFase} style={{ left: `${m.fase[0]}%`, top: `${m.fase[1]}%` }}>{a.fase}</b>
-                <p className={s.marcoCaixa} style={m.caixa}>{a.texto}</p>
+                <span className={s.marcoBola} style={{ left: `${m.x}%`, top: `${topo}%`, background: a.cor, color: a.tinta }}>{a.ano}</span>
+                <div
+                  className={s.marcoTexto}
+                  style={m.cima ? { left: `${m.x}%`, bottom: `calc(${100 - topo}% + 74px)` } : { left: `${m.x}%`, top: `calc(${topo}% + 74px)` }}
+                >
+                  <b className={s.marcoFase}>{a.fase}</b>
+                  <p className={s.marcoCaixa}>{a.texto}</p>
+                </div>
               </div>
             );
           })}

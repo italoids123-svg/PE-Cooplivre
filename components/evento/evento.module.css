@@ -166,24 +166,24 @@ button.pontinho:hover { transform: scale(1.12); }
 .iniciativas { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 15px; line-height: 1.4; }
 
 /* ---------- Nosso caminho (imagem 4) */
-.estrada { position: relative; aspect-ratio: 1000 / 860; margin: 10px 0; }
-.estradaSvg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.estradaPista { fill: none; stroke: #e6efec; stroke-width: 46; stroke-linecap: round; }
-.estradaFaixa { fill: none; stroke: #fff; stroke-width: 3; stroke-dasharray: 16 14; stroke-linecap: round; stroke-dashoffset: 600; animation: faixa 2.4s ease-out forwards; }
-@keyframes faixa { to { stroke-dashoffset: 0; } }
+.estrada { position: relative; aspect-ratio: 1000 / 460; margin: 10px 0; }
+.estradaSvg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.estradaPista { fill: none; stroke: #e6efec; stroke-width: 44; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.estradaFaixa { fill: none; stroke: #fff; stroke-width: 3; stroke-dasharray: 16 14; stroke-linecap: round; vector-effect: non-scaling-stroke; animation: surgir 1.2s ease both; }
 .marco > * { animation: surgir .6s ease both; animation-delay: var(--atraso); }
 @keyframes surgir { from { opacity: 0; } to { opacity: 1; } }
 .marcoBola {
-  position: absolute; transform: translate(-50%, -50%); width: clamp(84px, 11vw, 124px); aspect-ratio: 1; border-radius: 50%;
-  display: grid; place-items: center; font-weight: 800; font-size: clamp(20px, 2.4vw, 30px); box-shadow: 0 0 0 7px #fff, 0 0 0 9px #e1e7e8;
+  position: absolute; transform: translate(-50%, -50%); width: 116px; height: 116px; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 800; font-size: 28px; box-shadow: 0 0 0 7px #fff, 0 0 0 9px #e1e7e8;
 }
-.marcoFase { position: absolute; transform: translateY(-50%); background: #fff; padding: 2px 10px; border-radius: 8px; font-size: clamp(22px, 2.8vw, 36px); font-weight: 800; color: var(--escuro); }
+.marcoTexto { position: absolute; transform: translateX(-50%); width: 25%; max-width: 270px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.marcoFase { font-size: 30px; font-weight: 800; color: var(--escuro); line-height: 1.1; }
 .marcoCaixa {
-  position: absolute; margin: 0; width: 30%; background: #fff; border: 1px solid var(--linha); border-radius: 14px; padding: 14px 18px;
-  font-size: clamp(14px, 1.6vw, 18px); line-height: 1.45; box-shadow: 0 4px 0 #e6efec;
+  margin: 0; background: #fff; border: 1px solid var(--linha); border-radius: 14px; padding: 12px 16px;
+  font-size: 16px; line-height: 1.45; box-shadow: 0 4px 0 #e6efec;
 }
-.bandeira { position: absolute; left: 91.5%; top: 73%; width: 3px; height: 9%; background: var(--escuro); border-radius: 2px; }
-.bandeira::after { content: ""; position: absolute; left: 3px; top: 0; width: 60px; height: 38px; background: var(--lima); clip-path: polygon(0 0, 100% 0, 72% 50%, 100% 100%, 0 100%); }
+.bandeira { position: absolute; left: 97%; top: calc(50% - 64px); width: 3px; height: 64px; background: var(--escuro); border-radius: 2px; }
+.bandeira::after { content: ""; position: absolute; left: 3px; top: 0; width: 54px; height: 34px; background: var(--lima); clip-path: polygon(0 0, 100% 0, 72% 50%, 100% 100%, 0 100%); }
 .linhaTempo { display: none; list-style: none; margin: 0; padding: 0; }
 
 /* ---------- Governança (imagem 5) */
@@ -246,6 +246,8 @@ button.pontinho:hover { transform: scale(1.12); }
 .palcoIn .aspas { width: 92px; height: 92px; font-size: 68px; padding-top: 22px; }
 .palcoIn .direcionadorTexto { font-size: 23px; }
 .palcoIn .principioTexto { font-size: 22px; }
+.palcoIn .estrada { flex: 1; min-height: 0; aspect-ratio: auto; margin: 0; }
+.palcoIn .linhaTempo { display: none; }
 /* No palco vale sempre o layout de desktop, mesmo em janelas médias. */
 .palcoIn .acessosGrade { grid-template-columns: repeat(5, 1fr); }
 .palcoIn .acessoEscuro { grid-column: auto; }
@@ -328,5 +330,5 @@ button.pontinho:hover { transform: scale(1.12); }
 }
 @media (prefers-reduced-motion: reduce) {
   .entrada, .marco > *, .govLista li, .painelItem, .bolaTeal, .bolaVerde, .bolaRoxa { animation: none; }
-  .estradaFaixa { animation: none; stroke-dashoffset: 0; }
+  .estradaFaixa { animation: none; }
 }
