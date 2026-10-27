@@ -62,7 +62,7 @@ function catalogo(): Record<string, InfoObjetivo> {
 
 // Excel não tem fuso: grava a hora de Brasília "como se fosse UTC" para a célula
 // mostrar o horário local do evento, não o do servidor.
-export function dataLocal(iso: string | undefined): Date | null {
+function dataLocal(iso: string | undefined): Date | null {
   if (!iso) return null;
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return null;
@@ -78,9 +78,9 @@ export function dataLocal(iso: string | undefined): Date | null {
 const rotulo = (a: Avaliacao | null | undefined) => (a ? AVALIACAO_LABEL[a] : "");
 const valorCampo = (c: CampoResposta, v: unknown) => (c === "avaliacao" ? rotulo(v as Avaliacao | null) : String(v ?? ""));
 
-export type Coluna = { header: string; key: string; width: number; data?: boolean; pct?: boolean; fmt?: string };
+type Coluna = { header: string; key: string; width: number; data?: boolean; pct?: boolean };
 
-export function aba(wb: ExcelJS.Workbook, nome: string, colunas: Coluna[], linhas: Record<string, unknown>[]) {
+function aba(wb: ExcelJS.Workbook, nome: string, colunas: Coluna[], linhas: Record<string, unknown>[]) {
   const ws = wb.addWorksheet(nome, { views: [{ state: "frozen", ySplit: 1 }] });
   ws.columns = colunas.map((c) => ({ header: c.header, key: c.key, width: c.width }));
   ws.addRows(linhas);
@@ -94,7 +94,6 @@ export function aba(wb: ExcelJS.Workbook, nome: string, colunas: Coluna[], linha
     col.alignment = { vertical: "top", wrapText: true };
     if (c.data) col.numFmt = "dd/mm/yyyy hh:mm";
     if (c.pct) col.numFmt = "0%";
-    if (c.fmt) col.numFmt = c.fmt;
   });
   ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: colunas.length } };
   return ws;
