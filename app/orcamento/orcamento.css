@@ -1,0 +1,125 @@
+/* Revisão do orçamento (/orcamento). Reaproveita tokens e componentes de globals.css. */
+
+/* Visões */
+.orc-visoes{max-width:900px;margin:0 auto;padding:28px 16px 60px}
+.orc-visoes h1{font-size:28px;color:var(--sicoob);font-weight:800;line-height:1.15;margin-bottom:6px}
+.orc-visoes .mapa-sub{margin-bottom:22px}
+.orc-visoes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.orc-visao{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px 20px;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+.orc-visao:hover{transform:translateY(-2px);border-color:var(--turq)}
+.orc-visao b{font-size:20px;color:var(--sicoob)}
+.orc-visao>span{color:var(--muted);font-size:14.5px}
+.orc-visao i{margin-top:8px;font-style:normal;font-weight:800;color:var(--verde);font-size:14px}
+.orc-visao i::after{content:" →"}
+.orc-visao .orc-visao-breve{color:var(--amber)}
+.orc-visao .orc-visao-breve::after{content:""}
+.orc-visao-icone{width:44px;height:44px;border-radius:12px;background:var(--ok-light);display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.orc-visao-icone svg{width:24px;height:24px;fill:none;stroke:var(--verde);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.orc-breve{margin:14px 0 18px}
+.orc-visoes>.btn{display:inline-block;text-decoration:none}
+
+/* Página do orçamento */
+.orc-main{max-width:1440px;margin:0 auto;padding:22px 16px 60px}
+.orc-titulo{font-size:28px;color:var(--teal);font-weight:800}
+.orc-nav{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 6px}
+.orc-nav a{text-decoration:none;font-size:13.5px;font-weight:700;color:var(--sicoob);background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.orc-nav a span{font-weight:600;color:var(--muted);margin-left:4px}
+.orc-nav a.orc-nav-ok{border-color:#bfe2cf;background:var(--ok-light)}
+.orc-nav a.orc-nav-ok span{color:var(--ok)}
+.orc-aviso-fixo{position:sticky;top:66px;z-index:30}
+
+.orc-bloco{margin-top:22px;scroll-margin-top:70px}
+.orc-bloco-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.orc-bloco-head h2{font-size:20px;color:var(--sicoob)}
+.orc-bloco-head p{margin:2px 0 0;font-size:13.5px;color:var(--muted)}
+.orc-bloco-head p span{font-weight:700;color:var(--teal);margin-left:6px}
+.orc-bloco-acoes{display:flex;gap:14px;flex-wrap:wrap}
+.orc-link{border:0;background:none;padding:0;color:var(--teal);font-size:13.5px;font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.orc-link:disabled{opacity:.5;cursor:not-allowed}
+.orc-link-perigo{color:var(--red)}
+
+.orc-tabela-wrap{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.orc-tabela{border-collapse:separate;border-spacing:0;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+.orc-tabela th,.orc-tabela td{padding:7px 9px;border-bottom:1px solid var(--line);white-space:nowrap;text-align:right;background:#fff}
+.orc-tabela thead th{position:sticky;top:0;font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);font-weight:700;border-bottom:2px solid var(--line);z-index:2}
+.orc-tabela .orc-col-desc{position:sticky;left:0;z-index:1;text-align:left;min-width:250px;max-width:320px;white-space:normal;box-shadow:1px 0 0 var(--line)}
+.orc-tabela thead .orc-col-desc{z-index:3}
+.orc-tabela .orc-col-acoes{position:sticky;right:0;z-index:1;text-align:center;box-shadow:-1px 0 0 var(--line)}
+.orc-tabela thead .orc-col-acoes{z-index:3}
+.orc-tabela .orc-col-ref{color:var(--muted);border-right:1px solid var(--line)}
+.orc-tabela .orc-col-anual{font-weight:700;color:var(--sicoob)}
+.orc-tabela .orc-var{color:var(--muted);font-size:12.5px;border-right:1px solid var(--line)}
+.orc-tabela tbody th{font-weight:600}
+
+.orc-tabela .orc-total-grupo>*{background:#f3f8f7}
+.orc-total-grupo th,.orc-total-grupo td{font-weight:700;color:var(--sicoob)}
+.orc-tabela .orc-total-bloco>*{background:#e3efed;border-top:2px solid #c6dcd8}
+.orc-total-bloco th,.orc-total-bloco td{font-weight:800;color:var(--sicoob)}
+.orc-recuo .orc-desc{padding-left:26px}
+.orc-subtitulo th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--teal);background:#f7fbfa;position:sticky;left:0}
+
+/* Estado da linha: faixa na lateral da descrição */
+.orc-com .orc-col-desc{box-shadow:inset 4px 0 0 var(--amber),1px 0 0 var(--line)}
+.orc-sem .orc-col-desc{box-shadow:inset 4px 0 0 var(--ok),1px 0 0 var(--line)}
+.orc-tabela td.orc-marcado{background:var(--amber-light);color:#8a5a12;font-weight:700}
+
+.orc-desc{display:flex;align-items:center;min-height:30px}
+.orc-expandir{display:flex;align-items:center;gap:6px;border:0;background:none;padding:0;text-align:left;font-weight:700;color:var(--sicoob)}
+.orc-expandir svg{width:18px;height:18px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.orc-expandir[aria-expanded="true"] svg{transform:rotate(90deg)}
+.orc-expandir small{font-weight:600;color:var(--muted);font-size:12px;white-space:nowrap}
+.orc-expandir:hover span{text-decoration:underline}
+
+.orc-acoes{display:flex;gap:6px;justify-content:center}
+.orc-btn{border:1.5px solid var(--line);background:#fff;border-radius:8px;padding:5px 9px;font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap;transition:.12s}
+.orc-btn:hover{border-color:#b6cfcb}
+.orc-btn-contrib{color:#8a5a12;border-color:#f0dcae}
+.orc-btn-contrib.ativo{background:var(--amber);border-color:var(--amber);color:#fff}
+.orc-btn-sem{color:var(--ok);border-color:#bfe2cf}
+.orc-btn-sem.ativo{background:var(--ok);border-color:var(--ok);color:#fff}
+.orc-acoes-mobile{display:none}
+.orc-rodape{font-size:12.5px;color:var(--muted);margin:14px 2px 0}
+
+@media (max-width:760px){
+  .orc-tabela .orc-col-acoes{display:none}
+  .orc-acoes-mobile{display:block;margin:4px 0 2px}
+  .orc-acoes-mobile .orc-acoes{justify-content:flex-start}
+  .orc-tabela .orc-col-desc{min-width:200px;max-width:220px}
+  .orc-titulo,.orc-visoes h1{font-size:23px}
+}
+
+/* Modal de contribuição */
+.orc-modal-fundo{position:fixed;inset:0;z-index:100;background:rgba(0,30,35,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.orc-modal{background:#fff;border-radius:18px;width:100%;max-width:680px;max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 20px 60px rgba(0,20,25,.3)}
+.orc-modal-head{position:sticky;top:0;z-index:1;background:#fff;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:18px 20px 12px;border-bottom:1px solid var(--line)}
+.orc-modal-head h2{font-size:20px;color:var(--sicoob)}
+.orc-fechar{border:0;background:#eef2f2;border-radius:50%;width:34px;height:34px;font-size:22px;line-height:1;color:var(--muted);flex:0 0 auto}
+.orc-modal-corpo{padding:14px 20px 20px}
+.orc-meses{list-style:none;margin:0 0 16px;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.orc-meses li{border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-variant-numeric:tabular-nums}
+.orc-meses li span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700}
+.orc-meses li b{font-size:12.5px;color:var(--ink)}
+.orc-meses li.ativo{border-color:var(--amber);background:var(--amber-light)}
+.orc-meses .orc-meses-anual{grid-column:1/-1;background:#f3f8f7}
+.orc-meses .orc-meses-anual b{color:var(--sicoob);font-size:14px}
+@media (max-width:520px){.orc-meses{grid-template-columns:repeat(2,1fr)}}
+
+.orc-lista{margin-bottom:16px}
+.orc-lista h3,.orc-form h3{font-size:15px;color:var(--sicoob);margin-bottom:8px}
+.orc-lista ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.orc-lista li{display:flex;justify-content:space-between;gap:12px;border:1px solid #f0dcae;background:#fffaf0;border-radius:10px;padding:10px 12px}
+.orc-lista li.editando{outline:2px solid var(--amber)}
+.orc-lista .chip{margin:0}
+.orc-lista p{margin:6px 0 0;font-size:14px;white-space:pre-wrap}
+.orc-sugerido{font-size:13px;font-weight:700;margin-left:8px;color:var(--sicoob)}
+.orc-lista-acoes{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+
+.orc-form{border-top:1px solid var(--line);padding-top:14px}
+.orc-form fieldset{border:0;padding:0;margin:0 0 14px}
+.orc-escopo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.orc-escopo label{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;font-weight:700;font-size:14px;cursor:pointer}
+.orc-escopo label.ativo{border-color:var(--turq);background:#eef9f7}
+.campo .orc-escopo input{width:auto;accent-color:var(--verde)}
+@media (max-width:520px){.orc-escopo{grid-template-columns:1fr}}
+.orc-atual{display:block;margin-top:4px;color:var(--muted);font-size:12.5px}
+.orc-form-acoes{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:4px}

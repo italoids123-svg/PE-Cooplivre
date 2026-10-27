@@ -27,6 +27,27 @@ Webapp do evento de revisão do Mapa Estratégico 2027–2030 (Next.js, App Rout
    Responsáveis de 1–2 pilares não veem o acompanhamento (a API recusa).
 5. **`/admin`** — painel com contagens por objetivo e sugestões escritas, e botão **Baixar base (Excel)**. Protegido por `ADMIN_KEY`.
 
+## Revisão do orçamento 2027 (`/orcamento`)
+
+Ambiente separado, no mesmo deploy, para cada PA conferir e contribuir com o Planejamento Orçamentário.
+
+1. **`/orcamento`** — identificação por nome + sobrenome, cargo e **cidade** (agências da base de funcionários
+   09/2026, mais "Sede (áreas centrais)"). Ainda **sem lista de acesso**: entra qualquer nome; o id é o nome
+   normalizado, então a mesma pessoa retoma de qualquer aparelho.
+2. **`/orcamento/visoes`** — escolha entre **Orçamento global** e **Orçamento minha agência**.
+3. **`/orcamento/global`** — os blocos da aba *Planejamento Orçamentário 3191* (Origem de Recurso, Taxas de
+   Captações, Aplicação de Recurso, Taxas de Aplicação, DRE). Totais dos grupos recolhidos, com botão de expandir o
+   detalhamento. Colunas: referência 2026, valor anual 2027 (saldo de dez, total do ano ou média da taxa), variação e
+   os 12 meses de 2027, em R$ mil (valor completo na dica e no formulário). Cada linha tem **Contribuir** (mês ou valor
+   global, valor sugerido opcional e motivo obrigatório; várias por linha) e **Sem contribuição**. Tudo grava na hora.
+4. **`/orcamento/agencia`** — reservado: os valores por agência ainda não existem na base.
+5. **`/orcamento/admin`** — contribuições por linha, participantes e **Baixar base (Excel)** (abas Contribuições,
+   Revisão por linha, Participantes, Orçamento 2027). Mesma `ADMIN_KEY`.
+
+Dados no mesmo Redis, com prefixo `orc:*` (local: `.data/orcamento.json`). Para atualizar os valores, rode
+`python3 scripts/gerar-orcamento.py "<planilha .xlsx>" > lib/orcamento/dados.ts` (requer `openpyxl`). Os ids das
+linhas vêm dos nomes: renomear uma linha na planilha desvincula as contribuições já feitas nela.
+
 ## Base exportada (.xlsx)
 
 | Aba | Conteúdo |

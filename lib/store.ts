@@ -20,6 +20,7 @@ const HASH_RASCUNHOS = "pe:rascunhos";
 
 const REDIS_URL = process.env.KV_REST_API_URL ?? process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.KV_REST_API_TOKEN ?? process.env.UPSTASH_REDIS_REST_TOKEN;
+export const REDIS_CONFIGURADO = !!(REDIS_URL && REDIS_TOKEN);
 
 export class StoreNotConfiguredError extends Error {}
 // Alteração recusada porque a pessoa já enviou a revisão final.
@@ -127,7 +128,7 @@ function mesclar(p: Participante, anteriores: (Resposta | null)[], novas: Respos
 // (tudo) descarta duplicatas, então repetir é seguro e evita perder histórico.
 const COM_RETENTATIVA = new Set(["HSET", "HDEL", "HGET", "HMGET", "HSCAN", "HGETALL", "LRANGE", "RPUSH"]);
 
-async function redis<T>(cmd: string[]): Promise<T> {
+export async function redis<T>(cmd: string[]): Promise<T> {
   const tentativas = COM_RETENTATIVA.has(cmd[0]) ? 3 : 1;
   let res: Response | undefined;
   for (let i = 1; ; i++) {
