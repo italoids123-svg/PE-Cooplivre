@@ -127,7 +127,7 @@ export const PILARES: Pilar[] = [
         responsavel: "Silvanira",
         kpis: [
           { indicador: "% de colaboradores com formação em cooperativismo concluída (trilha básica + atualização bienal)", meta: "100% dos colaboradores até 2027; novos admitidos em até 90 dias" },
-          { indicador: "% de colaboradores com IAP acima de 8 produtos", meta: "55,05% (2026, colaboradores com 9 ou mais produtos) → 70% em 2027 → 80% em 2028, mantido até 2030 (avaliar linha de base)" },
+          { indicador: "% de colaboradores com IAP acima de 8 produtos", meta: "55,05% (2026, colaboradores com 9 ou mais produtos) → 70% em 2027 → 80% em 2028, mantido até 2030" },
         ],
         iniciativas: [
           "Trilha de cooperativismo para colaboradores (onboarding + atualização)",
@@ -176,8 +176,8 @@ export const PILARES: Pilar[] = [
         titulo: "Ampliar a principalidade por geração de valor no diferencial socioeconômico",
         responsavel: "Nelson/Rafael",
         kpis: [
-          { indicador: "NPS do cooperado", meta: "≥68 em 2027 → ≥75 em 2030 (valores a confirmar)", emAnalise: true },
-          { indicador: "Benefício econômico entregue ao cooperado (taxas + sobras + juros ao capital), em R$/cooperado/ano vs. Mercado", meta: "(linha de base 2026: medir) → crescer acima da inflação a cada ano" },
+          { indicador: "NPS do cooperado", meta: "68 (2026) → ≥70 em 2027 → ≥74 em 2028 → ≥77 em 2029 → ≥80 em 2030" },
+          { indicador: "Benefício econômico entregue ao cooperado (taxas + sobras + juros ao capital), em R$/cooperado/ano vs. IPCA", meta: "(linha de base 2026: medir) → crescer acima da inflação a cada ano" },
           { indicador: "% da base elegível no Q2", meta: "≥22% em 2027 → ≥25% em 2028 → ≥27% em 2029 → 30% até 2030" },
           { indicador: "IAP do cooperado (referência: IAP ≥6)", meta: "≥4 em 2027 → ≥5 em 2028 → ≥6 em 2029 → ≥6 em 2030" },
           { indicador: "Quantidade de visitas ao cooperado", meta: "≥2 visitas diárias" },
@@ -501,13 +501,13 @@ export const PILARES: Pilar[] = [
         titulo: "Decidir com base em dados: indicadores e rituais de gestão em todas as áreas",
         responsavel: "Cleber",
         kpis: [
-          { indicador: "% das metas deste plano com indicador medido e publicado mensalmente (painel único)", meta: "100% até set–dez/2027 (mapeamentos até mar/2027, construções até jun/2027, entregáveis até set–dez/2027)" },
+          { indicador: "% das metas deste plano com indicador medido e publicado mensalmente (painel único)", meta: "100% até dez/2027 (mapeamentos até jun/2027; construções e entregáveis até dez/2027)" },
           { indicador: "Aderência aos rituais de gestão: realizados ÷ planejados, por área", meta: "≥90% de aderência, com ritual mensal em 100% das áreas a partir de 2027" },
         ],
         iniciativas: [
           "Painel único da estratégia (um indicador = uma fonte = um dono)",
           "Levantamento das linhas de base 2026",
-          "Cronograma em três etapas: todos os mapeamentos até mar/2027, construções até jun/2027 e entregáveis até set–dez/2027",
+          "Cronograma em duas etapas: todos os mapeamentos até jun/2027; construções e entregáveis até dez/2027",
           "Planos trimestrais de acompanhamento da implantação",
           "Rituais em cascata (Direx mensal → GE quinzenal → líder-time mensal) com registro de decisões",
           "Capacitação de líderes em leitura de indicadores",
