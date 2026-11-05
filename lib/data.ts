@@ -177,7 +177,7 @@ export const PILARES: Pilar[] = [
         responsavel: "Nelson/Rafael",
         kpis: [
           { indicador: "NPS do cooperado", meta: "68 (2026) → ≥70 em 2027 → ≥74 em 2028 → ≥77 em 2029 → ≥80 em 2030" },
-          { indicador: "Benefício econômico entregue ao cooperado (taxas + sobras + juros ao capital), em R$/cooperado/ano vs. IPCA", meta: "(linha de base 2026: medir) → crescer acima da inflação a cada ano" },
+          { indicador: "Benefício econômico entregue ao cooperado (taxas + sobras + juros ao capital), em R$/cooperado/ano vs. IPCA", meta: "Resultado de 2026 (apurado no fechamento do ano) + IPCA, a cada ano até 2030" },
           { indicador: "% da base elegível no Q2", meta: "≥22% em 2027 → ≥25% em 2028 → ≥27% em 2029 → 30% até 2030" },
           { indicador: "IAP do cooperado (referência: IAP ≥6)", meta: "≥4 em 2027 → ≥5 em 2028 → ≥6 em 2029 → ≥6 em 2030" },
           { indicador: "Quantidade de visitas ao cooperado", meta: "≥2 visitas diárias" },
