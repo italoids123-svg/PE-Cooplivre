@@ -22,7 +22,7 @@ const igual = mesmosCampos;
 export function PilarPage({ slug }: { slug: string }) {
   const router = useRouter();
   const p = useParticipante();
-  const { respostas, enviadoEm, setServidor, pilares, erro, registrar } = useMinhaRevisao(p?.id);
+  const { respostas, enviadoEm, setServidor, pilares, leitura, erro, registrar } = useMinhaRevisao(p?.id);
   // Quem tem acesso a todos os pilares vê só o conteúdo atual e revisa por objetivo;
   // os demais têm o preenchimento sincronizado para o painel de acompanhamento do mapa.
   const veTodos = pilares.length === PILARES.length;
@@ -61,7 +61,8 @@ export function PilarPage({ slug }: { slug: string }) {
       </section>
 
       <main className="pilar-main">
-        {enviadoEm ? (
+        {/* Acesso só de visualização (Conselho): sem instruções nem avisos de revisão. */}
+        {leitura ? null : enviadoEm ? (
           <div className="aviso aviso-ok">
             Sua revisão foi enviada em {new Date(enviadoEm).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}.
             As respostas abaixo estão disponíveis só para consulta.
@@ -106,7 +107,7 @@ export function PilarPage({ slug }: { slug: string }) {
             pilar={pilar}
             participante={p}
             respostas={respostas}
-            bloqueado={!!enviadoEm}
+            bloqueado={!!enviadoEm || leitura}
             livre={veTodos}
             sincronizar={!veTodos && !enviadoEm}
             onSalvo={(lista) => {

@@ -16,6 +16,8 @@ export interface Responsavel {
   sobrenomesChave?: string[];
   // Acesso à "Visão evento" (landing page do plano para apresentação).
   visaoEvento?: boolean;
+  // Só visualiza: não salva, não envia, não reabre.
+  somenteLeitura?: boolean;
 }
 
 export const RESPONSAVEIS: Responsavel[] = [
@@ -79,8 +81,23 @@ export function reconhecer(nomeDigitado: string): Reconhecimento {
   return { ok: true, pessoa: melhores[0].pessoa };
 }
 
+// Acesso do Conselho de Administração: entra pelo link /conselho?chave=… (variável
+// CONSELHO_KEY), sem nome, e só visualiza. Fica fora de RESPONSAVEIS para não ser
+// reconhecido pela identificação por nome nem aparecer no painel/Excel.
+export const CONSELHO: Responsavel = {
+  id: "conselho-de-administracao",
+  nome: "Conselho de Administração",
+  pilares: TODOS,
+  visaoEvento: true,
+  somenteLeitura: true,
+};
+
 export function responsavelPorId(id: string): Responsavel | undefined {
-  return RESPONSAVEIS.find((r) => r.id === id);
+  return id === CONSELHO.id ? CONSELHO : RESPONSAVEIS.find((r) => r.id === id);
+}
+
+export function somenteLeitura(id: string): boolean {
+  return !!responsavelPorId(id)?.somenteLeitura;
 }
 
 // Pilares que a pessoa revisa (vazio para quem não está na lista).

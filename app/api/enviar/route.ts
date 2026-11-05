@@ -1,4 +1,4 @@
-import { pilaresDe, veTodos } from "@/lib/acesso";
+import { pilaresDe, somenteLeitura, veTodos } from "@/lib/acesso";
 import { AcessoNegadoError, respostaDeErro } from "@/lib/api-erros";
 import { objetivosObrigatorios } from "@/lib/data";
 import { getStore } from "@/lib/store";
@@ -13,6 +13,7 @@ export async function POST(request: Request) {
     const id = participanteId(body?.participanteId);
     const pilares = pilaresDe(id);
     if (!pilares.length) throw new AcessoNegadoError("Seu acesso não foi reconhecido.");
+    if (somenteLeitura(id)) throw new AcessoNegadoError("Acesso somente para visualização.");
     const participante = await getStore().enviar(id, veTodos(id) ? [] : objetivosObrigatorios(pilares));
     return Response.json({ participante });
   } catch (e) {

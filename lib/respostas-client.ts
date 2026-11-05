@@ -31,18 +31,20 @@ export function useMinhaRevisao(pid: string | undefined) {
   // Pilares sob responsabilidade da pessoa (definidos no servidor, lib/acesso.ts).
   const [pilares, setPilares] = useState<string[]>([]);
   const [evento, setEvento] = useState(false);
+  const [leitura, setLeitura] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
     if (!pid) return;
     let vivo = true;
-    chamar<{ participante: Participante | null; respostas: Resposta[]; pilares: string[]; evento?: boolean }>(`/api/respostas?pid=${encodeURIComponent(pid)}`)
+    chamar<{ participante: Participante | null; respostas: Resposta[]; pilares: string[]; evento?: boolean; leitura?: boolean }>(`/api/respostas?pid=${encodeURIComponent(pid)}`)
       .then((body) => {
         if (!vivo) return;
         setRespostas(Object.fromEntries(body.respostas.map((r) => [r.objetivoId, r])));
         setServidor(body.participante);
         setPilares(body.pilares ?? []);
         setEvento(!!body.evento);
+        setLeitura(!!body.leitura);
         setErro(null);
       })
       .catch((e: Error) => {
@@ -59,7 +61,7 @@ export function useMinhaRevisao(pid: string | undefined) {
     setRespostas((atual) => ({ ...(atual ?? {}), ...Object.fromEntries(lista.map((r) => [r.objetivoId, r])) }));
   }, []);
 
-  return { respostas, servidor, setServidor, pilares, evento, enviadoEm: servidor?.enviadoEm ?? null, erro, registrar };
+  return { respostas, servidor, setServidor, pilares, evento, leitura, enviadoEm: servidor?.enviadoEm ?? null, erro, registrar };
 }
 
 export async function salvarPilar(

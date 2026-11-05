@@ -310,3 +310,4 @@ a{color:var(--teal)}
 .rev-fechar{border:0;background:none;color:var(--teal);font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:0;text-decoration:underline}
 .btn-evento{display:inline-block;margin-left:14px;vertical-align:middle;font-size:14px;padding:8px 16px;background:#bed62f;color:#0d3e46;border:0;border-radius:999px;font-weight:800;text-decoration:none}
 .btn-evento:hover{background:#cfe24f}
+.conselho-entrada{min-height:100vh;display:grid;place-content:center;justify-items:center;gap:18px;text-align:center;color:var(--ink)}

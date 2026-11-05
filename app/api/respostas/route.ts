@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { pilaresDe, responsavelPorId, veEvento, veTodos } from "@/lib/acesso";
+import { pilaresDe, responsavelPorId, somenteLeitura, veEvento, veTodos } from "@/lib/acesso";
 import { AcessoNegadoError, respostaDeErro } from "@/lib/api-erros";
 import { getStore } from "@/lib/store";
 import { participanteId, validarParticipante, validarResposta, ValidationError } from "@/lib/validate";
@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const pid = participanteId(request.nextUrl.searchParams.get("pid"));
     const store = getStore();
     const [participante, respostas] = await Promise.all([store.participante(pid), store.respostasDe(pid)]);
-    return Response.json({ participante, respostas, pilares: pilaresDe(pid), evento: veEvento(pid) });
+    return Response.json({ participante, respostas, pilares: pilaresDe(pid), evento: veEvento(pid), leitura: somenteLeitura(pid) });
   } catch (e) {
     return respostaDeErro(e, "Falha ao carregar suas respostas");
   }
@@ -24,6 +24,7 @@ export async function POST(request: Request) {
     const enviado = validarParticipante(body?.participante);
     const pessoa = responsavelPorId(enviado.id);
     if (!pessoa) throw new AcessoNegadoError("Seu acesso não foi reconhecido. Saia e entre novamente com seu nome.");
+    if (pessoa.somenteLeitura) throw new AcessoNegadoError("Acesso somente para visualização.");
     // Nome sempre o da lista: o cliente não consegue gravar com outro nome.
     const participante = { ...enviado, nome: pessoa.nome };
     const lista = Array.isArray(body?.respostas) ? body.respostas : [];

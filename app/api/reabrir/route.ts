@@ -1,4 +1,5 @@
-import { respostaDeErro } from "@/lib/api-erros";
+import { somenteLeitura } from "@/lib/acesso";
+import { AcessoNegadoError, respostaDeErro } from "@/lib/api-erros";
 import { getStore } from "@/lib/store";
 import { participanteId } from "@/lib/validate";
 
@@ -6,7 +7,9 @@ import { participanteId } from "@/lib/validate";
 export async function POST(request: Request) {
   try {
     const body = (await request.json().catch(() => null)) as { participanteId?: unknown } | null;
-    return Response.json({ participante: await getStore().reabrir(participanteId(body?.participanteId)) });
+    const id = participanteId(body?.participanteId);
+    if (somenteLeitura(id)) throw new AcessoNegadoError("Acesso somente para visualização.");
+    return Response.json({ participante: await getStore().reabrir(id) });
   } catch (e) {
     return respostaDeErro(e, "Não foi possível reabrir agora. Tente novamente.");
   }

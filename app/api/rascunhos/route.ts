@@ -11,6 +11,7 @@ export async function POST(request: Request) {
     const pid = participanteId(body?.participanteId);
     const pessoa = responsavelPorId(pid);
     if (!pessoa) throw new AcessoNegadoError("Seu acesso não foi reconhecido.");
+    if (pessoa.somenteLeitura) throw new AcessoNegadoError("Acesso somente para visualização.");
     const lista = Array.isArray(body?.itens) ? body.itens : [];
     if (lista.length > 10) throw new ValidationError("Itens demais em uma sincronização");
     const itens = lista.map(validarRascunho);
