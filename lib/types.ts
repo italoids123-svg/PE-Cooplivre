@@ -1,3 +1,7 @@
+// Identidade do acesso de visualização do Conselho (link /conselho), usada no servidor
+// (lib/acesso.ts) e na interface.
+export const CONSELHO_ID = "conselho-de-administracao";
+
 export interface Participante {
   id: string;
   nome: string;

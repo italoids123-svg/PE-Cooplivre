@@ -52,10 +52,10 @@ export function PilarPage({ slug }: { slug: string }) {
             {!respostas
               ? "Carregando suas respostas…"
               : veTodos
-                ? `${objetivos.length} objetivos`
+                ? `${objetivos.length} ${objetivos.length === 1 ? "objetivo" : "objetivos"}`
               : salvos === objetivos.length
                 ? "✓ Pilar salvo"
-                : `${objetivos.length} objetivos para revisar`}
+                : `${objetivos.length} ${objetivos.length === 1 ? "objetivo para revisar" : "objetivos para revisar"}`}
           </p>
         </div>
       </section>
@@ -214,7 +214,10 @@ function FormularioPilar({ pilar, participante, respostas, bloqueado, livre, sin
           livre={livre}
         />
       ))}
-      <SugestaoGeralCard pilar={pilar} form={forms[gid]} mudar={mudarDe(gid)} bloqueado={bloqueado} />
+      {/* Travado e sem nada escrito (ex.: acesso só de visualização): o campo vazio não aparece. */}
+      {(!bloqueado || forms[gid].comentario.trim()) && (
+        <SugestaoGeralCard pilar={pilar} form={forms[gid]} mudar={mudarDe(gid)} bloqueado={bloqueado} />
+      )}
 
       {bloqueado ? (
         <div className="salvar-barra">

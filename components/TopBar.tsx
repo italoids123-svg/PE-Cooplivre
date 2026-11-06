@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { sair, useParticipante } from "@/lib/participante";
+import { CONSELHO_ID } from "@/lib/types";
 import { BotaoTelaCheia } from "./BotaoTelaCheia";
 import { Brand } from "./Brand";
 
@@ -24,15 +25,18 @@ export function TopBar({ voltar }: { voltar?: boolean }) {
           <span className="top-user-nome">{p.nome}</span>
           <span className="top-user-meta">{p.cargo}</span>
           <BotaoTelaCheia />
-          <button
-            type="button"
-            className="top-sair"
-            onClick={() => {
-              router.push("/?editar=1");
-            }}
-          >
-            Editar
-          </button>
+          {/* O acesso do Conselho não tem nome nem cargo para editar. */}
+          {p.id !== CONSELHO_ID && (
+            <button
+              type="button"
+              className="top-sair"
+              onClick={() => {
+                router.push("/?editar=1");
+              }}
+            >
+              Editar
+            </button>
+          )}
           <button
             type="button"
             className="top-sair"

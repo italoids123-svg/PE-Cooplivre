@@ -1,4 +1,5 @@
 import { PILARES } from "./data";
+import { CONSELHO_ID } from "./types";
 import { normalizar } from "./normalizar";
 
 // Quem pode acessar o app e quais pilares cada pessoa revisa.
@@ -85,7 +86,7 @@ export function reconhecer(nomeDigitado: string): Reconhecimento {
 // CONSELHO_KEY), sem nome, e só visualiza. Fica fora de RESPONSAVEIS para não ser
 // reconhecido pela identificação por nome nem aparecer no painel/Excel.
 export const CONSELHO: Responsavel = {
-  id: "conselho-de-administracao",
+  id: CONSELHO_ID,
   nome: "Conselho de Administração",
   pilares: TODOS,
   visaoEvento: true,
