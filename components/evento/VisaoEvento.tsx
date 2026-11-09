@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { getPilar, objetivosVisiveis } from "@/lib/data";
 import { useParticipante } from "@/lib/participante";
 import { useMinhaRevisao } from "@/lib/respostas-client";
+import { CONSELHO_ID } from "@/lib/types";
 import { BotaoTelaCheia } from "../BotaoTelaCheia";
 import { AGENDA, COR, DIRECIONADOR, GOVERNANCA, PAINEL_2030, PILARES_EVENTO, PRINCIPIO, type Icone } from "./conteudo";
 import { Check, Ico } from "./Icones";
+import { CaixaRituais, PainelRituais } from "./Rituais";
 import s from "./evento.module.css";
 
 // Navegação por hash (#estrategia, #pilar-2…): o botão voltar do navegador funciona
@@ -72,7 +74,7 @@ export function VisaoEvento({ fonte }: { fonte: string }) {
   if (pilarN) conteudo = <TelaPilar indice={Number(pilarN) - 1} />;
   else if (tela === "estrategia") conteudo = <TelaEstrategia />;
   else if (tela === "caminho") conteudo = <TelaCaminho />;
-  else if (tela === "governanca") conteudo = <TelaGovernanca />;
+  else if (tela === "governanca") conteudo = <TelaGovernanca comRituais={p.id !== CONSELHO_ID} />;
   else if (tela === "chegar") conteudo = <TelaChegar />;
   else conteudo = <TelaCapa />;
 
@@ -470,7 +472,9 @@ function TelaCaminho() {
 
 // ---------------- Governança (imagem 5)
 
-function TelaGovernanca() {
+// Os rituais detalham a operação interna: ficam fora da visão do Conselho.
+function TelaGovernanca({ comRituais }: { comRituais: boolean }) {
+  const [rituais, setRituais] = useState(false);
   return (
     <>
       <Cabecalho etiqueta="Governança da execução" titulo="Quem acompanha e como" />
@@ -485,6 +489,8 @@ function TelaGovernanca() {
             ))}
           </ol>
         </div>
+        {comRituais && <CaixaRituais abrir={() => setRituais(true)} />}
+        {comRituais && rituais && <PainelRituais fechar={() => setRituais(false)} />}
         <div className={s.principio}>
           <span className={s.principioIco}><Ico nome="alvo" /></span>
           <div>
