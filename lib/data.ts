@@ -182,6 +182,7 @@ export const PILARES: Pilar[] = [
           { indicador: "IAP do cooperado (referência: IAP ≥6)", meta: "≥4 em 2027 → ≥5 em 2028 → ≥6 em 2029 → ≥6 em 2030" },
           { indicador: "Quantidade de visitas ao cooperado", meta: "≥2 visitas diárias" },
           { indicador: "% de visitas ao cooperado com geração de resultado", meta: "≥50% de conversão em negócios" },
+          { indicador: "Pesquisa diagnóstica com cooperados", meta: "≥2 pesquisas por ano" },
         ],
         iniciativas: [
           "Realização de visitas",
